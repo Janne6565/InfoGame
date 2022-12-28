@@ -19,32 +19,29 @@ public class GamePanel extends JPanel {
         updateTimer.start();
     }
 
-
-    public boolean isVisable(Drawable draw) {
-        position centerOfCam = new position(Main.activeCamera.position.x, Main.activeCamera.position.y);
-        position positionToCheck = draw.position;
-
-        return false;
-    }
-
     @Override
     public void paintComponent(Graphics g) { // this is the stuff that's responsible for Drawing all the Drawables to the right position (not finished yet)
         super.paintComponent(g);
         Main.tick();
-        float pixelPerPixel = Main.screenWidth / Main.activeCamera.width; // Computes the relative size based on the Display size
 
+        position maxPosition = new position(Main.activeCamera.position.x + (float) (Main.screenWidthGame / 2), Main.activeCamera.position.y + (Main.screenHeight * ((float) Main.screenWidthGame / Main.screenWidth)));
+        position minPosition = new position(Main.activeCamera.position.x - (float) (Main.screenWidthGame) / 2, Main.activeCamera.position.y - (Main.screenHeight * ((float) Main.screenWidthGame / Main.screenWidth)));
+        //  System.out.println(maxPosition.x + " " + maxPosition.y);
+        //  System.out.println(minPosition.x + " " + minPosition.y);
 
         for (Drawable draw : Main.drawables) {
-            BufferedImage image = draw.graphic;
-            int posX = (int) ((int) draw.position.x - (Main.activeCamera.position.x)) * 2;
-            int posY = (int) ((int) draw.position.y - (Main.activeCamera.position.y)) * 2;
 
-            int pixelPerPixelForThisDraw = () (pixelPerPixel * (draw.width / image.getWidth()));
-            int positionOnScreenX = (posX * pixelPerPixelForThisDraw);
-            int positionOnScreenY = (posY * pixelPerPixelForThisDraw);
+            //  System.out.println(draw.position.addOn(draw.width, draw.height).x + " " + draw.position.addOn(draw.width, draw.height).x);
+            //  System.out.println(minPosition.x + " " + minPosition.y);
+            //  System.out.println(draw.position.addOn(draw.width, draw.height).greaterThan(minPosition));
 
-            Image imgScaled = image.getScaledInstance(image.getWidth() * pixelPerPixelForThisDraw, image.getHeight() * pixelPerPixelForThisDraw, Image.SCALE_FAST);
-            g.drawImage(imgScaled, positionOnScreenX, positionOnScreenY, null);
+            if (draw.position.addOn(draw.width, draw.height).greaterThan(minPosition) && draw.position.addOn(draw.width * -1, draw.height * -1).lessThan(maxPosition)) { // Check if element is inside our camera
+                System.out.println("Inside => we render that");
+                draw.draw(g);
+            } else {
+                System.out.println("Outside => we dont render that");
+            }
+
         }
     }
 

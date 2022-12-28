@@ -9,15 +9,15 @@ public class Main {
 
     static Camera activeCamera = new Camera(new position(0, 0), 500);
 
-    static int screenWidth;
-    static int screenHeight;
+    static int screenWidth; // In Pixels based on the screen size
+    static int screenHeight; // In Pixels based on the screen size
+    static int screenWidthGame = 500; // In coordinates (independent of the real size of the screen)
     static GamePanel screen;
     static Drawable mainCharacter;
     public static void main(String[] args) {
         setupCamera();
 
         mainCharacter = new Drawable(50, "image.png", new position(0, 0));
-        Drawable character = new Drawable(50, "image.png", new position(125, 0));
     }
 
     private static long lastTick;
@@ -27,7 +27,8 @@ public class Main {
 
 
         try {
-            // mainCharacter.position.x += 50 * (timeDelta) / 1000;
+            mainCharacter.position.x += 5 * (timeDelta) / 1000;
+            mainCharacter.position.y += 5 * (timeDelta) / 1000;
         } catch (Exception e) {
             System.out.println("Character not instantiated yet");
         }
