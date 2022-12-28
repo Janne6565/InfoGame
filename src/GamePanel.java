@@ -20,22 +20,23 @@ public class GamePanel extends JPanel {
     }
 
     @Override
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) { // this is the stuff that's responsible for Drawing all the Drawables to the right position (not finished yet)
         super.paintComponent(g);
         Main.tick();
-        Graphics2D g2d = (Graphics2D) g;
-        float pixelPerPixel = (float) (Main.activeCamera.width / Main.screenWidth); // Computes the relative size based on the Display size
+        float pixelPerPixel = Main.screenWidth / Main.activeCamera.width; // Computes the relative size based on the Display size
+
+
         for (Drawable draw : Main.drawables) {
             BufferedImage image = draw.graphic;
-            int posX = (int) ((int) draw.position.x - Main.activeCamera.position.x);
-            int posY = (int) ((int) draw.position.y - Main.activeCamera.position.y);
+            int posX = (int) ((int) draw.position.x - (Main.activeCamera.position.x)) * 2;
+            int posY = (int) ((int) draw.position.y - (Main.activeCamera.position.y)) * 2;
 
             int pixelPerPixelForThisDraw = (int) (pixelPerPixel * (draw.width / image.getWidth()));
+            int positionOnScreenX = (posX * pixelPerPixelForThisDraw);
+            int positionOnScreenY = (posY * pixelPerPixelForThisDraw);
 
-            int positionOnScreenX = (int) (posX * pixelPerPixel);
-            int positionOnScreenY = (int) (posY * pixelPerPixel);
-            g2d.scale(pixelPerPixel, pixelPerPixel);
-            g2d.drawImage(image, positionOnScreenX, positionOnScreenY, null);
+            Image imgScaled = image.getScaledInstance(image.getWidth() * pixelPerPixelForThisDraw, image.getHeight() * pixelPerPixelForThisDraw, Image.SCALE_FAST);
+            g.drawImage(imgScaled, positionOnScreenX, positionOnScreenY, null);
         }
     }
 
