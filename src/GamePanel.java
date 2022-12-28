@@ -19,6 +19,14 @@ public class GamePanel extends JPanel {
         updateTimer.start();
     }
 
+
+    public boolean isVisable(Drawable draw) {
+        position centerOfCam = new position(Main.activeCamera.position.x, Main.activeCamera.position.y);
+        position positionToCheck = draw.position;
+
+        return false;
+    }
+
     @Override
     public void paintComponent(Graphics g) { // this is the stuff that's responsible for Drawing all the Drawables to the right position (not finished yet)
         super.paintComponent(g);
@@ -31,7 +39,7 @@ public class GamePanel extends JPanel {
             int posX = (int) ((int) draw.position.x - (Main.activeCamera.position.x)) * 2;
             int posY = (int) ((int) draw.position.y - (Main.activeCamera.position.y)) * 2;
 
-            int pixelPerPixelForThisDraw = (int) (pixelPerPixel * (draw.width / image.getWidth()));
+            int pixelPerPixelForThisDraw = () (pixelPerPixel * (draw.width / image.getWidth()));
             int positionOnScreenX = (posX * pixelPerPixelForThisDraw);
             int positionOnScreenY = (posY * pixelPerPixelForThisDraw);
 
