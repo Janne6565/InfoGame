@@ -3,9 +3,9 @@ import java.util.ArrayList;
 
 public class Camera {
     public position position;
-    public float width;
+    public int width;
 
-    public Camera(position pPosition, float pWidth) {
+    public Camera(position pPosition, int pWidth) {
         position = pPosition;
         width = pWidth;
     }

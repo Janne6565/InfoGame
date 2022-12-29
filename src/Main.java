@@ -1,23 +1,29 @@
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.lang.*;
+import java.util.HashMap;
 
 public class Main {
     static ArrayList<PhysicsObject> physicsObjects = new ArrayList<PhysicsObject>();
     static ArrayList<Drawable> drawables = new ArrayList<Drawable>();
 
-
     static Camera activeCamera = new Camera(new position(0, 0), 500);
 
     static int screenWidth; // In Pixels based on the screen size
     static int screenHeight; // In Pixels based on the screen size
-    static int screenWidthGame = 500; // In coordinates (independent of the real size of the screen)
     static GamePanel screen;
-    static Drawable mainCharacter;
+    static PhysicsObject mainCharacter;
+
+    static HashMap<Integer, Boolean> keyPressed = new HashMap<Integer, Boolean>();
+
     public static void main(String[] args) {
         setupCamera();
+        mainCharacter = new PhysicsObject(50, "image.png", new position(0, 0)) {        };
+    }
 
-        mainCharacter = new Drawable(50, "image.png", new position(0, 0));
+    public static int getScreenWidthGame() {
+        return (int) activeCamera.width;
     }
 
     private static long lastTick;
@@ -25,10 +31,37 @@ public class Main {
         float timeDelta = (System.currentTimeMillis() - lastTick);
         lastTick = System.currentTimeMillis();
 
-
         try {
-            mainCharacter.position.x += 5 * (timeDelta) / 1000;
-            mainCharacter.position.y += 5 * (timeDelta) / 1000;
+            if (KeyHandler.keyPressed(KeyEvent.VK_W)) {
+                mainCharacter.velocity.y = -100;
+            }
+
+            if (KeyHandler.keyPressed(KeyEvent.VK_S)) {
+                mainCharacter.velocity.y = 100;
+            }
+
+            if ((KeyHandler.keyPressed(KeyEvent.VK_W) && KeyHandler.keyPressed(KeyEvent.VK_S)) || (!KeyHandler.keyPressed(KeyEvent.VK_W) && !KeyHandler.keyPressed(KeyEvent.VK_S))) {
+                mainCharacter.velocity.y = 0;
+            }
+
+            if (KeyHandler.keyPressed(KeyEvent.VK_A)) {
+                mainCharacter.velocity.x = -100;
+            }
+
+            if (KeyHandler.keyPressed(KeyEvent.VK_D)) {
+                mainCharacter.velocity.x = 100;
+            }
+
+            if ((KeyHandler.keyPressed(KeyEvent.VK_A) && KeyHandler.keyPressed(KeyEvent.VK_D)) || (!KeyHandler.keyPressed(KeyEvent.VK_A) && !KeyHandler.keyPressed(KeyEvent.VK_D))) {
+                mainCharacter.velocity.x = 0;
+            }
+
+            mainCharacter.Tick(timeDelta / 1000);
+
+
+            // activeCamera.position.x += 2 * (timeDelta) / 1000; // Test to move the Camera
+
+
         } catch (Exception e) {
             System.out.println("Character not instantiated yet");
         }
@@ -38,6 +71,7 @@ public class Main {
     public static void setupCamera() {
         screen = new GamePanel();
         JFrame frame = new JFrame("Image Renderer");
+        frame.addKeyListener(new KeyListener());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(screen);
         frame.pack();
@@ -48,5 +82,6 @@ public class Main {
         frame.setVisible(true);
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
+        System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
     }
 }

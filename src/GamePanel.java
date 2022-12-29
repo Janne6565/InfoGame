@@ -24,24 +24,19 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         Main.tick();
 
-        position maxPosition = new position(Main.activeCamera.position.x + (float) (Main.screenWidthGame / 2), Main.activeCamera.position.y + (Main.screenHeight * ((float) Main.screenWidthGame / Main.screenWidth)));
-        position minPosition = new position(Main.activeCamera.position.x - (float) (Main.screenWidthGame) / 2, Main.activeCamera.position.y - (Main.screenHeight * ((float) Main.screenWidthGame / Main.screenWidth)));
-        //  System.out.println(maxPosition.x + " " + maxPosition.y);
-        //  System.out.println(minPosition.x + " " + minPosition.y);
+        position maxPosition = new position(Main.activeCamera.position.x + (float) (Main.getScreenWidthGame()) / 2, Main.activeCamera.position.y + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+        position minPosition = new position(Main.activeCamera.position.x - (float) (Main.getScreenWidthGame()) / 2, Main.activeCamera.position.y - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
 
         for (Drawable draw : Main.drawables) {
+            position posLeftTop = draw.position.addOn(draw.width * -1, draw.height * -1);
+            position posRightDown = draw.position.addOn(draw.width, draw.height);
 
-            //  System.out.println(draw.position.addOn(draw.width, draw.height).x + " " + draw.position.addOn(draw.width, draw.height).x);
-            //  System.out.println(minPosition.x + " " + minPosition.y);
-            //  System.out.println(draw.position.addOn(draw.width, draw.height).greaterThan(minPosition));
-
-            if (draw.position.addOn(draw.width, draw.height).greaterThan(minPosition) && draw.position.addOn(draw.width * -1, draw.height * -1).lessThan(maxPosition)) { // Check if element is inside our camera
-                System.out.println("Inside => we render that");
+            if ((posRightDown.greaterThan(minPosition) && posLeftTop.lessThan(maxPosition)) || !draw.relative) { // Check if element is inside our camera
+                // Image in our Camera Frame -> render Graphic
                 draw.draw(g);
             } else {
-                System.out.println("Outside => we dont render that");
+                // Image not in our Camera Frame -> dont render Graphic
             }
-
         }
     }
 
@@ -49,9 +44,6 @@ public class GamePanel extends JPanel {
     @Override
     public void update(Graphics g) {
         // Perform custom updates to the panel here
-
-        // Call the superclass's update method to repaint the panel
-        System.out.println("Updated");
         super.update(g);
     }
 }
