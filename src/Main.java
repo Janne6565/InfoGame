@@ -32,16 +32,8 @@ public class Main {
         lastTick = System.currentTimeMillis();
 
         try {
-            if (KeyHandler.keyPressed(KeyEvent.VK_W)) {
-                mainCharacter.velocity.y = -100;
-            }
-
-            if (KeyHandler.keyPressed(KeyEvent.VK_S)) {
-                mainCharacter.velocity.y = 100;
-            }
-
-            if ((KeyHandler.keyPressed(KeyEvent.VK_W) && KeyHandler.keyPressed(KeyEvent.VK_S)) || (!KeyHandler.keyPressed(KeyEvent.VK_W) && !KeyHandler.keyPressed(KeyEvent.VK_S))) {
-                mainCharacter.velocity.y = 0;
+            if (KeyHandler.keyPressed(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
+                mainCharacter.velocity.y -= 100;
             }
 
             if (KeyHandler.keyPressed(KeyEvent.VK_A)) {
