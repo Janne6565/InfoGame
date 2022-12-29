@@ -17,6 +17,9 @@ abstract public class PhysicsObject extends Drawable {
 
     public void gravityStuff(float timeDelta) {
         if (onGround()) {
+            if (position.y > 100) {
+                position.y = 100;
+            }
             if (velocity.y > 0) {
                 velocity.y = 0;
             }
