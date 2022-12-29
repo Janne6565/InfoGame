@@ -1,4 +1,4 @@
-package lethalhabit;
+package lethalhabit.math;
 
 public record Vec2D(double x, double y) {
     

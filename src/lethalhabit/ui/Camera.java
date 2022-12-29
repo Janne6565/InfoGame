@@ -1,4 +1,6 @@
-package lethalhabit;
+package lethalhabit.ui;
+
+import lethalhabit.math.Position;
 
 import java.awt.*;
 import java.util.ArrayList;

@@ -1,9 +1,10 @@
-package lethalhabit;
+package lethalhabit.ui;
+
+import lethalhabit.Main;
+import lethalhabit.math.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public final class GamePanel extends JPanel {
     
@@ -29,10 +30,10 @@ public final class GamePanel extends JPanel {
             Position posRightDown = draw.position.plus(draw.width, draw.height);
             
             if ((posRightDown.greaterThan(minPosition) && posLeftTop.lessThan(maxPosition)) || !draw.relative) { // Check if element is inside our camera
-                // Image in our lethalhabit.Camera Frame -> render Graphic
+                // Image in our lethalhabit.ui.Camera Frame -> render Graphic
                 draw.draw(g);
             } else {
-                // Image not in our lethalhabit.Camera Frame -> dont render Graphic
+                // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
             }
         }
     }

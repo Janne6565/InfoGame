@@ -1,5 +1,10 @@
 package lethalhabit;
 
+import lethalhabit.math.Position;
+import lethalhabit.ui.Camera;
+import lethalhabit.ui.Drawable;
+import lethalhabit.ui.GamePanel;
+
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;

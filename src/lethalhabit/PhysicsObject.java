@@ -1,5 +1,8 @@
 package lethalhabit;
 
+import lethalhabit.math.*;
+import lethalhabit.ui.Drawable;
+
 public abstract class PhysicsObject extends Drawable implements Tickable {
     
     public Hitbox hitbox;

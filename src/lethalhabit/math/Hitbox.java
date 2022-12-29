@@ -1,4 +1,4 @@
-package lethalhabit;
+package lethalhabit.math;
 
 public final class Hitbox {
     

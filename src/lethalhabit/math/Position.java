@@ -1,4 +1,4 @@
-package lethalhabit;
+package lethalhabit.math;
 
 public record Position(double x, double y) {
     

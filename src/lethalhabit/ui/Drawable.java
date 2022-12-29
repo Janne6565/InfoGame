@@ -1,4 +1,7 @@
-package lethalhabit;
+package lethalhabit.ui;
+
+import lethalhabit.Main;
+import lethalhabit.math.Position;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
