@@ -1,5 +1,6 @@
 package lethalhabit;
 
+import lethalhabit.math.Collidable;
 import lethalhabit.math.Position;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
@@ -11,9 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Main {
-    
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
+    public static final List<Collidable> collidables = new ArrayList<>();
+
     
     public static final Camera camera = new Camera(new Position(0, 0), 500);
     
@@ -78,6 +80,11 @@ public final class Main {
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
         System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
+    }
+
+    public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject) {
+        /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
+        return collidables.toArray(new Collidable[0]);
     }
     
 }

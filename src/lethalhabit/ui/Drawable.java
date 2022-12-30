@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Drawable {
+public abstract class Drawable {
     
     public BufferedImage graphic;
     public double width;
