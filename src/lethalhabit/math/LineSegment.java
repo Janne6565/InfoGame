@@ -7,6 +7,10 @@ import java.util.function.Consumer;
 
 public record LineSegment(Point a, Point b) implements Iterable<Point> {
     
+    public double length() {
+        return b.minus(a).pos().length();
+    }
+    
     public double maxX() {
         return Math.max(a.x(), b.x());
     }

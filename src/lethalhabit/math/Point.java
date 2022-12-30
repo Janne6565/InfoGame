@@ -10,6 +10,10 @@ public record Point(double x, double y) implements TwoDimensional {
         return this.x < other.x && this.y < other.y;
     }
     
+    public Vec2D pos() {
+        return new Vec2D(x, y);
+    }
+    
     public Point plus(double x, double y) {
         return new Point(this.x + x, this.y + y);
     }
