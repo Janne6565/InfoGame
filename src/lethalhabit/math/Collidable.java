@@ -55,8 +55,8 @@ abstract public class Collidable {
     }
 
     public Hitbox getHitbox() {
-        Hitbox hitboxDiplaced = new Hitbox(hitbox.vertices());
-        return hitboxDiplaced.shiftAll(position);
+        Hitbox hitboxDisplaced = new Hitbox(hitbox.vertices());
+        return hitboxDisplaced.shiftAll(position);
     }
 
     public Point getMinPosition() {

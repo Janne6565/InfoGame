@@ -69,7 +69,7 @@ public final class Main {
     public static void tick() {
         float timeDelta = (System.currentTimeMillis() - lastTick);
         lastTick = System.currentTimeMillis();
-        
+        System.out.println(mainCharacter.position);
         try {
             if (KeyHandler.keyPressed(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
                 mainCharacter.jump();
