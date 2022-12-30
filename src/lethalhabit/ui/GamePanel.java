@@ -1,7 +1,7 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.math.*;
+import lethalhabit.math.Point;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,12 +22,12 @@ public final class GamePanel extends JPanel {
         super.paintComponent(g);
         Main.tick();
         
-        Position maxPosition = new Position(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-        Position minPosition = new Position(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+        Point maxPosition = new Point(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+        Point minPosition = new Point(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
         
         for (Drawable draw : Main.drawables) {
-            Position posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
-            Position posRightDown = draw.position.plus(draw.width, draw.height);
+            Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
+            Point posRightDown = draw.position.plus(draw.width, draw.height);
             
             if ((posRightDown.greaterThan(minPosition) && posLeftTop.lessThan(maxPosition)) || !draw.relative) { // Check if element is inside our camera
                 // Image in our lethalhabit.ui.Camera Frame -> render Graphic

@@ -1,7 +1,7 @@
 package lethalhabit;
 
 import lethalhabit.math.Collidable;
-import lethalhabit.math.Position;
+import lethalhabit.math.Point;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
@@ -17,7 +17,7 @@ public final class Main {
     public static final List<Collidable> collidables = new ArrayList<>();
 
     
-    public static final Camera camera = new Camera(new Position(0, 0), 500);
+    public static final Camera camera = new Camera(new Point(0, 0), 500);
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -25,7 +25,7 @@ public final class Main {
     
     public static void main(String[] args) {
         setupCamera();
-        mainCharacter = new PhysicsObject(50, "image.png", new Position(0, 0)) {
+        mainCharacter = new PhysicsObject(50, "image.png", new Point(0, 0)) {
             @Override
             public double getSpeed() {
                 return 100;
