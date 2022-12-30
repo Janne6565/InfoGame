@@ -29,5 +29,9 @@ public record Point(double x, double y) implements TwoDimensional {
     public Point minus(TwoDimensional other) {
         return new Point(this.x - other.x(), this.y - other.y());
     }
+
+    public Vec2D loc() {
+        return new Vec2D(x, y);
+    }
     
 }

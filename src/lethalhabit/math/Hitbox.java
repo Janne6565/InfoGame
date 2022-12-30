@@ -31,7 +31,17 @@ public record Hitbox(Point[] vertices) implements Iterable<Point> {
     public double minY() {
         return Arrays.stream(vertices).mapToDouble(Point::y).min().orElseThrow();
     }
-    
+
+    public Hitbox shiftAll(Point shiftFor) {
+        Point[] newVertices = vertices;
+        int count = 0;
+        for (Point point : newVertices) {
+            newVertices[count] = point.plus(shiftFor);
+            count += 1;
+        }
+        return new Hitbox(newVertices);
+    }
+
     @Override
     public void forEach(Consumer<? super Point> action) {
         Arrays.stream(vertices).forEach(action);
@@ -45,15 +55,5 @@ public record Hitbox(Point[] vertices) implements Iterable<Point> {
     @Override
     public Iterator<Point> iterator() {
         return Arrays.stream(vertices).iterator();
-    }
-
-    @Override
-    public Iterator iterator() {
-        return Arrays.stream(points).toList().iterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super Position> action) {
-        Arrays.stream(points).toList().forEach(action);
     }
 }

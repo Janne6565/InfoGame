@@ -2,6 +2,7 @@ package lethalhabit;
 
 import lethalhabit.math.Collidable;
 import lethalhabit.math.Point;
+import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
@@ -49,11 +50,11 @@ public final class Main {
             }
             
             if (KeyHandler.keyPressed(KeyEvent.VK_A)) {
-                mainCharacter.moveX(-mainCharacter.getSpeed());
+                mainCharacter.moveRight();
             } else if (KeyHandler.keyPressed(KeyEvent.VK_D)) {
-                mainCharacter.moveX(mainCharacter.getSpeed());
+                mainCharacter.moveLeft();
             } else {
-                mainCharacter.moveX(0);
+                mainCharacter.standStill();
             }
             
             mainCharacter.tick(timeDelta / 1000);
@@ -82,7 +83,7 @@ public final class Main {
         System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
     }
 
-    public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject) {
+    public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity) {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
         return collidables.toArray(new Collidable[0]);
     }

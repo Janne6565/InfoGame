@@ -5,7 +5,7 @@ public record Vec2D(double x, double y) implements TwoDimensional {
     public double length() {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
-    
+
     public Vec2D plus(double x, double y) {
         return new Vec2D(this.x + x, this.y + y);
     }

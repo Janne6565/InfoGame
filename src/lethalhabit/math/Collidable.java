@@ -5,7 +5,7 @@ import lethalhabit.ui.Drawable;
 
 abstract public class Collidable {
     public Hitbox hitbox;
-    public Position position;
+    public Point position;
     public Drawable drawable;
 
     public double minX;
@@ -14,7 +14,7 @@ abstract public class Collidable {
     public double maxY;
 
 
-    public Collidable(Hitbox hitbox, Position position, Drawable drawable) {
+    public Collidable(Hitbox hitbox, Point position, Drawable drawable) {
         Main.collidables.add(this);
 
         this.hitbox = hitbox;
@@ -24,29 +24,21 @@ abstract public class Collidable {
     }
 
     private double min(double a1, double a2) {
-        if (a1 > a2) {
-            return a2;
-        } else {
-            return a1;
-        }
+        return Math.min(a1, a2);
     }
 
     private double max(double a1, double a2) {
-        if (a1 < a2) {
-            return a2;
-        } else {
-            return a1;
-        }
+        return Math.max(a1, a2);
     }
 
 
     private void calulateLimits() {
-        minX = hitbox.points[0].x();
-        maxX = hitbox.points[0].x();
-        minY = hitbox.points[0].y();
-        maxY = hitbox.points[0].y();
+        minX = hitbox.vertices()[0].x();
+        maxX = hitbox.vertices()[0].x();
+        minY = hitbox.vertices()[0].y();
+        maxY = hitbox.vertices()[0].y();
 
-        for (Position point : hitbox) {
+        for (Point point : hitbox) {
             minX = min(minX, point.x());
             minY = min(minY, point.y());
             maxX = max(maxX, point.x());
@@ -54,11 +46,15 @@ abstract public class Collidable {
         }
     }
 
-    public Position getMinPosition() {
-        return new Position(minX, minY).plus(position);
+    public Hitbox getHitbox() {
+        return hitbox.shiftAll(position);
     }
 
-    public Position getMaxPosition() {
-        return new Position(maxX, maxY).plus(position);
+    public Point getMinPosition() {
+        return new Point(minX, minY).plus(position);
+    }
+
+    public Point getMaxPosition() {
+        return new Point(maxX, maxY).plus(position);
     }
 }
