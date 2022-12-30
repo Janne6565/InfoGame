@@ -9,7 +9,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     public boolean collidable = true;
     public Vec2D velocity = new Vec2D(0, 0);
     
-    public PhysicsObject(float width, String path, Position pos) {
+    public PhysicsObject(float width, String path, Point pos) {
         super(width, path, pos);
         Main.physicsObjects.add(this);
     }
@@ -20,7 +20,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     public void tick(float timeDelta) {
         if (onGround()) {
             if (position.y() > 100) {
-                position = new Position(position.x(), 100);
+                position = new Point(position.x(), 100);
             }
             if (velocity.y() > 0) {
                 velocity = new Vec2D(velocity.x(), 0);

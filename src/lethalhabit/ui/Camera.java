@@ -1,16 +1,16 @@
 package lethalhabit.ui;
 
-import lethalhabit.math.Position;
+import lethalhabit.math.Point;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public final class Camera {
     
-    public Position position;
+    public Point position;
     public int width;
     
-    public Camera(Position position, int width) {
+    public Camera(Point position, int width) {
         this.position = position;
         this.width = width;
     }

@@ -1,7 +1,7 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.math.Position;
+import lethalhabit.math.Point;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,10 +15,10 @@ public class Drawable {
     public double width;
     public double height;
     
-    public Position position;
+    public Point position;
     public boolean relative = true; // true if it's supposed to move with the camera false if it's supposed to be fixed on the screen (for UI elements in example)
     
-    public Drawable(float width, String path, Position position) {
+    public Drawable(float width, String path, Point position) {
         try {
             graphic = ImageIO.read(new File("assets/" + path));
         } catch (IOException e) {
