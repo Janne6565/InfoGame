@@ -1,6 +1,7 @@
 package lethalhabit;
 
 import lethalhabit.math.Collidable;
+import lethalhabit.math.Hitbox;
 import lethalhabit.math.Point;
 import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Camera;
@@ -8,8 +9,10 @@ import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Main {
@@ -26,12 +29,35 @@ public final class Main {
     
     public static void main(String[] args) {
         setupCamera();
-        mainCharacter = new PhysicsObject(50, "image.png", new Point(0, 0)) {
+        mainCharacter = new PhysicsObject(
+            50,
+            "image.png",
+            new Point(0, 0),
+            new Hitbox( new Point[]{
+                    new Point(-50, -50),
+                    new Point(-50, 50),
+                    new Point(50, 50),
+                    new Point(50, -50)
+            })
+        ) {
             @Override
             public double getSpeed() {
                 return 100;
             }
         };
+        new Collidable(
+            new Hitbox(
+                    new Point[] {
+                        new Point(-10, -10),
+                        new Point(-10, 10),
+                        new Point(10, 10),
+                        new Point(10, -10),
+                    }
+                ),
+                new Point(0, 100),
+            "ground.png",
+            100
+        ){};
     }
     
     public static int getScreenWidthGame() {
@@ -39,7 +65,7 @@ public final class Main {
     }
     
     private static long lastTick;
-    
+
     public static void tick() {
         float timeDelta = (System.currentTimeMillis() - lastTick);
         lastTick = System.currentTimeMillis();
@@ -50,19 +76,18 @@ public final class Main {
             }
             
             if (KeyHandler.keyPressed(KeyEvent.VK_A)) {
-                mainCharacter.moveRight();
-            } else if (KeyHandler.keyPressed(KeyEvent.VK_D)) {
                 mainCharacter.moveLeft();
+            } else if (KeyHandler.keyPressed(KeyEvent.VK_D)) {
+                mainCharacter.moveRight();
             } else {
                 mainCharacter.standStill();
             }
             
             mainCharacter.tick(timeDelta / 1000);
             
-            // camera.position = camera.position.plus(2 * timeDelta / 1000, 0);
-            
+
         } catch (Exception e) {
-            System.out.println("Character not instantiated yet");
+            throw e;
         }
     }
     

@@ -8,9 +8,10 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     public Hitbox hitbox;
     public boolean collidable = true;
     public Vec2D velocity = new Vec2D(0, 0);
-    
-    public PhysicsObject(float width, String path, Point pos) {
+
+    public PhysicsObject(float width, String path, Point pos, Hitbox hitbox) {
         super(width, path, pos);
+        this.hitbox = hitbox;
         Main.physicsObjects.add(this);
     }
     
@@ -19,8 +20,8 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     @Override
     public void tick(float timeDelta) {
         if (onGround()) {
-            if (position.y() > 100) {
-                position = new Point(position.x(), 100);
+            if (super.position.y() > 100) {
+                super.position = new Point(super.position.x(), 100);
             }
             if (velocity.y() > 0) {
                 velocity = new Vec2D(velocity.x(), 0);
@@ -28,7 +29,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         } else {
             velocity = velocity.plus(0, 100 * timeDelta);
         }
-        position = position.plus(velocity.x() * timeDelta, velocity.y() * timeDelta);
+        move(timeDelta);
     }
 
     public void moveLeft() {
@@ -45,9 +46,9 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     private void move(float timeDelta) {
         Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
-        float minTimeDelta = (float) getFirstIntersection(hitbox.shiftAll(position), possibleCollisions, velocity);
-        timeDelta = Math.min(timeDelta, minTimeDelta);
-        position = position.plus(velocity.x() * timeDelta, velocity.y() * timeDelta);
+        float minTimeDelta = (float) getFirstIntersection(this.hitbox.shiftAll(super.position), possibleCollisions, velocity);
+        float min = Math.min(timeDelta, minTimeDelta);
+        super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
     }
 
     public void jump() {
@@ -64,17 +65,23 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     }
 
     public double getTheShortestPossibleIntersection(Hitbox hitbox1, Hitbox hitbox2, Vec2D direction) {
-        double minTime = factorUntilIntersection(hitbox1.vertices()[0], direction, new LineSegment(hitbox2.vertices()[0], hitbox2.vertices()[1]));
-        for (Point point : hitbox1) { // Every possible point from hitbox 1
+        double minTime = Double.NaN;
+        // System.out.println("Me point");
+        for (Point point : hitbox1.vertices()) { // Every possible point from hitbox 1
             for (LineSegment edge : hitbox2.edges()) { // Every combination of the Points that are next to each other
                 double timeDelta = factorUntilIntersection(point, direction, edge);
-                minTime = Math.min(timeDelta, minTime);
+                if (!Double.isInfinite(timeDelta) && !Double.isNaN(timeDelta)) {
+                    minTime = Math.min(timeDelta, minTime);
+                }
             }
         }
-        for (Point point : hitbox2) { // Every possible point from hitbox 2
+        // System.out.println("Him point");
+        for (Point point : hitbox2.vertices()) { // Every possible point from hitbox 2
             for (LineSegment edge : hitbox1.edges()) { // Every combination of the Points that are next to each other
                 double timeDelta = factorUntilIntersection(point, direction, edge);
-                minTime = Math.min(timeDelta, minTime);
+                if (!Double.isInfinite(timeDelta) && !Double.isNaN(timeDelta)) {
+                    minTime = Math.min(timeDelta, minTime);
+                }
             }
         }
         return minTime;
@@ -84,12 +91,15 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         Vec2D p = point.loc();
         Vec2D a = lineSegment.a().loc();
         Vec2D b = lineSegment.b().loc();
+        double answer = ((b.x() - a.x()) * (a.y() - p.y()) - (b.y() - a.y()) * (a.x() - p.x())) / (direction.y() * (b.x() - a.x()) - direction.x() * (b.y() - a.y()));
+        // System.out.println("Point: " + point.x() + " " + point.y() + " Direction " + direction.x() + " " + direction.y() + " Line: A:" + lineSegment.a().x() + " " + lineSegment.a().y() + " B: " + lineSegment.b().x() + " " + lineSegment.b().y() + " Answer: " + answer);
 
-        return ((b.x() - a.x()) * (a.y() - p.y()) - (b.y() - a.y()) * (a.x() - p.x())) / (direction.y() * (b.x() - a.x()) - direction.x() * (b.y() - a.y()));
+        return answer;
     }
 
     public boolean onGround() {
-        return getFirstIntersection(hitbox.shiftAll(position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1)) == 0;
+        double td = getFirstIntersection(this.hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1));
+        return td == 0;
     }
     
 }

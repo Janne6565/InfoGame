@@ -33,11 +33,9 @@ public record Hitbox(Point[] vertices) implements Iterable<Point> {
     }
 
     public Hitbox shiftAll(Point shiftFor) {
-        Point[] newVertices = vertices;
-        int count = 0;
-        for (Point point : newVertices) {
-            newVertices[count] = point.plus(shiftFor);
-            count += 1;
+        Point[] newVertices = new Point[vertices.length];
+        for (int i = 0; i < newVertices.length; i ++) {
+            newVertices[i] = new Point(vertices[i].x() + shiftFor.x(), vertices[i].y() + shiftFor.y());
         }
         return new Hitbox(newVertices);
     }

@@ -40,10 +40,12 @@ public class Test {
     }
 
     public static void distanceTest() {
-        LineSegment ab = new LineSegment(new Point(0, -4), new Point(-1, 3));
-        LineSegment cd = new LineSegment(new Point(1, 0), new Point(2, 3));
-        Vec2D direction = new Vec2D(1, 1);
-        System.out.println("Solution: " + minimumFactorUntilIntersection(ab, direction, cd));
+        // LineSegment ab = new LineSegment(new Point(0, -4), new Point(-1, 3));
+        // LineSegment cd = new LineSegment(new Point(1, 0), new Point(2, 3));
+        // Vec2D direction = new Vec2D(1, 1);
+        //System.out.println("Solution: " + minimumFactorUntilIntersection(ab, direction, cd));
+        double td = factorUntilIntersection(new Point(10, 90), new Vec2D(0, 1), new LineSegment(new Point(50, 50), new Point(50, -50)));
+        System.out.println("Soultion: " + td);
     }
 
     /**

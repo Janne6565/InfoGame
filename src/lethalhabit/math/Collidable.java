@@ -3,6 +3,8 @@ package lethalhabit.math;
 import lethalhabit.Main;
 import lethalhabit.ui.Drawable;
 
+import java.awt.*;
+
 abstract public class Collidable {
     public Hitbox hitbox;
     public Point position;
@@ -14,12 +16,18 @@ abstract public class Collidable {
     public double maxY;
 
 
-    public Collidable(Hitbox hitbox, Point position, Drawable drawable) {
+    public Collidable(Hitbox hitbox, Point position, String path, int width) {
         Main.collidables.add(this);
 
         this.hitbox = hitbox;
         this.position = position;
-        this.drawable = drawable;
+        Point pos = position;
+        this.drawable = new Drawable(width, path, position) {
+            public void draw(Graphics g) {
+                super.draw(g);
+                super.position = pos;
+            }
+        };
         calulateLimits();
     }
 
@@ -47,7 +55,8 @@ abstract public class Collidable {
     }
 
     public Hitbox getHitbox() {
-        return hitbox.shiftAll(position);
+        Hitbox hitboxDiplaced = new Hitbox(hitbox.vertices());
+        return hitboxDiplaced.shiftAll(position);
     }
 
     public Point getMinPosition() {
