@@ -20,7 +20,8 @@ public final class Main {
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
 
-    
+    private static final List<Integer> activeKeys = new ArrayList<>();
+
     public static final Camera camera = new Camera(new Point(0, 0), 500);
     
     public static int screenWidth; // In Pixels based on the screen size
@@ -71,13 +72,13 @@ public final class Main {
         lastTick = System.currentTimeMillis();
         System.out.println(mainCharacter.position);
         try {
-            if (KeyHandler.keyPressed(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
+            if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
                 mainCharacter.jump();
             }
             
-            if (KeyHandler.keyPressed(KeyEvent.VK_A)) {
+            if (activeKeys.contains(KeyEvent.VK_A)) {
                 mainCharacter.moveLeft();
-            } else if (KeyHandler.keyPressed(KeyEvent.VK_D)) {
+            } else if (activeKeys.contains(KeyEvent.VK_D)) {
                 mainCharacter.moveRight();
             } else {
                 mainCharacter.standStill();
@@ -95,7 +96,15 @@ public final class Main {
         GamePanel screen = new GamePanel();
         JFrame frame = new JFrame("Image Renderer");
         
-        frame.addKeyListener(KeyHandler.INSTANCE);
+        frame.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                activeKeys.add(e.getKeyCode());
+            }
+    
+            public void keyReleased(KeyEvent e) {
+                activeKeys.removeIf(el -> el == e.getKeyCode());
+            }
+        });
         frame.setContentPane(screen);
         frame.setUndecorated(true);
         
