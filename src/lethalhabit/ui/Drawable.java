@@ -34,8 +34,8 @@ public abstract class Drawable {
         double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
         double offsetX = relative ? Main.camera.position.x() : 0;
         double offsetY = relative ? Main.camera.position.y() : 0;
-        int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2) - (width * pixelPerPixel) / 2);
-        int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2) - (height * pixelPerPixel) / 2);
+        int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
+        int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
         Image img = graphic.getScaledInstance((int) (width * pixelPerPixel), (int) (height * pixelPerPixel), Image.SCALE_FAST);
         graphics.drawImage(img, posXDisplay, posYDisplay, (int) (width * pixelPerPixel), (int) (height * pixelPerPixel), null);
     }

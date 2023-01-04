@@ -10,6 +10,7 @@ import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,10 +50,8 @@ public final class Main {
         new Collidable(
             new Hitbox(
                     new Point[] {
-                        new Point(-10, -10),
-                        new Point(-10, 10),
-                        new Point(10, 10),
-                        new Point(10, -10),
+                        new Point(-10, 0),
+                        new Point(10, 0),
                     }
                 ),
                 new Point(0, 100),
@@ -70,7 +69,6 @@ public final class Main {
     public static void tick() {
         float timeDelta = (System.currentTimeMillis() - lastTick);
         lastTick = System.currentTimeMillis();
-        System.out.println(mainCharacter.position);
         try {
             if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
                 mainCharacter.jump();
@@ -121,5 +119,4 @@ public final class Main {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
         return collidables.toArray(new Collidable[0]);
     }
-    
 }
