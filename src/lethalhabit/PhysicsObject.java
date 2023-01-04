@@ -21,6 +21,8 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     public void tick(float timeDelta) {
         if (!onGround()) {
             velocity = velocity.plus(0, 100 * timeDelta);
+        } else {
+            velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
         }
         move(timeDelta);
     }
@@ -40,16 +42,14 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     private void move(float timeDelta) {
         Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity);
+        float min = timeDelta;
         if (!Double.isNaN(minTimeDelta)) {
-            float min = timeDelta;
             if (minTimeDelta >= 0) {
                 min = (float) Math.min(timeDelta, minTimeDelta);
             }
-            super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
         }
-        if (onGround()) {
-            velocity = new Vec2D(velocity.x(), 0);
-        }
+        System.out.println(velocity.y());
+        super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
     }
 
     public void jump() {
@@ -82,9 +82,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
                     }
                 }
             }
-        }
-        if (minTime == Double.NaN) {
-            System.out.println("Somehow NaN");
         }
         return minTime;
     }
@@ -125,9 +122,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     public boolean onGround() {
         double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1));
-        if (td == Double.valueOf(-0.0) || td == Double.valueOf(0.0)) {
-            System.out.println("Grounded");
-        }
         return (td == Double.valueOf(-0.0) || td == Double.valueOf(0.0));
     }
     

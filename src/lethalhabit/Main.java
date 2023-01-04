@@ -50,8 +50,10 @@ public final class Main {
         new Collidable(
             new Hitbox(
                     new Point[] {
-                        new Point(-10, 0),
-                        new Point(10, 0),
+                        new Point(-10, 10),
+                        new Point(-10, -10),
+                        new Point(10, -10),
+                        new Point(10, 10),
                     }
                 ),
                 new Point(0, 100),
@@ -71,6 +73,7 @@ public final class Main {
         lastTick = System.currentTimeMillis();
         try {
             if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
+                System.out.println("Jumped");
                 mainCharacter.jump();
             }
             
@@ -81,10 +84,7 @@ public final class Main {
             } else {
                 mainCharacter.standStill();
             }
-            
             mainCharacter.tick(timeDelta / 1000);
-            
-
         } catch (Exception e) {
 
         }
