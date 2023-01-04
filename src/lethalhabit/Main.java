@@ -86,7 +86,7 @@ public final class Main {
             
 
         } catch (Exception e) {
-            throw e;
+
         }
     }
     

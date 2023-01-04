@@ -83,6 +83,9 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
                 }
             }
         }
+        if (minTime == Double.NaN) {
+            System.out.println("Somehow NaN");
+        }
         return minTime;
     }
 
@@ -122,7 +125,9 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     public boolean onGround() {
         double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1));
-        System.out.println(td);
+        if (td == Double.valueOf(-0.0) || td == Double.valueOf(0.0)) {
+            System.out.println("Grounded");
+        }
         return (td == Double.valueOf(-0.0) || td == Double.valueOf(0.0));
     }
     
