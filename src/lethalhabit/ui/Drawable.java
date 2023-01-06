@@ -13,7 +13,7 @@ public abstract class Drawable {
     
     public BufferedImage graphic;
     public double width;
-    public double height;
+    public double height;   
     
     public Point position;
     public boolean relative = true; // true if it's supposed to move with the camera false if it's supposed to be fixed on the screen (for UI elements in example)

@@ -43,9 +43,12 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity);
         float min = timeDelta;
+        double threshold = 0.001;
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta >= 0) {
-                min = (float) Math.min(timeDelta, minTimeDelta);
+                if (timeDelta >= minTimeDelta) {
+                    min = threshold;
+                }
             }
         }
         System.out.println(velocity.y());
@@ -97,6 +100,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
                 }
             }
         }
+        
         for (Point p : s2) {
             double n = factorUntilIntersection(p, direction.scale(-1), s1);
             if (n >= 0 && (min == null || n < min)) {

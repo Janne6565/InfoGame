@@ -20,6 +20,7 @@ public final class Main {
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
+    
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
