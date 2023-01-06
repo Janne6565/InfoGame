@@ -91,10 +91,12 @@ public final class Main {
         }
     }
     
+    // New Window
     public static void setupCamera() {
         GamePanel screen = new GamePanel();
         JFrame frame = new JFrame("Image Renderer");
         
+        // KeyListener 
         frame.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 activeKeys.add(e.getKeyCode());
@@ -104,6 +106,8 @@ public final class Main {
                 activeKeys.removeIf(el -> el == e.getKeyCode());
             }
         });
+
+        //Frame Settings
         frame.setContentPane(screen);
         frame.setUndecorated(true);
         
@@ -114,6 +118,41 @@ public final class Main {
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
         System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
+
+       
+        
+
+    }
+
+    protected void createInternalFrame(String title) {
+         JInternalFrame in = new JInternalFrame();
+        
+        //initialisation 
+        JPanel p = new JPanel();
+        JButton b = new JButton("button");
+        l = new JLabel("This test");
+        
+        //add ons 
+       
+
+        p.add(b);
+        p.add(l);
+        //settings
+        in.setTitle(title);
+
+        
+        // set visibility internal frame
+        in.setVisible(true);
+ 
+        // add panel to internal frame
+        in.add(p);
+       
+ 
+        // add internal frame to frame
+        frame.add(in);
+ 
+
+
     }
 
     public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity) {
