@@ -46,12 +46,11 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         double threshold = 0.001;
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta >= 0) {
-                if (timeDelta >= minTimeDelta) {
-                    min = threshold;
+                if (minTimeDelta <= timeDelta) {
+                    min = timeDelta - threshold;
                 }
             }
         }
-        System.out.println(velocity.y());
         super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
     }
 
@@ -100,7 +99,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
                 }
             }
         }
-        
+
         for (Point p : s2) {
             double n = factorUntilIntersection(p, direction.scale(-1), s1);
             if (n >= 0 && (min == null || n < min)) {
