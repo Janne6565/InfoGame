@@ -94,9 +94,14 @@ public final class Main {
     }
     
     // New Window
+    // public
+    public static JFrame frame;
+
     public static void setupCamera() {
+
+        // Soll Startmenu davor starten? TODO:
         GamePanel screen = new GamePanel();
-        JFrame frame = new JFrame("Image Renderer");
+        frame = new JFrame("Image Renderer");
         
         // KeyListener 
         frame.addKeyListener(new KeyAdapter() {
@@ -122,10 +127,11 @@ public final class Main {
         System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
 
        
-        
-
+        frame.setContentPane(screen);
+        createStartMenu();
     }
 
+    //nonsense ----------------- 
     protected void createInternalFrame(String title) {
          JInternalFrame in = new JInternalFrame();
         
@@ -153,6 +159,63 @@ public final class Main {
         // add internal frame to frame
         frame.add(in);
  
+
+
+    }
+
+    // create Start Menu Scene JInternalFrame
+
+    public static void createStartMenu() {
+        JInternalFrame menu = new JInternalFrame();
+        menu.setUndecorated(true);
+
+        // Set the menu to full-screen mode and automatically resize the window to fit the screen
+        menu.toFront();
+        menu.setResizable(false);
+        menu.show();
+
+        gameLabel = new JLabel("InfoGame");
+        JButton startButton = new JButton("Start");
+        JButton settingsButton = new JButton("Settings");
+        JButton exitButton = new JButton("Exit");
+
+        //New Panel mit Button Layout
+        JPanel MenuPanel = new JPanel(new BoxLayout (this, BoxLayout.Y_AXIS));
+
+        //action event listeners:
+
+        startButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                this.dispose();
+            }
+        });
+
+         settingsButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //your actions
+            }
+        });
+         exitButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //your actions
+            }
+        })
+        
+        //
+        MenuPanel.add(gameLabel);
+        MenuPanel.add(startButton);
+        MenuPanel.add(settingsButton);
+        MenuPanel.add(exitButton);
+
+        menu.add(MenuPanel);
+
+        frame.add(menu);
 
 
     }

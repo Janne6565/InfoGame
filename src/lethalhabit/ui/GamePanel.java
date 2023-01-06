@@ -6,6 +6,7 @@ import lethalhabit.math.Point;
 import javax.swing.*;
 import java.awt.*;
 
+//TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 public final class GamePanel extends JPanel {
     
     private Timer updateTimer;
