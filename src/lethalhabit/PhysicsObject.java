@@ -43,11 +43,10 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity);
         float min = timeDelta;
-        double threshold = 0.001;
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta >= 0) {
                 if (minTimeDelta <= timeDelta) {
-                    min = timeDelta - threshold;
+                    min = timeDelta - collisionThreshold;
                 }
             }
         }
@@ -125,7 +124,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     public boolean onGround() {
         double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1));
-        return (td == Double.valueOf(-0.0) || td == Double.valueOf(0.0));
+        return (td < Main.collisionThreshold);
     }
-    
 }

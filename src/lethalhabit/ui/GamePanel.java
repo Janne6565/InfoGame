@@ -29,7 +29,7 @@ public final class GamePanel extends JPanel {
             Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
             Point posRightDown = draw.position.plus(draw.width, draw.height);
             
-            if ((posRightDown.greaterThan(minPosition) && posLeftTop.lessThan(maxPosition)) || !draw.relative) { // Check if element is inside our camera
+            if ((posRightDown.compareTo(minPosition) > 0 && posLeftTop.compareTo(maxPosition) < 0) || !draw.relative) { // Check if element is inside our camera
                 // Image in our lethalhabit.ui.Camera Frame -> render Graphic
                 draw.draw(g);
             } else {

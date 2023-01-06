@@ -1,13 +1,18 @@
 package lethalhabit.math;
 
-public record Point(double x, double y) implements TwoDimensional {
+import java.lang.Comparable;
+
+public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
     
-    public boolean greaterThan(Point other) {
-        return this.x > other.x && this.y > other.y;
-    }
-    
-    public boolean lessThan(Point other) {
-        return this.x < other.x && this.y < other.y;
+    @Override
+    public int compareTo(Point other) {
+        if (this.x > other.x && this.y > other.y) {
+            return 1;
+        } else if (this.x < other.x && this.y < other.y) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
     
     public Vec2D pos() {
@@ -33,5 +38,5 @@ public record Point(double x, double y) implements TwoDimensional {
     public Vec2D loc() {
         return new Vec2D(x, y);
     }
-    
+
 }

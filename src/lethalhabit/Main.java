@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class Main {
+    public static final double collisionThreshold = 0.001;
+
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
