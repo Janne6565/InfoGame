@@ -1,6 +1,7 @@
 package lethalhabit;
 
 import lethalhabit.math.*;
+import lethalhabit.math.Point;
 import lethalhabit.ui.Drawable;
 
 public abstract class PhysicsObject extends Drawable implements Tickable {
@@ -14,32 +15,19 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         this.hitbox = hitbox;
         Main.physicsObjects.add(this);
     }
-    
-    public abstract double getSpeed();
-    
+
     @Override
     public void tick(float timeDelta) {
         if (!onGround()) {
             velocity = velocity.plus(0, 100 * timeDelta);
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
+            onGroundReset();
         }
         move(timeDelta);
     }
 
-    public void moveLeft() {
-        this.velocity = new Vec2D(getSpeed() * -1, this.velocity.y());
-    }
-
-    public void moveRight() {
-        this.velocity = new Vec2D(getSpeed(), this.velocity.y());
-    }
-
-    public void standStill() {
-        this.velocity = new Vec2D(0, this.velocity.y());
-    }
-
-    private void move(float timeDelta) {
+    public void move(float timeDelta) {
         Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity, false);
         float min = timeDelta;
@@ -57,11 +45,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
     }
 
-    public void jump() {
-        velocity = velocity.minus(0, 100);
-    }
-
-    public Double getFirstIntersection(Hitbox hitbox, Collidable[] collidables, Vec2D direction, boolean debug) {
+    private Double getFirstIntersection(Hitbox hitbox, Collidable[] collidables, Vec2D direction, boolean debug) {
         Double minTime = Double.NaN;
         for (Collidable collidable : collidables) {
             for (LineSegment edge : hitbox.edges()) {
@@ -91,7 +75,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         return minTime;
     }
 
-    public Double minimumFactorUntilIntersection(LineSegment s1, Vec2D direction, LineSegment s2, boolean debug) {
+    private Double minimumFactorUntilIntersection(LineSegment s1, Vec2D direction, LineSegment s2, boolean debug) {
         Double min = null;
         for (Point p : s1) {
             double n = factorUntilIntersection(p, direction, s2, debug);
@@ -116,7 +100,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     }
 
 
-    public Double factorUntilIntersection(Point point, Vec2D direction, LineSegment lineSegment, boolean debug) {
+    private Double factorUntilIntersection(Point point, Vec2D direction, LineSegment lineSegment, boolean debug) {
         Vec2D p = point.loc();
         Vec2D a = lineSegment.a().loc();
         Vec2D b = lineSegment.b().loc();
@@ -129,6 +113,8 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         }
         return answer;
     }
+
+    abstract void onGroundReset();
 
     public boolean onGround() {
         Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1), false);

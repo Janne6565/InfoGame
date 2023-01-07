@@ -1,21 +1,17 @@
 package lethalhabit;
 
-import lethalhabit.math.Collidable;
-import lethalhabit.math.Hitbox;
+import lethalhabit.math.*;
 import lethalhabit.math.Point;
-import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public final class Main {
@@ -24,6 +20,7 @@ public final class Main {
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
+    public static final List<LineSegment> linesToDraw = new ArrayList<>();
     
 
     private static final List<Integer> activeKeys = new ArrayList<>();
@@ -32,11 +29,12 @@ public final class Main {
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
-    public static PhysicsObject mainCharacter;
-    
+    public static Player mainCharacter;
+
+
     public static void main(String[] args) {
         setupCamera();
-        mainCharacter = new PhysicsObject(
+        mainCharacter = new Player(
             50,
             "image.png",
             new Point( 0, 0),
@@ -45,13 +43,10 @@ public final class Main {
                     new Point(-50, 50),
                     new Point(50, 50),
                     new Point(50, -50)
-            })
-        ) {
-            @Override
-            public double getSpeed() {
-                return 100;
-            }
-        };
+            }),
+            50,
+                100
+        );
         new Collidable(
             new Hitbox(
                     new Point[] {
@@ -76,11 +71,13 @@ public final class Main {
     public static void tick() {
         float timeDelta = (System.currentTimeMillis() - lastTick);
         lastTick = System.currentTimeMillis();
-        try {
-            if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
+        if (mainCharacter != null) {
+            if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.canJump()) {
                 mainCharacter.jump();
+            } else {
+                mainCharacter.resetJump();
             }
-            
+
             if (activeKeys.contains(KeyEvent.VK_A)) {
                 mainCharacter.moveLeft();
             } else if (activeKeys.contains(KeyEvent.VK_D)) {
@@ -89,9 +86,9 @@ public final class Main {
                 mainCharacter.standStill();
             }
             mainCharacter.tick(timeDelta / 1000);
-        } catch (Exception e) {
-
+            //camera.position = mainCharacter.position;
         }
+
     }
     
     // New Window
@@ -186,28 +183,16 @@ public final class Main {
 
         //action event listeners:
 
-        startButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // this.dispose();
-            }
+        startButton.addActionListener(e -> {
+            // this.dispose();
         });
 
-         settingsButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //your actions
-            }
-        });
-         exitButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //your actions
-            }
-        });
+         settingsButton.addActionListener(e -> {
+             //your actions
+         });
+         exitButton.addActionListener(e -> {
+             //your actions
+         });
         
         //
         MenuPanel.add(gameLabel);
