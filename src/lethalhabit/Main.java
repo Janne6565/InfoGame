@@ -10,6 +10,8 @@ import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class Main {
-    public static final double collisionThreshold = 0.001;
+    public static final double collisionThreshold = 0.00001;
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
@@ -37,7 +39,7 @@ public final class Main {
         mainCharacter = new PhysicsObject(
             50,
             "image.png",
-            new Point(0, 0),
+            new Point( 0, 0),
             new Hitbox( new Point[]{
                     new Point(-50, -50),
                     new Point(-50, 50),
@@ -76,7 +78,6 @@ public final class Main {
         lastTick = System.currentTimeMillis();
         try {
             if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.onGround()) {
-                System.out.println("Jumped");
                 mainCharacter.jump();
             }
             
@@ -138,7 +139,7 @@ public final class Main {
         //initialisation 
         JPanel p = new JPanel();
         JButton b = new JButton("button");
-        l = new JLabel("This test");
+        JLabel l = new JLabel("This test");
         
         //add ons 
        
@@ -167,20 +168,21 @@ public final class Main {
 
     public static void createStartMenu() {
         JInternalFrame menu = new JInternalFrame();
-        menu.setUndecorated(true);
+        // menu.setUndecorated(true);
 
         // Set the menu to full-screen mode and automatically resize the window to fit the screen
         menu.toFront();
         menu.setResizable(false);
         menu.show();
 
-        gameLabel = new JLabel("InfoGame");
+        JLabel gameLabel = new JLabel("InfoGame");
         JButton startButton = new JButton("Start");
         JButton settingsButton = new JButton("Settings");
         JButton exitButton = new JButton("Exit");
 
         //New Panel mit Button Layout
-        JPanel MenuPanel = new JPanel(new BoxLayout (this, BoxLayout.Y_AXIS));
+        JPanel MenuPanel = new JPanel();
+        MenuPanel.setLayout(new BoxLayout (MenuPanel, BoxLayout.Y_AXIS));
 
         //action event listeners:
 
@@ -188,7 +190,7 @@ public final class Main {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                this.dispose();
+                // this.dispose();
             }
         });
 
@@ -205,7 +207,7 @@ public final class Main {
             public void actionPerformed(ActionEvent e) {
                 //your actions
             }
-        })
+        });
         
         //
         MenuPanel.add(gameLabel);
