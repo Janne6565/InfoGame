@@ -49,10 +49,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta > 0) {
                 if (minTimeDelta <= timeDelta) {
-                    min = (minTimeDelta * 0.5);
-                    if (min <= 0.001) {
-                        min = 0;
-                    }
+                    min = (minTimeDelta * 0.9);
                 }
             }
 
@@ -63,6 +60,12 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     private Double getFirstIntersection(Hitbox hitbox, Collidable[] collidables, Vec2D direction, boolean debug) {
         Double minTime = Double.NaN;
         for (Collidable collidable : collidables) {
+            Point maxPositionCollidable = new Point(collidable.hitbox.shiftAll(collidable.position).maxX(), collidable.hitbox.shiftAll(collidable.position).maxY());
+            Point minPositionCollidable = new Point(collidable.hitbox.shiftAll(collidable.position).minX(), collidable.hitbox.shiftAll(collidable.position).minY());
+
+            Point maxPositionSelf = new Point(hitbox.maxX() + velocity.x(), hitbox.maxY() + velocity.y());
+            Point minPositionSelf = new Point(hitbox.minX(), hitbox.minY());
+
             for (LineSegment edge : hitbox.edges()) {
                 for (LineSegment edgeCollidingFor : collidable.getHitbox().edges()) {
                     Double newTd = minimumFactorUntilIntersection(edge, direction, edgeCollidingFor, debug);

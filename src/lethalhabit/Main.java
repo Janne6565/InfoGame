@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public final class Main {
 
     public static void main(String[] args) {
         setupCamera();
+        createStartMenu();
         mainCharacter = new Player(
             50,
             "character.png",
@@ -77,6 +79,45 @@ public final class Main {
                 "ground.png",
                 100
         ){};
+        new Collidable(
+                new Hitbox(
+                        new Point[] {
+                                new Point(0, 12),
+                                new Point(0, 0),
+                                new Point(100, 0),
+                                new Point(100, 12),
+                        }
+                ),
+                new Point(-100, 80),
+                "ground.png",
+                100
+        ){};
+        new Collidable(
+                new Hitbox(
+                        new Point[] {
+                                new Point(0, 12),
+                                new Point(0, 0),
+                                new Point(100, 0),
+                                new Point(100, 12),
+                        }
+                ),
+                new Point(-200, 80),
+                "ground.png",
+                100
+        ){};
+        new Collidable(
+                new Hitbox(
+                        new Point[] {
+                                new Point(0, 12),
+                                new Point(0, 0),
+                                new Point(100, 0),
+                                new Point(100, 12),
+                        }
+                ),
+                new Point(-300, 80),
+                "ground.png",
+                100
+        ){};
     }
     
     public static int getScreenWidthGame() {
@@ -103,7 +144,7 @@ public final class Main {
                 mainCharacter.standStill();
             }
             mainCharacter.tick(timeDelta / 1000);
-            //camera.position = mainCharacter.position;
+            camera.position = mainCharacter.position;
         }
 
     }
@@ -111,11 +152,12 @@ public final class Main {
     // New Window
     // public
     public static JFrame frame;
+    public static GamePanel screen;
 
     public static void setupCamera() {
 
         // Soll Startmenu davor starten? TODO:
-        GamePanel screen = new GamePanel();
+        screen = new GamePanel();
         frame = new JFrame("Lethal Habit");
         
         // KeyListener 
@@ -143,7 +185,6 @@ public final class Main {
 
        
         frame.setContentPane(screen);
-        createStartMenu();
     }
 
     //nonsense ----------------- 
@@ -202,6 +243,13 @@ public final class Main {
 
         startButton.addActionListener(e -> {
             mainCharacter.position = new Point(0, 0);
+            menu.dispose();
+            try {
+                menu.setSelected(false);
+                setupCamera();
+            } catch (PropertyVetoException ex) {
+                throw new RuntimeException(ex);
+            }
             // this.dispose();
         });
 
