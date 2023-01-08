@@ -24,20 +24,35 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
         }
+
+        /*
+        System.out.println(isWallLeft());
+        if (isWallLeft()) {
+            velocity = new Vec2D(Math.max(velocity.x(), 0), velocity.y());
+        }
+
+        if (isWallRight()) {
+            velocity = new Vec2D(Math.min(velocity.x(), 0), velocity.y());
+        }
+
+        if (isFloorTop()) {
+            velocity = new Vec2D(velocity.x(), Math.max(velocity.y(), 0));
+        }
+        */
         move(timeDelta);
     }
 
     public void move(float timeDelta) {
         Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity, false);
-        float min = timeDelta;
+        double min = timeDelta;
         if (!Double.isNaN(minTimeDelta)) {
-            if (minTimeDelta >= 0) {
+            if (minTimeDelta > 0) {
                 if (minTimeDelta <= timeDelta) {
-                    while (minTimeDelta - Main.collisionThreshold <= 0) {
-                        minTimeDelta += 0.01;
+                    min = (minTimeDelta * 0.5);
+                    if (min <= 0.001) {
+                        min = 0;
                     }
-                    min = (float) (minTimeDelta - Main.collisionThreshold);
                 }
             }
 
@@ -121,6 +136,31 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 1000);
+        return (td >= 0 && td < Main.collisionThreshold * 100000);
+    }
+
+
+    public boolean isWallRight() {
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(1, 0)), new Vec2D(1, 0), false);
+        if (Double.isNaN(td)) {
+            return false;
+        }
+        return (td >= 0 && td < Main.collisionThreshold * 1000000);
+    }
+
+    public boolean isWallLeft() {
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(-1, 0)), new Vec2D(-1, 0), false);
+        if (Double.isNaN(td)) {
+            return false;
+        }
+        return (td >= 0 && td < Main.collisionThreshold * 1000000);
+    }
+
+    public boolean isFloorTop() {
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, -1)), new Vec2D(0, -1), false);
+        if (Double.isNaN(td)) {
+            return false;
+        }
+        return (td >= 0 && td < Main.collisionThreshold * 100000);
     }
 }
