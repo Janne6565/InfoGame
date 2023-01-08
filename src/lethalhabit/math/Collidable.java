@@ -26,6 +26,27 @@ abstract public class Collidable {
             public void draw(Graphics g) {
                 super.draw(g);
                 super.position = pos;
+                if (Main.debugHitbox) {
+                    for (LineSegment line : hitbox.shiftAll(position).edges()) {
+                        Point positionA = convertPositionToCamera(line.a());
+                        Point positionB = convertPositionToCamera(line.b());
+                        Graphics2D g2 = (Graphics2D) g;
+
+                        g2.setColor(Main.strokeColorCollidable);
+                        g2.setStroke(new BasicStroke(Main.strokeSize));
+                        g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
+                    }
+                }
+
+            }
+
+            private Point convertPositionToCamera(Point position) {
+                double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
+                double offsetX = relative ? Main.camera.position.x() : 0;
+                double offsetY = relative ? Main.camera.position.y() : 0;
+                int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
+                int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
+                return new Point(posXDisplay, posYDisplay);
             }
         };
         calulateLimits();

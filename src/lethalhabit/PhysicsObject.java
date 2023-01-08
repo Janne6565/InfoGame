@@ -19,7 +19,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     @Override
     public void tick(float timeDelta) {
         if (!onGround()) {
-            velocity = velocity.plus(0, 100 * timeDelta);
+            velocity = velocity.plus(0, 400 * timeDelta);
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
@@ -35,7 +35,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
             if (minTimeDelta >= 0) {
                 if (minTimeDelta <= timeDelta) {
                     while (minTimeDelta - Main.collisionThreshold <= 0) {
-                        minTimeDelta += 0.001;
+                        minTimeDelta += 0.01;
                     }
                     min = (float) (minTimeDelta - Main.collisionThreshold);
                 }
@@ -121,6 +121,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 10000);
+        return (td >= 0 && td < Main.collisionThreshold * 1000);
     }
 }

@@ -7,8 +7,7 @@ import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -16,6 +15,11 @@ import java.util.List;
 
 public final class Main {
     public static final double collisionThreshold = 0.00001;
+    public static final boolean debugHitbox = true;
+    public static final int strokeSize = 2;
+    public static final Color strokeColorPlayer = Color.RED;
+    public static final Color strokeColorCollidable = Color.CYAN;
+
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
@@ -36,29 +40,42 @@ public final class Main {
         setupCamera();
         mainCharacter = new Player(
             50,
-            "image.png",
+            "character.png",
             new Point( 0, 0),
             new Hitbox( new Point[]{
-                    new Point(-50, -50),
-                    new Point(-50, 50),
-                    new Point(50, 50),
-                    new Point(50, -50)
+                    new Point(10, 10),
+                    new Point(10, 60),
+                    new Point(40, 60),
+                    new Point(40, 10)
             }),
-            50,
-                100
+            80,
+                200
         );
         new Collidable(
             new Hitbox(
                     new Point[] {
-                        new Point(-10, 10),
-                        new Point(-10, -10),
-                        new Point(10, -10),
-                        new Point(10, 10),
+                        new Point(0, 12),
+                        new Point(0, 0),
+                        new Point(100, 0),
+                        new Point(100, 12),
                     }
                 ),
                 new Point(0, 100),
             "ground.png",
             100
+        ){};
+        new Collidable(
+                new Hitbox(
+                        new Point[] {
+                                new Point(0, 12),
+                                new Point(0, 0),
+                                new Point(100, 0),
+                                new Point(100, 12),
+                        }
+                ),
+                new Point(100, 80),
+                "ground.png",
+                100
         ){};
     }
     
@@ -99,7 +116,7 @@ public final class Main {
 
         // Soll Startmenu davor starten? TODO:
         GamePanel screen = new GamePanel();
-        frame = new JFrame("Image Renderer");
+        frame = new JFrame("Lethal Habit");
         
         // KeyListener 
         frame.addKeyListener(new KeyAdapter() {
@@ -184,6 +201,7 @@ public final class Main {
         //action event listeners:
 
         startButton.addActionListener(e -> {
+            mainCharacter.position = new Point(0, 0);
             // this.dispose();
         });
 
@@ -192,6 +210,7 @@ public final class Main {
          });
          exitButton.addActionListener(e -> {
              //your actions
+
          });
         
         //
