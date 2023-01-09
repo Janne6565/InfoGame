@@ -90,7 +90,25 @@ public final class Hitbox implements Iterable<Point> {
     @Override
     public String toString() {
         return "Hitbox[" +
-                "vertices=" + vertices + ']';
+                "vertices=" + Arrays.toString(vertices) + ']';
     }
 
+
+    public boolean liesIn(Hitbox hitbox) {
+        for (Point point : hitbox.vertices) {
+            if (point.compareTo(minPosition) > 0 && point.compareTo(maxPosition) < 0) {
+                return true;
+            }
+        }
+
+        if (hitbox.minPosition.x() < minPosition.x() && hitbox.maxPosition.x() > maxPosition.x()) {
+            return true;
+        }
+
+        if (hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y()) {
+            return true;
+        }
+
+        return false;
+    }
 }

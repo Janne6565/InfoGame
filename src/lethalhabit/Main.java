@@ -8,6 +8,7 @@ import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.desktop.AppHiddenEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyVetoException;
@@ -46,8 +47,8 @@ public final class Main {
             new Point( 0, 0),
             new Hitbox( new Point[]{
                     new Point(10, 10),
-                    new Point(10, 60),
-                    new Point(40, 60),
+                    new Point(10, 57),
+                    new Point(40, 57),
                     new Point(40, 10)
             }),
             80,
@@ -144,9 +145,31 @@ public final class Main {
                 mainCharacter.standStill();
             }
             mainCharacter.tick(timeDelta / 1000);
-            camera.position = mainCharacter.position;
+
+            moveCamera();
         }
 
+    }
+
+    public static void moveCamera() {
+        Point relative = camera.position.minus(mainCharacter.position);
+        double moveX = 0;
+        double moveY = 0;
+        if (relative.x() < -50) {
+            moveX = -50 - relative.x();
+        }
+        if (relative.x() > 50) {
+            moveX = 50 - relative.x();
+        }
+
+        if (relative.y() < -50) {
+            moveY = -50 - relative.y();
+        }
+        if (relative.y() > 50) {
+            moveY = 50 - relative.y();
+        }
+
+        camera.position = camera.position.plus(moveX, moveY);
     }
     
     // New Window
@@ -242,15 +265,7 @@ public final class Main {
         //action event listeners:
 
         startButton.addActionListener(e -> {
-            mainCharacter.position = new Point(0, 0);
-            menu.dispose();
-            try {
-                menu.setSelected(false);
-                setupCamera();
-            } catch (PropertyVetoException ex) {
-                throw new RuntimeException(ex);
-            }
-            // this.dispose();
+            //your actions
         });
 
          settingsButton.addActionListener(e -> {
@@ -276,6 +291,33 @@ public final class Main {
 
     public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity) {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
-        return collidables.toArray(new Collidable[0]);
+
+        ArrayList<Collidable> possibleCollisions = new ArrayList<>();
+
+        Hitbox startedHitbox = physicsObject.hitbox.shiftAll(physicsObject.position);
+
+        Hitbox hitboxAfterVelocity = new Hitbox(new Point[] {
+                startedHitbox.minPosition.plus(velocity),
+                new Point(startedHitbox.minPosition.x(), startedHitbox.maxPosition.y()).plus(velocity),
+                startedHitbox.maxPosition.plus(velocity),
+                new Point(startedHitbox.maxPosition.x(), startedHitbox.minPosition.y()).plus(velocity),
+        });
+
+        Hitbox hitboxRange = new Hitbox(
+            new Point[] {
+                new Point(Math.min(hitboxAfterVelocity.minPosition.x(), startedHitbox.minPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), startedHitbox.minPosition.y())),
+                new Point(Math.min(hitboxAfterVelocity.minPosition.x(), startedHitbox.minPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), startedHitbox.maxPosition.y())),
+                new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), startedHitbox.maxPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), startedHitbox.maxPosition.y())),
+                new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), startedHitbox.maxPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), startedHitbox.minPosition.y()))
+            }
+        );
+
+        for (Collidable collidable : collidables) {
+            if (collidable.hitbox.shiftAll(collidable.position).liesIn(hitboxRange)) {
+                possibleCollisions.add(collidable);
+            }
+        }
+
+        return possibleCollisions.toArray(new Collidable[0]);
     }
 }

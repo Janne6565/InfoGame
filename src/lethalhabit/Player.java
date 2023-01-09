@@ -43,11 +43,7 @@ public class Player extends PhysicsObject{
     private int timesJumped = 0;
 
     public boolean canJump() {
-        if (timesJumped <= 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return onGround();
     }
 
     public void jump() {

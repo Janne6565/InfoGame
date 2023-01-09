@@ -26,7 +26,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         }
 
         /*
-        System.out.println(isWallLeft());
         if (isWallLeft()) {
             velocity = new Vec2D(Math.max(velocity.x(), 0), velocity.y());
         }
@@ -39,6 +38,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
             velocity = new Vec2D(velocity.x(), Math.max(velocity.y(), 0));
         }
         */
+
         move(timeDelta);
     }
 
