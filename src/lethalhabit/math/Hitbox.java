@@ -101,14 +101,8 @@ public final class Hitbox implements Iterable<Point> {
             }
         }
 
-        if (hitbox.minPosition.x() < minPosition.x() && hitbox.maxPosition.x() > maxPosition.x()) {
-            return true;
-        }
+        return hitbox.minPosition.x() < minPosition.x() && hitbox.maxPosition.x() > maxPosition.x()
+            || hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y();
 
-        if (hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y()) {
-            return true;
-        }
-
-        return false;
     }
 }

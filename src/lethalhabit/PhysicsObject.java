@@ -4,6 +4,8 @@ import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.ui.Drawable;
 
+import java.util.Date;
+
 public abstract class PhysicsObject extends Drawable implements Tickable {
     
     public Hitbox hitbox;
@@ -18,14 +20,13 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     @Override
     public void tick(float timeDelta) {
-        if (!onGround()) {
+        if (!isWallDown()) {
             velocity = velocity.plus(0, 400 * timeDelta);
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
         }
 
-        /*
         if (isWallLeft()) {
             velocity = new Vec2D(Math.max(velocity.x(), 0), velocity.y());
         }
@@ -37,19 +38,23 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (isFloorTop()) {
             velocity = new Vec2D(velocity.x(), Math.max(velocity.y(), 0));
         }
-        */
+
 
         move(timeDelta);
     }
 
     public void move(float timeDelta) {
-        Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity);
+        Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity, timeDelta);
+        Date date = new Date();
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity, false);
         double min = timeDelta;
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta > 0) {
                 if (minTimeDelta <= timeDelta) {
                     min = (minTimeDelta * 0.9);
+                }
+                if (min <= 0.0001) {
+                    min = 0;
                 }
             }
 
@@ -80,7 +85,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
             for (LineSegment edge : collidable.getHitbox().edges()) {
                 for (LineSegment edgeCollidingFor : hitbox.edges()) {
-                    Double newTd = minimumFactorUntilIntersection(edge, direction, edgeCollidingFor, debug);
+                    Double newTd = minimumFactorUntilIntersection(edge, direction.scale(-1), edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
                         if (Double.isNaN(minTime)) {
                             minTime = newTd;
@@ -123,10 +128,10 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         Vec2D a = lineSegment.a().loc();
         Vec2D b = lineSegment.b().loc();
         Double answer = ((b.x() - a.x()) * (a.y() - p.y()) - (b.y() - a.y()) * (a.x() - p.x())) / (direction.y() * (b.x() - a.x()) - direction.x() * (b.y() - a.y()));
+        if (debug && Double.isFinite(answer)) {
+            System.out.println("Point: " + point.x() + " " + point.y() + " Direction " + direction.x() + " " + direction.y() + " Line: A:" + lineSegment.a().x() + " " + lineSegment.a().y() + " B: " + lineSegment.b().x() + " " + lineSegment.b().y() + " Answer: " + answer);
+        }
         if (Double.isInfinite(answer)) {
-            if (debug) {
-                System.out.println("Point: " + point.x() + " " + point.y() + " Direction " + direction.x() + " " + direction.y() + " Line: A:" + lineSegment.a().x() + " " + lineSegment.a().y() + " B: " + lineSegment.b().x() + " " + lineSegment.b().y() + " Answer: " + answer);
-            }
             return Double.NaN;
         }
         return answer;
@@ -134,8 +139,8 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     abstract void onGroundReset();
 
-    public boolean onGround() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1)), new Vec2D(0, 1), false);
+    public boolean isWallDown() {
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
         if (Double.isNaN(td)) {
             return false;
         }
@@ -144,23 +149,23 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
 
     public boolean isWallRight() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(1, 0)), new Vec2D(1, 0), false);
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(1, 0), 1), new Vec2D(1, 0), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 1000000);
+        return (td >= 0 && td < Main.collisionThreshold * 100000);
     }
 
     public boolean isWallLeft() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(-1, 0)), new Vec2D(-1, 0), false);
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(-1, 0), 1), new Vec2D(-1, 0), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 1000000);
+        return (td >= 0 && td < Main.collisionThreshold * 100000);
     }
 
     public boolean isFloorTop() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, -1)), new Vec2D(0, -1), false);
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, -1), 1), new Vec2D(0, -1), false);
         if (Double.isNaN(td)) {
             return false;
         }

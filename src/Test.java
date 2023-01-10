@@ -44,7 +44,7 @@ public class Test {
         // LineSegment cd = new LineSegment(new Point(1, 0), new Point(2, 3));
         // Vec2D direction = new Vec2D(1, 1);
         //System.out.println("Solution: " + minimumFactorUntilIntersection(ab, direction, cd));
-        double td = minimumFactorUntilIntersection(new LineSegment(new Point(-10, 12), new Point(10, 15)), new Vec2D(0, -1), new LineSegment(new Point(-10, 0), new Point(10, 0)));
+        double td = minimumFactorUntilIntersection(new LineSegment(new Point(0, 10), new Point(0, -10)), new Vec2D(5,5 ), new LineSegment(new Point(5, -5), new Point(10, 0)));
         System.out.println("Soultion: " + td);
     }
 

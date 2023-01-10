@@ -43,7 +43,7 @@ public class Player extends PhysicsObject{
     private int timesJumped = 0;
 
     public boolean canJump() {
-        return onGround();
+        return isWallDown();
     }
 
     public void jump() {

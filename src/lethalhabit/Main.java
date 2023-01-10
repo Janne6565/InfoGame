@@ -119,6 +119,19 @@ public final class Main {
                 "ground.png",
                 100
         ){};
+        new Collidable(
+                new Hitbox(
+                        new Point[] {
+                                new Point(0, 12),
+                                new Point(0, 0),
+                                new Point(100, 0),
+                                new Point(100, 12),
+                        }
+                ),
+                new Point(0, -50),
+                "ground.png",
+                100
+        ){};
     }
     
     public static int getScreenWidthGame() {
@@ -152,21 +165,22 @@ public final class Main {
     }
 
     public static void moveCamera() {
-        Point relative = camera.position.minus(mainCharacter.position);
+        Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(0, -40 ));
         double moveX = 0;
         double moveY = 0;
-        if (relative.x() < -50) {
-            moveX = -50 - relative.x();
+        int threshold = 30;
+        if (relative.x() < -threshold) {
+            moveX = -threshold - relative.x();
         }
-        if (relative.x() > 50) {
-            moveX = 50 - relative.x();
+        if (relative.x() > threshold) {
+            moveX = threshold - relative.x();
         }
 
-        if (relative.y() < -50) {
-            moveY = -50 - relative.y();
+        if (relative.y() < -threshold) {
+            moveY = -threshold - relative.y();
         }
-        if (relative.y() > 50) {
-            moveY = 50 - relative.y();
+        if (relative.y() > threshold) {
+            moveY = threshold  - relative.y();
         }
 
         camera.position = camera.position.plus(moveX, moveY);
@@ -289,7 +303,7 @@ public final class Main {
 
     }
 
-    public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity) {
+    public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity, double timeDelta) {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
 
         ArrayList<Collidable> possibleCollisions = new ArrayList<>();
@@ -297,10 +311,10 @@ public final class Main {
         Hitbox startedHitbox = physicsObject.hitbox.shiftAll(physicsObject.position);
 
         Hitbox hitboxAfterVelocity = new Hitbox(new Point[] {
-                startedHitbox.minPosition.plus(velocity),
-                new Point(startedHitbox.minPosition.x(), startedHitbox.maxPosition.y()).plus(velocity),
-                startedHitbox.maxPosition.plus(velocity),
-                new Point(startedHitbox.maxPosition.x(), startedHitbox.minPosition.y()).plus(velocity),
+                startedHitbox.minPosition.plus(velocity.scale(timeDelta)),
+                new Point(startedHitbox.minPosition.x(), startedHitbox.maxPosition.y()).plus(velocity.scale(timeDelta)),
+                startedHitbox.maxPosition.plus(velocity.scale(timeDelta)),
+                new Point(startedHitbox.maxPosition.x(), startedHitbox.minPosition.y()).plus(velocity.scale(timeDelta)),
         });
 
         Hitbox hitboxRange = new Hitbox(
