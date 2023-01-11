@@ -28,6 +28,7 @@ public final class GamePanel extends JPanel {
         
         Point maxPosition = new Point(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
         Point minPosition = new Point(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+        long timeBefore = System.nanoTime();
         for (Drawable draw : getDrawables()) {
             Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
             Point posRightDown = draw.position.plus(draw.width, draw.height);
@@ -39,6 +40,7 @@ public final class GamePanel extends JPanel {
                 // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
             }
         }
+        System.out.println("Time For Drawing: " + ((System.nanoTime() - timeBefore) / 1000000));
     }
 
     private static List<Drawable> getDrawables() {

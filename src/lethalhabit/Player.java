@@ -1,5 +1,6 @@
 package lethalhabit;
 
+import lethalhabit.ingame.Fireball;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
@@ -23,36 +24,41 @@ public class Player extends PhysicsObject{
     public Animation midAirAnimation; // TODO: Mid Air Animation
 
     public Animation currentAnimation = idleAnimation;
+    public int direction = 0;
 
     public Player(float width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
         super(width, pathToImage, position, hitbox);
         this.movementSpeed = movementSpeed;
         this.jumpBoost = jumpBoost;
         defaultImage = graphic;
+        Main.tickables.add(this);
     }
 
     public void moveLeft() {
-        this.graphic = GraphicModule.mirrorImage(defaultImage);
         this.velocity = new Vec2D(movementSpeed * -1, this.velocity.y());
+        this.direction = -1;
     }
 
 
     BufferedImage defaultImage;
     public void moveRight() {
-        this.graphic = defaultImage;
         this.velocity = new Vec2D(movementSpeed, this.velocity.y());
+        this.direction = 1;
     }
 
     public void standStill() {
         this.velocity = new Vec2D(0, this.velocity.y());
         this.currentAnimation = idleAnimation;
-        this.graphic = defaultImage;
     }
 
     private boolean jumped = false; // this is used to not let you hold your jump key and than jump more than once
 
 
     private int timesJumped = 0;
+
+    public void makeFireball() {
+        new Fireball(this.position, direction);
+    }
 
     public boolean canJump() {
         if (timesJumped <= 0) {
@@ -78,6 +84,17 @@ public class Player extends PhysicsObject{
         timeInGame += timeDelta;
         int currentFrame = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
         defaultImage = currentAnimation.frames.get(currentFrame);
+        switch (direction) {
+            case 1:
+                this.graphic = defaultImage;
+                break;
+            case -1:
+                this.graphic = GraphicModule.mirrorImage(defaultImage);
+                break;
+            case 0:
+                this.graphic = defaultImage;
+                break;
+        }
         super.tick(timeDelta);
     }
 

@@ -26,12 +26,12 @@ public final class Main {
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
-    public static final List<LineSegment> linesToDraw = new ArrayList<>();
+    public static final List<Tickable> tickables = new ArrayList<>();
     
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(0, 0), 500, 30);
+    public static final Camera camera = new Camera(new Point(0, 0), 500, 40);
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -141,8 +141,23 @@ public final class Main {
     private static long lastTick;
 
     public static void tick() {
-        float timeDelta = (System.currentTimeMillis() - lastTick);
+        float timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
         lastTick = System.currentTimeMillis();
+        handleKeyInput();
+
+        for (Tickable tickable : new ArrayList<Tickable>(tickables)) {
+            if (tickable != null) {
+                tickable.tick(timeDelta);
+            }
+        }
+        moveCamera();
+        screenWidth = frame.getWidth();
+        screenHeight = frame.getHeight();
+        // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
+
+    }
+
+    public static void handleKeyInput() {
         if (mainCharacter != null) {
             if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.canJump()) {
                 mainCharacter.jump();
@@ -150,42 +165,42 @@ public final class Main {
                 mainCharacter.resetJump();
             }
 
-            if (activeKeys.contains(KeyEvent.VK_A)) {
+            if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
                 mainCharacter.moveLeft();
-            } else if (activeKeys.contains(KeyEvent.VK_D)) {
+            } else if (activeKeys.contains(KeyEvent.VK_D) && !activeKeys.contains(KeyEvent.VK_A)) {
                 mainCharacter.moveRight();
             } else {
                 mainCharacter.standStill();
             }
-            mainCharacter.tick(timeDelta / 1000);
 
-            moveCamera();
-            screenWidth = frame.getWidth();
-            screenHeight = frame.getHeight();
-            // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
+            if (activeKeys.contains(KeyEvent.VK_F)) {
+                mainCharacter.makeFireball();
+            }
         }
-
     }
 
     public static void moveCamera() {
-        Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(0, -30 ));
-        double moveX = 0;
-        double moveY = 0;
-        if (relative.x() < -camera.threshhold) {
-            moveX = -camera.threshhold - relative.x();
-        }
-        if (relative.x() > camera.threshhold) {
-            moveX = camera.threshhold - relative.x();
-        }
+        if (mainCharacter != null) {
 
-        if (relative.y() < -camera.threshhold) {
-            moveY = -camera.threshhold - relative.y();
-        }
-        if (relative.y() > camera.threshhold) {
-            moveY = camera.threshhold  - relative.y();
-        }
+            Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(0, -30 ));
+            double moveX = 0;
+            double moveY = 0;
+            if (relative.x() < -camera.threshhold) {
+                moveX = -camera.threshhold - relative.x();
+            }
+            if (relative.x() > camera.threshhold) {
+                moveX = camera.threshhold - relative.x();
+            }
 
-        camera.position = camera.position.plus(moveX, moveY);
+            if (relative.y() < -camera.threshhold) {
+                moveY = -camera.threshhold - relative.y();
+            }
+            if (relative.y() > camera.threshhold) {
+                moveY = camera.threshhold  - relative.y();
+            }
+
+            camera.position = camera.position.plus(moveX, moveY);
+        }
     }
     
     // New Window
@@ -327,7 +342,7 @@ public final class Main {
             }
         );
 
-        for (Collidable collidable : collidables) {
+        for (Collidable collidable : new ArrayList<Collidable>(collidables)) {
             if (collidable.hitbox.shiftAll(collidable.position).liesIn(hitboxRange)) {
                 possibleCollisions.add(collidable);
             }

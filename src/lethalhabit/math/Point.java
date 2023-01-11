@@ -3,7 +3,7 @@ package lethalhabit.math;
 import java.lang.Comparable;
 
 public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
-    
+
     @Override
     public int compareTo(Point other) {
         if (this.x > other.x && this.y > other.y) {
@@ -39,4 +39,8 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
         return new Vec2D(x, y);
     }
 
+    public double getDistance(Point point) {
+        Point relativePosition = minus(point);
+        return Math.sqrt(relativePosition.x() * relativePosition.x() + relativePosition.y() * relativePosition.y());
+    }
 }
