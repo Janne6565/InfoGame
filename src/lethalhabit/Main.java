@@ -31,7 +31,7 @@ public final class Main {
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(0, 0), 500, 40);
+    public static final Camera camera = new Camera(new Point(0, 0), 1000, 40);
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -39,8 +39,8 @@ public final class Main {
 
 
     public static void main(String[] args) {
-
-        createStartWindow();
+        setupCamera();
+        createStartMenu();
         mainCharacter = new Player(
             50,
             "character.png",
@@ -57,10 +57,10 @@ public final class Main {
         new Collidable(
             new Hitbox(
                     new Point[] {
-                        new Point(0, 12),
+                        new Point(0, 14),
                         new Point(0, 0),
                         new Point(100, 0),
-                        new Point(100, 12),
+                        new Point(100, 14),
                     }
                 ),
                 new Point(0, 100),
@@ -242,143 +242,79 @@ public final class Main {
         frame.setContentPane(screen);
     }
 
-    public static void createInternalFrame(String title) {
-        JInternalFrame in = new JInternalFrame();
-
-        //initialisation
+    //nonsense -----------------
+    protected void createInternalFrame(String title) {
+         JInternalFrame in = new JInternalFrame();
+        
+        //initialisation 
         JPanel p = new JPanel();
         JButton b = new JButton("button");
         JLabel l = new JLabel("This test");
-
-        //add ons
-
+        
+        //add ons 
+       
 
         p.add(b);
         p.add(l);
         //settings
         in.setTitle(title);
 
-
+        
         // set visibility internal frame
         in.setVisible(true);
-
+ 
         // add panel to internal frame
         in.add(p);
-
-
+       
+ 
         // add internal frame to frame
         frame.add(in);
-
-
-
     }
 
     // create Start Menu Scene JInternalFrame
 
-    public static void createStartWindow() {
-        JFrame startFrame = new JFrame("Lethal Habit");
-        JPanel panel = new JPanel();
+    public static void createStartMenu() {
+        JInternalFrame menu = new JInternalFrame();
         // menu.setUndecorated(true);
 
         // Set the menu to full-screen mode and automatically resize the window to fit the screen
+        menu.toFront();
+        menu.setResizable(false);
+        menu.show();
 
-        startFrame.setUndecorated(true);
-
-        startFrame.setSize(200,200);
-        startFrame.setResizable(false);
-        startFrame.show();
-
-        JLabel gameLabel = new JLabel("Lethal Habit");
+        JLabel gameLabel = new JLabel("InfoGame");
         JButton startButton = new JButton("Start");
         JButton settingsButton = new JButton("Settings");
         JButton exitButton = new JButton("Exit");
 
         //New Panel mit Button Layout
-        panel.setLayout(new BorderLayout());
+        JPanel MenuPanel = new JPanel();
+        MenuPanel.setLayout(new BoxLayout (MenuPanel, BoxLayout.Y_AXIS));
 
         //action event listeners:
 
         startButton.addActionListener(e -> {
-            startFrame.dispose();
-            setupCamera();
+            //your actions
         });
 
-        settingsButton.addActionListener(e -> {
-            startFrame.dispose();
-            createSettingsWindow();
-        });
-        exitButton.addActionListener(e -> {
-            startFrame.dispose();
+         settingsButton.addActionListener(e -> {
+             //your actions
+         });
+         exitButton.addActionListener(e -> {
+             //your actions
 
-        });
-
+         });
+        
         //
-        panel.add(gameLabel, BorderLayout.PAGE_START);
-        panel.add(startButton, BorderLayout.CENTER);
-        panel.add(settingsButton, BorderLayout.EAST);
-        panel.add(exitButton, BorderLayout.SOUTH);
+        MenuPanel.add(gameLabel);
+        MenuPanel.add(startButton);
+        MenuPanel.add(settingsButton);
+        MenuPanel.add(exitButton);
 
-        startFrame.add(panel);
-        startFrame.setLocationRelativeTo(null);
-        startFrame.setVisible(true);
+        menu.add(MenuPanel);
 
-
-
-
-    }
-    public static void createSettingsWindow() {
-
-        String[] petStrings = { "Bird", "Cat", "Dog", "Rabbit", "Pig" };
-
-        //Create the combo box, select item at index 4.
-        //Indices start at 0, so 4 specifies the pig.
-        JComboBox petList = new JComboBox(petStrings);
-        petList.setSelectedIndex(4);
-
-        JFrame settingsFrame = new JFrame();
-        JPanel panel = new JPanel();
-        // menu.setUndecorated(true);
-
-        //New Panel mit Button Layout
-        panel.setLayout(new BorderLayout());
-
-        // Set the menu to full-screen mode and automatically resize the window to fit the screen
-        settingsFrame.setUndecorated(true);
-
-        settingsFrame.setSize(200,200);
-        settingsFrame.setResizable(false);
-        settingsFrame.show();
-
-        JLabel gameLabel = new JLabel("Lethal Habit");
-        JButton startButton = new JButton("Start");
-        JButton backButton = new JButton("Back");
-
-
-
-
-        //action event listeners:
-
-        startButton.addActionListener(e -> {
-            settingsFrame.dispose();
-            setupCamera();
-        });
-        backButton.addActionListener( e -> {
-            settingsFrame.dispose();
-            createStartWindow();
-        });
-
-
-        //
-        panel.add(gameLabel, BorderLayout.NORTH);
-        panel.add(petList, BorderLayout.CENTER);
-        panel.add(backButton, BorderLayout.SOUTH);
-
-
-        settingsFrame.add(panel);
-        settingsFrame.setLocationRelativeTo(null);
-        settingsFrame.setVisible(true);
-
-
+        frame.add(menu);
+        menu.setVisible(false);
 
 
     }

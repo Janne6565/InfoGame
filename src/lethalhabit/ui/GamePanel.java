@@ -40,7 +40,6 @@ public final class GamePanel extends JPanel {
                 // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
             }
         }
-        System.out.println("Time For Drawing: " + ((System.nanoTime() - timeBefore) / 1000000));
     }
 
     private static List<Drawable> getDrawables() {

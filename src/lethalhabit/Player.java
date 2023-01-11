@@ -1,15 +1,16 @@
 package lethalhabit;
 
-import lethalhabit.ingame.Fireball;
+import lethalhabit.game.Fireball;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
 import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Animation;
-import lethalhabit.ui.GraphicModule;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+
+import static lethalhabit.Util.mirrorImage;
 
 public class Player extends PhysicsObject{
 
@@ -19,7 +20,7 @@ public class Player extends PhysicsObject{
 
 
     /* Animations */
-    public Animation idleAnimation = new Animation(0.0416, "playerIdle", 48);
+    public Animation idleAnimation = new Animation(0.0416, "playerIdle");
     public Animation walkAnimation; // TODO: Walk Animation
     public Animation midAirAnimation; // TODO: Mid Air Animation
 
@@ -89,7 +90,7 @@ public class Player extends PhysicsObject{
                 this.graphic = defaultImage;
                 break;
             case -1:
-                this.graphic = GraphicModule.mirrorImage(defaultImage);
+                this.graphic = mirrorImage(defaultImage);
                 break;
             case 0:
                 this.graphic = defaultImage;

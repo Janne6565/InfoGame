@@ -11,17 +11,17 @@ public class Animation {
     public double animationTime; // Time needed for one run of the animation
     public ArrayList<BufferedImage> frames;
 
-    public Animation(double frameTime, String animationPath, int frameCount) {
+    public Animation(double frameTime, String animationPath) {
         this.frameTime = frameTime;
-        animationTime = frameCount * frameTime;
         frames = new ArrayList<>();
-        for (int i = 1; i <= frameCount; i ++) {
-            String path = animationPath + " (" + i + ").gif";
+        int frameCount;
+        for (frameCount = 0; ; frameCount++) {
             try {
-                frames.add(ImageIO.read(new File("assets/animation/" + animationPath + "/ (" + i + ").gif")));
+                frames.add(ImageIO.read(new File("assets/animation/" + animationPath + "/(" + (frameCount + 1) + ").gif")));
             } catch (IOException e) {
-                e.printStackTrace();
+                break;
             }
         }
+        animationTime = frameTime * frameCount;
     }
 }
