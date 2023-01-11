@@ -1,44 +1,44 @@
 # InfoGame
 
-ChadBoss
+## ChadBoss
 
-1. Phase
+### 1. Phase
 
-Moves:
+#### Moves:
 
 1. Blocken -> viel weniger Damage
 2. Schlagen 
 -	einmal nach vorne, oder doppelhit (aber schneller und kürzer)
 - 	uppercut, stunt den spieler 1s (möglicherweise damage)
 
-Eigenschaften:
+#### Eigenschaften:
 
 Wenn HP auf Hälfte fällt, übergang zweite Phase
 
-2. Phase
+### 2. Phase
 
 - Bisschen größer
 
-Moves:
+#### Moves:
 -	gleiche fähigkeiten wie oben, aber mehr Damage
 - 	wenn beim Block gehittet wird vom Spieler, Damage wird geboostet und hittet danach spieler
 -	1-3er hit -> erster hit wird gestunt beim spieler
 
 neue Attacke -> springt und slamt (hitbox wäre flach auf dem boden beim landen, macht damage und stunt, auf wenn boss auf dem boden landet und spieler trifft)
 
-Eigenschaften:
+#### Eigenschaften:
 
 Wenn HP 0 ist -> Feuerformen spawnen 10-20 Sekunden(Form von der Logo / Band)
 
-3. Phase
+### 3. Phase
 
-Moves:
+#### Moves:
 - schlägt schneller
 - hat kombos von 2-6 schlägen, schlägt mit 6 armen alle einmal zu, wenn getroffen von einem hit, spieler gestunt
 - hat die moves von Phase 1, und von Phase 2 anstatt Slam, (Priming ist bein heben) stampft der boss um sich herum (1. stampf stunt den spieler, falls spieler in bodenhitbox ist) -> kann danach gechained werden 3mal
 	=> beim gegner ein hitbox am bein, welches viel damage macht. 
 
-Boss 1:
+## Boss 1:
 
 - Gegner soll hochspringen können
 - Gegner schwere Sprungattacke (auf dem Boden schlagen) 
@@ -50,10 +50,10 @@ Boss 1:
 - Gegner Muster Angriffen
 - Slam, Sweep, Frontal
 
-Distanzattacken:
+### Distanzattacken:
 Schießt Pfeil
 
-Phase 2:
+### Phase 2:
 
 Slam = Stun
 1 Damage bei jedem Angriff
@@ -65,11 +65,11 @@ Gegner beschwört
 
 
 
-Boss 2:
+## Boss 2:
 
-Phase 1:
+### Phase 1:
 
-- Attacken:
+#### Attacken:
 
 - Angrifft mit Armen (herum) 1,5sekunden
 Spieler Stunnen, zwei Schläge = Stun für den Rest des Zeits,
@@ -82,7 +82,7 @@ weniger schaden, bewegt spieler, stunnt,
 0,5 priming sekunden für spawn und weg gehen, während er spawnt, kommen schlägen (damage hitbox),
 springt raus, normal
 
-Phase 2:
+### Phase 2:
 
 - spuckt gift, priming (lehnt sich zurück), distanz attacke spuckt gift, gift macht spieler slowed laufen und sprunghöhe und ticks damage, 
 	cooldown also langsamer schlagen, insgesamt mittel viel damage, stackbar
@@ -93,22 +93,22 @@ Phase 2:
 
 
 
-Elektro Igel:
+## Elektro Igel:
 
 - springt zwischen Platformen,
 - Fläche von Platform besteht aus Wasser
 
-Angriff:
+### Angriff:
 
 - Priming Radius um herum, elektroblitze um herum (eine große Kugel, viel damage)
 - Priming Blitzschuss durch Opacity, targeted den Spieler, und hittet nur wenn SPieler auf dem Boden ist und im Hit bereich ist
 - Platform, worauf der Igel ist, wird elektrisch damage zugefügt beim SPieler
 
-Eigenschaften:
+### Eigenschaften:
 
 unter der Hälfte von HP, macht Blitzangriffe auf allen Platformen
 
-Allgemein
+### Allgemein
 
 - kann auf dem Spieler zu laufen,
 - dashed durch den spieler, macht damage beim spieler,
