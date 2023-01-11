@@ -1,5 +1,6 @@
 package lethalhabit;
 
+import lethalhabit.game.Tile;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.ui.Camera;
@@ -8,12 +9,12 @@ import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.desktop.AppHiddenEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public final class Main {
     public static final double collisionThreshold = 0.00001;
@@ -21,24 +22,28 @@ public final class Main {
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;
+    public static double tileSize = 25;
 
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
-    
+
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
     public static final Camera camera = new Camera(new Point(0, 0), 1000, 40);
-    
+
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
     public static Player mainCharacter;
+    public static Map<Integer, Map<Integer, Tile>> map;
 
 
     public static void main(String[] args) {
+        Tile.loadMapTiles();
+        loadMap("resources/map.json");
         setupCamera();
         createStartMenu();
         mainCharacter = new Player(
@@ -54,86 +59,12 @@ public final class Main {
             80,
                 200
         );
-        new Collidable(
-            new Hitbox(
-                    new Point[] {
-                        new Point(0, 14),
-                        new Point(0, 0),
-                        new Point(100, 0),
-                        new Point(100, 14),
-                    }
-                ),
-                new Point(0, 100),
-            "ground.png",
-            100
-        ){};
-        new Collidable(
-                new Hitbox(
-                        new Point[] {
-                                new Point(0, 12),
-                                new Point(0, 0),
-                                new Point(100, 0),
-                                new Point(100, 12),
-                        }
-                ),
-                new Point(100, 80),
-                "ground.png",
-                100
-        ){};
-        new Collidable(
-                new Hitbox(
-                        new Point[] {
-                                new Point(0, 12),
-                                new Point(0, 0),
-                                new Point(100, 0),
-                                new Point(100, 12),
-                        }
-                ),
-                new Point(-100, 80),
-                "ground.png",
-                100
-        ){};
-        new Collidable(
-                new Hitbox(
-                        new Point[] {
-                                new Point(0, 12),
-                                new Point(0, 0),
-                                new Point(100, 0),
-                                new Point(100, 12),
-                        }
-                ),
-                new Point(-200, 80),
-                "ground.png",
-                100
-        ){};
-        new Collidable(
-                new Hitbox(
-                        new Point[] {
-                                new Point(0, 12),
-                                new Point(0, 0),
-                                new Point(100, 0),
-                                new Point(100, 12),
-                        }
-                ),
-                new Point(-300, 80),
-                "ground.png",
-                100
-        ){};
-        new Collidable(
-                new Hitbox(
-                        new Point[] {
-                                new Point(0, 12),
-                                new Point(0, 0),
-                                new Point(100, 0),
-                                new Point(100, 12),
-                        }
-                ),
-                new Point(0, -10),
-                "ground.png",
-                100
-        ){};
     }
-    
+
+    public static void loadMap(String path) {
+        map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream(path)));
+    }
+
     public static int getScreenWidthGame() {
         return camera.width;
     }

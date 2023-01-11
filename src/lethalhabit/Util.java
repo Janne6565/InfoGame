@@ -9,6 +9,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -18,10 +20,10 @@ public final class Util {
 
     private Util() {}
 
-    public static Map<Integer, Map<Integer, Tile>> readWorldData(File worldFile) {
+    public static Map<Integer, Map<Integer, Tile>> readWorldData(InputStream stream) {
         Map<Integer, Map<Integer, Tile>> worldData = new HashMap<>();
         try {
-            String json = Files.readString(Path.of(worldFile.getPath()));
+            String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             Gson gson = new Gson();
             Map<String, Map<String, Map<String, Double>>> strings = gson.fromJson(json, Map.class);
             for (Map.Entry<String, Map<String, Map<String, Double>>> entry : strings.entrySet()) {
@@ -29,7 +31,11 @@ public final class Util {
                 Map<Integer, Tile> value = new HashMap<>();
                 for (Map.Entry<String, Map<String, Double>> entryInner : entry.getValue().entrySet()) {
                     int keyInner = Integer.parseInt(entryInner.getKey());
-                    Tile valueInner = new Tile(entryInner.getValue().getOrDefault("block", -1D).intValue(), entryInner.getValue().getOrDefault("liquid", -1D).intValue(), entryInner.getValue().getOrDefault("interactable", -1D).intValue());
+                    Tile valueInner = new Tile(
+                            entryInner.getValue().getOrDefault("block", -1D).intValue(),
+                            entryInner.getValue().getOrDefault("liquid", -1D).intValue(),
+                            entryInner.getValue().getOrDefault("interactable", -1D).intValue()
+                    );
                     value.put(keyInner, valueInner);
                 }
                 worldData.put(key, value);

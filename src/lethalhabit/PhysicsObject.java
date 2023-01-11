@@ -21,7 +21,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     @Override
     public void tick(float timeDelta) {
         if (!isWallDown()) {
-            velocity = velocity.plus(0, 400 * timeDelta);
+            // velocity = velocity.plus(0, 400 * timeDelta);
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();

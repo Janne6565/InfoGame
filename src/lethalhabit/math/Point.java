@@ -34,6 +34,9 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     public Point minus(TwoDimensional other) {
         return new Point(this.x - other.x(), this.y - other.y());
     }
+    public Point scale(double factor) {
+        return new Point(this.x * factor, this.y * factor);
+    }
 
     public Vec2D loc() {
         return new Vec2D(x, y);

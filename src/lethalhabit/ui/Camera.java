@@ -1,5 +1,6 @@
 package lethalhabit.ui;
 
+import lethalhabit.Main;
 import lethalhabit.math.Point;
 
 import java.awt.*;
@@ -21,6 +22,10 @@ public final class Camera {
         for (Drawable draw : drawables) {
             graphics2D.drawImage(draw.graphic, (int) draw.position.x(), (int) draw.position.y(), null);
         }
+    }
+
+    public double getHeight() {
+        return (float) width / Main.screenWidth * Main.screenHeight;
     }
     
 }

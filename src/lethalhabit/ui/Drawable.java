@@ -33,6 +33,15 @@ public abstract class Drawable {
         Main.drawables.add(this);
     }
 
+    public Drawable(float width, BufferedImage graphic, Point position) {
+        this.graphic = graphic;
+        this.path = "null";
+        this.width = width;
+        this.height = (this.width / graphic.getWidth()) * graphic.getHeight();
+        this.position = position;
+        Main.drawables.add(this);
+    }
+
     public void draw(Graphics graphics) {
         double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
         double offsetX = relative ? Main.camera.position.x() : 0;
