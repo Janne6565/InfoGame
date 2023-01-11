@@ -52,22 +52,22 @@ public final class GamePanel extends JPanel {
         int yRange = (int) (Main.camera.getHeight() / Main.tileSize) + 1;
         double pixelPerPixel = (float) Main.screenWidth / Main.camera.width;
         Point cameraPositionTopLeft = Main.camera.position.minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
-        Point indexTopLeft = cameraPositionTopLeft.scale(Main.tileSize).minus(1, 1);
+        Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.tileSize).minus(1, 1);
 
-        for (int i = (int) indexTopLeft.x(); i < xRange + indexTopLeft.x(); i++) {
-            for (int j = (int) indexTopLeft.y(); j < yRange + indexTopLeft.y(); j++) {
-                if (Main.map.containsKey(i) && Main.map.get(i).containsKey(j)) {
-                    Tile tile = Main.map.get(i).get(j);
-                    System.out.println(tile.block);
+        for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
+            for (int ii = (int) indexTopLeft.y() - 1; ii <= yRange + indexTopLeft.y() + 1; ii++) {
+                int x = (int) (i * Main.tileSize - cameraPositionTopLeft.x());
+                int y = (int) (ii * Main.tileSize - cameraPositionTopLeft.y());
+                if (Main.map.containsKey(i) && Main.map.get(i).containsKey(ii)) {
+                    Tile tile = Main.map.get(i).get(ii);
                     if (Tile.TILEMAP.containsKey(tile.block)) {
                         BufferedImage image = Tile.TILEMAP.get(tile.block).graphic;
-                        Image img = image.getScaledInstance((int) (Main.tileSize * pixelPerPixel), (int) (Main.tileSize * pixelPerPixel), Image.SCALE_FAST);
-                        g.drawImage(img, x, (int) (y - Main.tileSize), null);
+                        Image img = image.getScaledInstance((int) (Main.tileSize * pixelPerPixel + 1), (int) (Main.tileSize * pixelPerPixel + 1), Image.SCALE_FAST);
+                        g.drawImage(img, (int) (x * pixelPerPixel), (int) (y * pixelPerPixel), null);
                     }
                 }
             }
         }
-
     }
 
     @Override

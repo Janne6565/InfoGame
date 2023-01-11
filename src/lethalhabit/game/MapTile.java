@@ -19,6 +19,7 @@ public class MapTile {
 
     public MapTile(Hitbox hitbox, String path) {
         InputStream stream = Main.class.getResourceAsStream("resources/tiles/" + path);
+        this.hitbox = hitbox;
         try {
             assert stream != null;
             graphic = ImageIO.read(stream);

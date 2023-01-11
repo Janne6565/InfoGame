@@ -1,5 +1,6 @@
 package lethalhabit;
 
+import lethalhabit.game.MapTile;
 import lethalhabit.game.Tile;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
@@ -23,7 +24,6 @@ public final class Main {
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;
     public static double tileSize = 25;
-
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
@@ -49,7 +49,7 @@ public final class Main {
         mainCharacter = new Player(
             50,
             "character.png",
-            new Point( 0, 0),
+            new Point( 40, -50),
             new Hitbox( new Point[]{
                     new Point(10, 10),
                     new Point(10, 57),
@@ -250,7 +250,7 @@ public final class Main {
 
     }
 
-    public static Collidable[] getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity, double timeDelta) {
+    public static ArrayList<Hitbox> getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity, double timeDelta) {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
 
         ArrayList<Collidable> possibleCollisions = new ArrayList<>();
@@ -273,11 +273,25 @@ public final class Main {
             }
         );
 
-        for (Collidable collidable : new ArrayList<Collidable>(collidables)) {
-            if (collidable.hitbox.shiftAll(collidable.position).liesIn(hitboxRange)) {
-                possibleCollisions.add(collidable);
+        ArrayList<Hitbox> hitboxesMightBeCollidingTo = new ArrayList<>();
+
+        Point minPosition = new Point((int) hitboxRange.vertices[0].x() / tileSize, (int) hitboxRange.vertices[0].y() / tileSize);
+        Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / tileSize, (int) hitboxRange.vertices[2].y() / tileSize);
+
+        for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x(); xIndex ++) {
+            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y(); yIndex ++) {
+                Point position = new Point(xIndex * tileSize, yIndex * tileSize);
+                if (map.containsKey(xIndex) && map.get(xIndex).containsKey(yIndex)) {
+                    Tile tile = map.get(xIndex).get(yIndex);
+                    if (tile.block != Tile.EMPTY.block && Tile.TILEMAP.containsKey(tile.block)) {
+                        MapTile mapTile = Tile.TILEMAP.get(tile.block);
+                        Hitbox hitbox = mapTile.hitbox.shiftAll(position);
+                        hitboxesMightBeCollidingTo.add(hitbox);
+                    }
+                }
             }
         }
-        return possibleCollisions.toArray(new Collidable[0]);
+
+        return hitboxesMightBeCollidingTo;
     }
 }

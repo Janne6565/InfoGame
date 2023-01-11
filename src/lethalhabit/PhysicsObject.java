@@ -4,6 +4,7 @@ import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.ui.Drawable;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public abstract class PhysicsObject extends Drawable implements Tickable {
@@ -21,7 +22,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     @Override
     public void tick(float timeDelta) {
         if (!isWallDown()) {
-            // velocity = velocity.plus(0, 400 * timeDelta);
+            velocity = velocity.plus(0, 400 * timeDelta);
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
@@ -44,7 +45,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     }
 
     public void move(float timeDelta) {
-        Collidable[] possibleCollisions = Main.getPossibleCollisions(this, velocity, timeDelta);
+        ArrayList<Hitbox> possibleCollisions = Main.getPossibleCollisions(this, velocity, timeDelta);
         Date date = new Date();
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity, false);
         double min = timeDelta;
@@ -71,17 +72,17 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
     }
 
-    private Double getFirstIntersection(Hitbox hitbox, Collidable[] collidables, Vec2D direction, boolean debug) {
+    private Double getFirstIntersection(Hitbox hitbox, ArrayList<Hitbox> collidables, Vec2D direction, boolean debug) {
         Double minTime = Double.NaN;
-        for (Collidable collidable : collidables) {
-            Point maxPositionCollidable = new Point(collidable.hitbox.shiftAll(collidable.position).maxX(), collidable.hitbox.shiftAll(collidable.position).maxY());
-            Point minPositionCollidable = new Point(collidable.hitbox.shiftAll(collidable.position).minX(), collidable.hitbox.shiftAll(collidable.position).minY());
+        for (Hitbox collidable : collidables) {
+            Point maxPositionCollidable = new Point(hitbox.maxX(), hitbox.maxY());
+            Point minPositionCollidable = new Point(hitbox.minX(), hitbox.minY());
 
             Point maxPositionSelf = new Point(hitbox.maxX() + velocity.x(), hitbox.maxY() + velocity.y());
             Point minPositionSelf = new Point(hitbox.minX(), hitbox.minY());
 
             for (LineSegment edge : hitbox.edges()) {
-                for (LineSegment edgeCollidingFor : collidable.getHitbox().edges()) {
+                for (LineSegment edgeCollidingFor : hitbox.edges()) {
                     Double newTd = minimumFactorUntilIntersection(edge, direction, edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
                         if (Double.isNaN(minTime)) {
@@ -92,7 +93,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
                 }
             }
 
-            for (LineSegment edge : collidable.getHitbox().edges()) {
+            for (LineSegment edge : hitbox.edges()) {
                 for (LineSegment edgeCollidingFor : hitbox.edges()) {
                     Double newTd = minimumFactorUntilIntersection(edge, direction.scale(-1), edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
