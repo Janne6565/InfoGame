@@ -4,6 +4,7 @@ import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
 import lethalhabit.math.Vec2D;
+import lethalhabit.ui.Animation;
 import lethalhabit.ui.GraphicModule;
 
 import java.awt.*;
@@ -13,6 +14,15 @@ public class Player extends PhysicsObject{
 
     public double movementSpeed;
     public double jumpBoost;
+    public double timeInGame = 0; // Used to calculate the current frame of the animation
+
+
+    /* Animations */
+    public Animation idleAnimation = new Animation(0.0416, "playerIdle", 48);
+    public Animation walkAnimation; // TODO: Walk Animation
+    public Animation midAirAnimation; // TODO: Mid Air Animation
+
+    public Animation currentAnimation = idleAnimation;
 
     public Player(float width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
         super(width, pathToImage, position, hitbox);
@@ -35,6 +45,8 @@ public class Player extends PhysicsObject{
 
     public void standStill() {
         this.velocity = new Vec2D(0, this.velocity.y());
+        this.currentAnimation = idleAnimation;
+        this.graphic = defaultImage;
     }
 
     private boolean jumped = false; // this is used to not let you hold your jump key and than jump more than once
@@ -43,6 +55,9 @@ public class Player extends PhysicsObject{
     private int timesJumped = 0;
 
     public boolean canJump() {
+        if (timesJumped <= 0) {
+            return true;
+        }
         return isWallDown();
     }
 
@@ -59,7 +74,15 @@ public class Player extends PhysicsObject{
     }
 
     @Override
-    void onGroundReset() {
+    public void tick(float timeDelta) {
+        timeInGame += timeDelta;
+        int currentFrame = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
+        defaultImage = currentAnimation.frames.get(currentFrame);
+        super.tick(timeDelta);
+    }
+
+    @Override
+    public void onGroundReset() {
         timesJumped = 0;
     }
 

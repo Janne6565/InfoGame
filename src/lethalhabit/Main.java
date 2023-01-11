@@ -128,7 +128,7 @@ public final class Main {
                                 new Point(100, 12),
                         }
                 ),
-                new Point(0, -50),
+                new Point(0, -10),
                 "ground.png",
                 100
         ){};
@@ -160,6 +160,9 @@ public final class Main {
             mainCharacter.tick(timeDelta / 1000);
 
             moveCamera();
+            screenWidth = frame.getWidth();
+            screenHeight = frame.getHeight();
+            // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
         }
 
     }
@@ -213,18 +216,19 @@ public final class Main {
         frame.setUndecorated(true);
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen
+
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setResizable(false);
+
+        frame.setResizable(true);
         frame.setVisible(true);
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
         System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
 
-       
         frame.setContentPane(screen);
     }
 
-    //nonsense ----------------- 
+    //nonsense -----------------
     protected void createInternalFrame(String title) {
          JInternalFrame in = new JInternalFrame();
         
@@ -251,9 +255,6 @@ public final class Main {
  
         // add internal frame to frame
         frame.add(in);
- 
-
-
     }
 
     // create Start Menu Scene JInternalFrame
@@ -299,6 +300,7 @@ public final class Main {
         menu.add(MenuPanel);
 
         frame.add(menu);
+        menu.setVisible(false);
 
 
     }
