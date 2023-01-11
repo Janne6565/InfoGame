@@ -23,7 +23,7 @@ public final class Main {
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;
-    public static double tileSize = 25;
+    public static double tileSize = 20;
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
@@ -33,7 +33,7 @@ public final class Main {
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(0, 0), 1000, 40);
+    public static final Camera camera = new Camera(new Point(0, 0), 500, 40);
 
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -49,7 +49,7 @@ public final class Main {
         mainCharacter = new Player(
             50,
             "character.png",
-            new Point( 40, -50),
+            new Point( 100, -50),
             new Hitbox( new Point[]{
                     new Point(10, 10),
                     new Point(10, 57),

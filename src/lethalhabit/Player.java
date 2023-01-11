@@ -18,12 +18,10 @@ public class Player extends PhysicsObject{
     public double jumpBoost;
     public double timeInGame = 0; // Used to calculate the current frame of the animation
 
-
     /* Animations */
     public Animation idleAnimation = new Animation(0.0416, "playerIdle");
     public Animation walkAnimation; // TODO: Walk Animation
     public Animation midAirAnimation; // TODO: Mid Air Animation
-
     public Animation currentAnimation = idleAnimation;
     public int direction = 0;
 

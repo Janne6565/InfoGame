@@ -50,13 +50,10 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity, false);
         double min = timeDelta;
 
-
         double speed = Math.sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y());
         Vec2D velocityGrounded = velocity.scale(1 / speed);
 
         Point pointColliding = position.plus(velocityGrounded.scale(speed).scale(timeDelta));
-
-
 
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta > 0) {
