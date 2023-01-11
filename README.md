@@ -90,3 +90,27 @@ Phase 2:
 - priming stellt sich hin, channeled gift, gift komm von den seiten in wellen, gegner währendessen statisch,
 - kombos mit wellen und attacke
 - channeled und gift fällt von oben in tropfen, priming kommt, 
+
+
+
+Elektro Igel:
+
+- springt zwischen Platformen,
+- Fläche von Platform besteht aus Wasser
+
+Angriff:
+
+- Priming Radius um herum, elektroblitze um herum (eine große Kugel, viel damage)
+- Priming Blitzschuss durch Opacity, targeted den Spieler, und hittet nur wenn SPieler auf dem Boden ist und im Hit bereich ist
+- Platform, worauf der Igel ist, wird elektrisch damage zugefügt beim SPieler
+
+Eigenschaften:
+
+unter der Hälfte von HP, macht Blitzangriffe auf allen Platformen
+
+Allgemein
+
+- kann auf dem Spieler zu laufen,
+- dashed durch den spieler, macht damage beim spieler,
+- normaler physischer kontakt bringt damage
+
