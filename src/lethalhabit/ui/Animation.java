@@ -18,7 +18,7 @@ public class Animation {
         for (int i = 1; i <= frameCount; i ++) {
             String path = animationPath + " (" + i + ").gif";
             try {
-                frames.add(ImageIO.read(new File("assets/animation/" + path)));
+                frames.add(ImageIO.read(new File("assets/animation/" + animationPath + "/ (" + i + ").gif")));
             } catch (IOException e) {
                 e.printStackTrace();
             }

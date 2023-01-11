@@ -17,7 +17,7 @@ import java.util.List;
 
 public final class Main {
     public static final double collisionThreshold = 0.00001;
-    public static final boolean debugHitbox = true;
+    public static final boolean debugHitbox = false;
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;
@@ -31,7 +31,7 @@ public final class Main {
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(0, 0), 500);
+    public static final Camera camera = new Camera(new Point(0, 0), 500, 30);
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -168,22 +168,21 @@ public final class Main {
     }
 
     public static void moveCamera() {
-        Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(0, -40 ));
+        Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(0, -30 ));
         double moveX = 0;
         double moveY = 0;
-        int threshold = 30;
-        if (relative.x() < -threshold) {
-            moveX = -threshold - relative.x();
+        if (relative.x() < -camera.threshhold) {
+            moveX = -camera.threshhold - relative.x();
         }
-        if (relative.x() > threshold) {
-            moveX = threshold - relative.x();
+        if (relative.x() > camera.threshhold) {
+            moveX = camera.threshhold - relative.x();
         }
 
-        if (relative.y() < -threshold) {
-            moveY = -threshold - relative.y();
+        if (relative.y() < -camera.threshhold) {
+            moveY = -camera.threshhold - relative.y();
         }
-        if (relative.y() > threshold) {
-            moveY = threshold  - relative.y();
+        if (relative.y() > camera.threshhold) {
+            moveY = camera.threshhold  - relative.y();
         }
 
         camera.position = camera.position.plus(moveX, moveY);
@@ -333,7 +332,6 @@ public final class Main {
                 possibleCollisions.add(collidable);
             }
         }
-
         return possibleCollisions.toArray(new Collidable[0]);
     }
 }

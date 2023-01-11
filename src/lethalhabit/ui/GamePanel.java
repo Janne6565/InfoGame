@@ -4,14 +4,15 @@ import lethalhabit.Main;
 import lethalhabit.math.Point;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 
 //TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 public final class GamePanel extends JPanel {
-    
-    private Timer updateTimer;
+
+    private final Timer updateTimer;
     public float frameRate = 100;
     
     public GamePanel() {
@@ -27,7 +28,6 @@ public final class GamePanel extends JPanel {
         
         Point maxPosition = new Point(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
         Point minPosition = new Point(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-        
         for (Drawable draw : getDrawables()) {
             Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
             Point posRightDown = draw.position.plus(draw.width, draw.height);
