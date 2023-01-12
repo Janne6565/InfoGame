@@ -17,7 +17,7 @@ public class Animation {
         int frameCount;
         for (frameCount = 0; ; frameCount++) {
             try {
-                frames.add(ImageIO.read(new File("assets/animation/" + animationPath + "/(" + (frameCount + 1) + ").gif")));
+                frames.add(ImageIO.read(new File("assets/animation/" + animationPath + "/ (" + (frameCount + 1) + ").gif")));
             } catch (IOException e) {
                 break;
             }
