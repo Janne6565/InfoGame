@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public abstract class PhysicsObject extends Drawable implements Tickable {
-    
+
     public Hitbox hitbox;
     public boolean collidable = true;
     public Vec2D velocity = new Vec2D(0, 0);
@@ -27,58 +27,70 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
         }
-
         if (isWallLeft()) {
-            velocity = new Vec2D(Math.max(velocity.x(), 0), velocity.y());
+            velocity = new Vec2D(Math.max(0, velocity.x()), velocity.y());
         }
-
         if (isWallRight()) {
-            velocity = new Vec2D(Math.min(velocity.x(), 0), velocity.y());
+            velocity = new Vec2D(Math.min(0, velocity.x()), velocity.y());
         }
-
-        if (isFloorTop()) {
-            velocity = new Vec2D(velocity.x(), Math.max(velocity.y(), 0));
+        if (isWallUp()) {
+            velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
+            System.out.println("WALL UP");
         }
-
-
-        move(timeDelta);
+        moveX(timeDelta);
+        moveY(timeDelta);
     }
 
-    public void move(float timeDelta) {
-        ArrayList<Hitbox> possibleCollisions = Main.getPossibleCollisions(this, velocity, timeDelta);
-        Date date = new Date();
-        double minTimeDelta = getFirstIntersection(hitbox.shiftAll(super.position), possibleCollisions, velocity, false);
+    public void moveX(float timeDelta) {
+        Vec2D velocityX = new Vec2D(velocity.x(), 0);
+        ArrayList<Hitbox> possibleCollisions = Main.getPossibleCollisions(hitbox.shiftAll(position), velocityX, timeDelta);
+
+        double minTimeDelta = getFirstIntersection(hitbox.shiftAll(position), possibleCollisions, velocityX,false);
         double min = timeDelta;
-
-        double speed = Math.sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y());
-        Vec2D velocityGrounded = velocity.scale(1 / speed);
-
-        Point pointColliding = position.plus(velocityGrounded.scale(speed).scale(timeDelta));
+        double safeDistance = 1.0;
+        double timeToGetToSafeDistance = safeDistance / velocityX.x();
 
         if (!Double.isNaN(minTimeDelta)) {
             if (minTimeDelta > 0) {
-                if (minTimeDelta <= timeDelta) {
-                    min = (minTimeDelta * 0.9);
-                }
-                if (min <= 0.001) {
-                    min = 0;
+                if (minTimeDelta - timeToGetToSafeDistance <= timeDelta) {
+                    min = (minTimeDelta - timeToGetToSafeDistance);
                 }
             }
-
         }
-        super.position = super.position.plus(velocity.x() * min, velocity.y() * min);
+        super.position = super.position.plus(velocityX.x() * min, 0);
+    }
+
+    public void moveY(float timeDelta) {
+        Vec2D velocityY = new Vec2D(0,velocity.y());
+        if (!(isWallDown() && velocityY.y() > 0) && !(isWallUp() && velocityY.y() < 0)) {
+            ArrayList<Hitbox> possibleCollisions = Main.getPossibleCollisions(hitbox.shiftAll(position), velocityY, timeDelta);
+
+            double minTimeDelta = getFirstIntersection(hitbox.shiftAll(position), possibleCollisions, velocityY, false);
+            System.out.println(minTimeDelta);
+
+            double min = timeDelta;
+            double safeDistance = 1.0;
+            double timeToGetToSafeDistance = safeDistance / Math.abs(velocityY.y());
+
+            if (!Double.isNaN(minTimeDelta)) {
+                if (minTimeDelta > 0) {
+                    if (minTimeDelta <= timeDelta) {
+                        min = (minTimeDelta - timeToGetToSafeDistance);
+                    }
+
+                    if (minTimeDelta == timeToGetToSafeDistance) {
+                        min = 0;
+                    }
+                }
+            }
+            super.position = super.position.plus(0, velocityY.y() * min);
+        }
     }
 
     private Double getFirstIntersection(Hitbox hitbox, ArrayList<Hitbox> collidables, Vec2D direction, boolean debug) {
         Double minTime = Double.NaN;
         for (Hitbox collidable : collidables) {
-            Point maxPositionCollidable = new Point(hitbox.maxX(), hitbox.maxY());
-            Point minPositionCollidable = new Point(hitbox.minX(), hitbox.minY());
-
-            Point maxPositionSelf = new Point(hitbox.maxX() + velocity.x(), hitbox.maxY() + velocity.y());
-            Point minPositionSelf = new Point(hitbox.minX(), hitbox.minY());
-
-            for (LineSegment edge : hitbox.edges()) {
+            for (LineSegment edge : collidable.edges()) {
                 for (LineSegment edgeCollidingFor : hitbox.edges()) {
                     Double newTd = minimumFactorUntilIntersection(edge, direction, edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
@@ -91,7 +103,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
             }
 
             for (LineSegment edge : hitbox.edges()) {
-                for (LineSegment edgeCollidingFor : hitbox.edges()) {
+                for (LineSegment edgeCollidingFor : collidable.edges()) {
                     Double newTd = minimumFactorUntilIntersection(edge, direction.scale(-1), edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
                         if (Double.isNaN(minTime)) {
@@ -129,7 +141,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         return min;
     }
 
-
     private Double factorUntilIntersection(Point point, Vec2D direction, LineSegment lineSegment, boolean debug) {
         Vec2D p = point.loc();
         Vec2D a = lineSegment.a().loc();
@@ -147,35 +158,35 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     abstract void onGroundReset();
 
     public boolean isWallDown() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 100000);
+        return (td >= 0 && td < Main.collisionThreshold);
     }
 
 
     public boolean isWallRight() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(1, 0), 1), new Vec2D(1, 0), false);
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(1, 0), 1), new Vec2D(1, 0), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 100000);
+        return (td >= 0 && td < Main.collisionThreshold);
     }
 
     public boolean isWallLeft() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(-1, 0), 1), new Vec2D(-1, 0), false);
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 100000);
+        return (td >= 0 && td < Main.collisionThreshold);
     }
 
-    public boolean isFloorTop() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(this, new Vec2D(0, -1), 1), new Vec2D(0, -1), false);
+    public boolean isWallUp() {
+        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(0, -1), 1), new Vec2D(0, -1), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold * 100000);
+        return (td >= 0 && td < Main.collisionThreshold);
     }
 }

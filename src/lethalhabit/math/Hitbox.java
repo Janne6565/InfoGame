@@ -102,7 +102,11 @@ public final class Hitbox implements Iterable<Point> {
         }
 
         return hitbox.minPosition.x() < minPosition.x() && hitbox.maxPosition.x() > maxPosition.x()
-            || hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y();
+                || hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y();
 
+    }
+
+    public Hitbox shiftAll(double x, double y) {
+        return shiftAll(new Point(x, y));
     }
 }

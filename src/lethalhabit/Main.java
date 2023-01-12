@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class Main {
-    public static final double collisionThreshold = 0.00001;
+    public static final double collisionThreshold = 5;
     public static final boolean debugHitbox = false;
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
@@ -29,7 +29,9 @@ public final class Main {
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
+    public static final boolean MINIMIZED = false;
 
+    public static boolean IS_GAME_RUNNING = false;
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
@@ -42,25 +44,28 @@ public final class Main {
 
 
     public static void main(String[] args) {
+        IS_GAME_RUNNING = true;
+        gameInit();
+    }
+
+    public static void gameInit() {
         Tile.loadMapTiles();
         loadMap("resources/map.json");
         setupCamera();
-        createStartMenu();
         mainCharacter = new Player(
-            50,
-            "character.png",
-            new Point( 100, -50),
-            new Hitbox( new Point[]{
-                    new Point(10, 10),
-                    new Point(10, 57),
-                    new Point(40, 57),
-                    new Point(40, 10)
-            }),
-            80,
+                50,
+                "character.png",
+                new Point( 100, -50),
+                new Hitbox( new Point[]{
+                        new Point(10, 10),
+                        new Point(10, 57),
+                        new Point(40, 57),
+                        new Point(40, 10)
+                }),
+                80,
                 200
         );
     }
-
     public static void loadMap(String path) {
         map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream(path)));
     }
@@ -137,12 +142,11 @@ public final class Main {
     // New Window
     // public
     public static JFrame frame;
-    public static GamePanel screen;
+    public static GamePanel panel;
 
     public static void setupCamera() {
-
+        panel = new GamePanel();
         // Soll Startmenu davor starten? TODO:
-        screen = new GamePanel();
         frame = new JFrame("Lethal Habit");
         
         // KeyListener 
@@ -157,12 +161,16 @@ public final class Main {
         });
 
         //Frame Settings
-        frame.setContentPane(screen);
+        frame.setContentPane(panel);
         frame.setUndecorated(true);
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen
 
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        if (!MINIMIZED) {
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        } else {
+            frame.setSize(400, 400);
+        }
 
         frame.setResizable(true);
         frame.setVisible(true);
@@ -170,7 +178,7 @@ public final class Main {
         screenHeight = frame.getHeight();
         System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
 
-        frame.setContentPane(screen);
+        frame.setContentPane(panel);
     }
 
     //nonsense -----------------
@@ -202,75 +210,24 @@ public final class Main {
         frame.add(in);
     }
 
-    // create Start Menu Scene JInternalFrame
-
-    public static void createStartMenu() {
-        JInternalFrame menu = new JInternalFrame();
-        // menu.setUndecorated(true);
-
-        // Set the menu to full-screen mode and automatically resize the window to fit the screen
-        menu.toFront();
-        menu.setResizable(false);
-        menu.show();
-
-        JLabel gameLabel = new JLabel("InfoGame");
-        JButton startButton = new JButton("Start");
-        JButton settingsButton = new JButton("Settings");
-        JButton exitButton = new JButton("Exit");
-
-        //New Panel mit Button Layout
-        JPanel MenuPanel = new JPanel();
-        MenuPanel.setLayout(new BoxLayout (MenuPanel, BoxLayout.Y_AXIS));
-
-        //action event listeners:
-
-        startButton.addActionListener(e -> {
-            //your actions
-        });
-
-         settingsButton.addActionListener(e -> {
-             //your actions
-         });
-         exitButton.addActionListener(e -> {
-             //your actions
-
-         });
-        
-        //
-        MenuPanel.add(gameLabel);
-        MenuPanel.add(startButton);
-        MenuPanel.add(settingsButton);
-        MenuPanel.add(exitButton);
-
-        menu.add(MenuPanel);
-
-        frame.add(menu);
-        menu.setVisible(false);
-
-
-    }
-
-    public static ArrayList<Hitbox> getPossibleCollisions(PhysicsObject physicsObject, Vec2D velocity, double timeDelta) {
+    public static ArrayList<Hitbox> getPossibleCollisions(Hitbox hitbox, Vec2D velocity, double timeDelta) {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
 
         ArrayList<Collidable> possibleCollisions = new ArrayList<>();
 
-        Hitbox startedHitbox = physicsObject.hitbox.shiftAll(physicsObject.position);
+        Hitbox startedHitbox = hitbox;
 
-        Hitbox hitboxAfterVelocity = new Hitbox(new Point[] {
-                startedHitbox.minPosition.plus(velocity.scale(timeDelta)),
-                new Point(startedHitbox.minPosition.x(), startedHitbox.maxPosition.y()).plus(velocity.scale(timeDelta)),
-                startedHitbox.maxPosition.plus(velocity.scale(timeDelta)),
-                new Point(startedHitbox.maxPosition.x(), startedHitbox.minPosition.y()).plus(velocity.scale(timeDelta)),
-        });
+        Vec2D scaledVel = velocity.scale(timeDelta);
+
+        Hitbox hitboxAfterVelocity = startedHitbox.shiftAll(scaledVel.x(), scaledVel.y());
 
         Hitbox hitboxRange = new Hitbox(
-            new Point[] {
-                new Point(Math.min(hitboxAfterVelocity.minPosition.x(), startedHitbox.minPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), startedHitbox.minPosition.y())),
-                new Point(Math.min(hitboxAfterVelocity.minPosition.x(), startedHitbox.minPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), startedHitbox.maxPosition.y())),
-                new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), startedHitbox.maxPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), startedHitbox.maxPosition.y())),
-                new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), startedHitbox.maxPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), startedHitbox.minPosition.y()))
-            }
+                new Point[] {
+                        new Point(Math.min(hitboxAfterVelocity.minPosition.x(), startedHitbox.minPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), startedHitbox.minPosition.y())),
+                        new Point(Math.min(hitboxAfterVelocity.minPosition.x(), startedHitbox.minPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), startedHitbox.maxPosition.y())),
+                        new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), startedHitbox.maxPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), startedHitbox.maxPosition.y())),
+                        new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), startedHitbox.maxPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), startedHitbox.minPosition.y()))
+                }
         );
 
         ArrayList<Hitbox> hitboxesMightBeCollidingTo = new ArrayList<>();
@@ -279,19 +236,18 @@ public final class Main {
         Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / tileSize, (int) hitboxRange.vertices[2].y() / tileSize);
 
         for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x(); xIndex ++) {
-            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y(); yIndex ++) {
+            for (int yIndex = (int) minPosition.y() + 1; yIndex <= maxPosition.y(); yIndex ++) {
                 Point position = new Point(xIndex * tileSize, yIndex * tileSize);
                 if (map.containsKey(xIndex) && map.get(xIndex).containsKey(yIndex)) {
                     Tile tile = map.get(xIndex).get(yIndex);
                     if (tile.block != Tile.EMPTY.block && Tile.TILEMAP.containsKey(tile.block)) {
                         MapTile mapTile = Tile.TILEMAP.get(tile.block);
-                        Hitbox hitbox = mapTile.hitbox.shiftAll(position);
-                        hitboxesMightBeCollidingTo.add(hitbox);
+                        Hitbox newHitbox = mapTile.hitbox.shiftAll(position);
+                        hitboxesMightBeCollidingTo.add(newHitbox);
                     }
                 }
             }
         }
-
         return hitboxesMightBeCollidingTo;
     }
 }

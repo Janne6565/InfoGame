@@ -28,42 +28,46 @@ public final class GamePanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) { // this is the stuff that's responsible for drawing all the drawables to the right position (not finished yet)
         super.paintComponent(g);
-        Main.tick();
-        drawMap(g);
-        
-        Point maxPosition = new Point(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-        Point minPosition = new Point(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-        long timeBefore = System.nanoTime();
-        for (Drawable draw : new ArrayList<>(Main.drawables)) {
-            Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
-            Point posRightDown = draw.position.plus(draw.width, draw.height);
-            
-            if ((posRightDown.compareTo(minPosition) > 0 && posLeftTop.compareTo(maxPosition) < 0) || !draw.relative) { // Check if element is inside our camera
-                // Image in our lethalhabit.ui.Camera Frame -> render Graphic
-                draw.draw(g);
-            } else {
-                // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
+        if (Main.IS_GAME_RUNNING) {
+            Main.tick();
+            drawMap(g);
+
+            Point maxPosition = new Point(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+            Point minPosition = new Point(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+            long timeBefore = System.nanoTime();
+            for (Drawable draw : new ArrayList<>(Main.drawables)) {
+                Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
+                Point posRightDown = draw.position.plus(draw.width, draw.height);
+
+                if ((posRightDown.compareTo(minPosition) > 0 && posLeftTop.compareTo(maxPosition) < 0) || !draw.relative) { // Check if element is inside our camera
+                    // Image in our lethalhabit.ui.Camera Frame -> render Graphic
+                    draw.draw(g);
+                } else {
+                    // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
+                }
             }
         }
     }
 
     public void drawMap(Graphics g) {
-        int xRange = (int) (Main.camera.width / Main.tileSize) + 1;
-        int yRange = (int) (Main.camera.getHeight() / Main.tileSize) + 1;
-        double pixelPerPixel = (float) Main.screenWidth / Main.camera.width;
-        Point cameraPositionTopLeft = Main.camera.position.minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
-        Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.tileSize).minus(1, 1);
+        if (Main.IS_GAME_RUNNING) {
+            int xRange = (int) (Main.camera.width / Main.tileSize) + 1;
+            int yRange = (int) (Main.camera.getHeight() / Main.tileSize) + 1;
+            double pixelPerPixel = (float) Main.screenWidth / Main.camera.width;
+            Point cameraPositionTopLeft = Main.camera.position.minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
+            Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.tileSize).minus(1, 1);
 
-        for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
-            for (int ii = (int) indexTopLeft.y() - 1; ii <= yRange + indexTopLeft.y() + 1; ii++) {
-                int x = (int) (i * Main.tileSize - cameraPositionTopLeft.x());
-                int y = (int) (ii * Main.tileSize - cameraPositionTopLeft.y());
-                if (Main.map.containsKey(i) && Main.map.get(i).containsKey(ii)) {
-                    Tile tile = Main.map.get(i).get(ii);
-                    if (Tile.TILEMAP.containsKey(tile.block)) {
-                        BufferedImage image = Tile.TILEMAP.get(tile.block).graphic;
-                        Image img = image.getScaledInstance((int) (Main.tileSize * pixelPerPixel + 1), (int) (Main.tileSize * pixelPerPixel + 1), Image.SCALE_FAST);
-                        g.drawImage(img, (int) (x * pixelPerPixel), (int) (y * pixelPerPixel), null);
+            for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
+                for (int ii = (int) indexTopLeft.y() - 1; ii <= yRange + indexTopLeft.y() + 1; ii++) {
+                    int x = (int) (i * Main.tileSize - cameraPositionTopLeft.x());
+                    int y = (int) (ii * Main.tileSize - cameraPositionTopLeft.y());
+                    if (Main.map.containsKey(i) && Main.map.get(i).containsKey(ii)) {
+                        Tile tile = Main.map.get(i).get(ii);
+                        if (Tile.TILEMAP.containsKey(tile.block)) {
+                            BufferedImage image = Tile.TILEMAP.get(tile.block).graphic;
+                            Image img = image.getScaledInstance((int) (Main.tileSize * pixelPerPixel + 1), (int) (Main.tileSize * pixelPerPixel + 1), Image.SCALE_FAST);
+                            g.drawImage(img, (int) (x * pixelPerPixel), (int) (y * pixelPerPixel), null);
+                        }
                     }
                 }
             }
