@@ -44,8 +44,8 @@ public final class Main {
 
 
     public static void main(String[] args) {
-        IS_GAME_RUNNING = true;
-        gameInit();
+        IS_GAME_RUNNING = false;
+        createStartWindow();
     }
 
     public static void gameInit() {
@@ -181,34 +181,116 @@ public final class Main {
         frame.setContentPane(panel);
     }
 
-    //nonsense -----------------
-    protected void createInternalFrame(String title) {
-         JInternalFrame in = new JInternalFrame();
-        
-        //initialisation 
-        JPanel p = new JPanel();
-        JButton b = new JButton("button");
-        JLabel l = new JLabel("This test");
-        
-        //add ons 
-       
+    public static void createStartWindow() {
+        JFrame startFrame = new JFrame("Lethal Habit");
+        JPanel panel = new JPanel();
+        // menu.setUndecorated(true);
 
-        p.add(b);
-        p.add(l);
-        //settings
-        in.setTitle(title);
+        // Set the menu to full-screen mode and automatically resize the window to fit the screen
 
-        
-        // set visibility internal frame
-        in.setVisible(true);
- 
-        // add panel to internal frame
-        in.add(p);
-       
- 
-        // add internal frame to frame
-        frame.add(in);
+        startFrame.setUndecorated(true);
+
+        startFrame.setSize(200,200);
+        startFrame.setResizable(false);
+        startFrame.show();
+
+        JLabel gameLabel = new JLabel("Lethal Habit");
+        JButton startButton = new JButton("Start");
+        JButton settingsButton = new JButton("Settings");
+        JButton exitButton = new JButton("Exit");
+
+        //New Panel mit Button Layout
+        panel.setLayout(new BorderLayout());
+
+        //action event listeners:
+
+        startButton.addActionListener(e -> {
+            IS_GAME_RUNNING = true;
+            startFrame.dispose();
+            gameInit();
+        });
+
+        settingsButton.addActionListener(e -> {
+            startFrame.dispose();
+            createSettingsWindow();
+        });
+        exitButton.addActionListener(e -> {
+            startFrame.dispose();
+
+        });
+
+        //
+        panel.add(gameLabel, BorderLayout.PAGE_START);
+        panel.add(startButton, BorderLayout.CENTER);
+        panel.add(settingsButton, BorderLayout.EAST);
+        panel.add(exitButton, BorderLayout.SOUTH);
+
+        startFrame.add(panel);
+        startFrame.setLocationRelativeTo(null);
+        startFrame.setVisible(true);
+
+
+
+
     }
+    public static void createSettingsWindow() {
+
+        String[] petStrings = { "Bird", "Cat", "Dog", "Rabbit", "Pig" };
+
+        //Create the combo box, select item at index 4.
+        //Indices start at 0, so 4 specifies the pig.
+        JComboBox petList = new JComboBox(petStrings);
+        petList.setSelectedIndex(4);
+
+        JFrame settingsFrame = new JFrame();
+        JPanel panel = new JPanel();
+        // menu.setUndecorated(true);
+
+        //New Panel mit Button Layout
+        panel.setLayout(new BorderLayout());
+
+        // Set the menu to full-screen mode and automatically resize the window to fit the screen
+        settingsFrame.setUndecorated(true);
+
+        settingsFrame.setSize(200,200);
+        settingsFrame.setResizable(false);
+        settingsFrame.show();
+
+        JLabel gameLabel = new JLabel("Lethal Habit");
+        JButton startButton = new JButton("Start");
+        JButton backButton = new JButton("Back");
+
+
+
+
+        //action event listeners:
+
+        startButton.addActionListener(e -> {
+            settingsFrame.dispose();
+            setupCamera();
+        });
+        backButton.addActionListener( e -> {
+            settingsFrame.dispose();
+            createStartWindow();
+        });
+
+
+        //
+        panel.add(gameLabel, BorderLayout.NORTH);
+        panel.add(petList, BorderLayout.CENTER);
+        panel.add(backButton, BorderLayout.SOUTH);
+
+
+        settingsFrame.add(panel);
+        settingsFrame.setLocationRelativeTo(null);
+        settingsFrame.setVisible(true);
+
+
+
+
+    }
+
+
 
     public static ArrayList<Hitbox> getPossibleCollisions(Hitbox hitbox, Vec2D velocity, double timeDelta) {
         /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
