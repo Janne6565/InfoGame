@@ -20,7 +20,7 @@ public abstract class Drawable {
     public boolean relative = true; // true if it's supposed to move with the camera false if it's supposed to be fixed on the screen (for UI elements in example)
     public String path;
 
-    public Drawable(float width, String path, Point position) {
+    public Drawable(double width, String path, Point position) {
         try {
             graphic = ImageIO.read(new File("assets/" + path));
         } catch (IOException e) {
@@ -33,7 +33,7 @@ public abstract class Drawable {
         Main.drawables.add(this);
     }
 
-    public Drawable(float width, BufferedImage graphic, Point position) {
+    public Drawable(double width, BufferedImage graphic, Point position) {
         this.graphic = graphic;
         this.path = "null";
         this.width = width;

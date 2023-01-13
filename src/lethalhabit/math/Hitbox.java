@@ -9,15 +9,11 @@ import java.util.function.Consumer;
 public final class Hitbox implements Iterable<Point> {
     public final Point[] vertices;
 
-    public Point maxPosition;
-    public Point minPosition;
+    public final Point maxPosition;
+    public final Point minPosition;
 
     public Hitbox(Point[] vertices) {
         this.vertices = vertices;
-        calculateMaxMin();
-    }
-
-    public void calculateMaxMin() {
         maxPosition = new Point(maxX(), maxY());
         minPosition = new Point(minX(), minY());
     }

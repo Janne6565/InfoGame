@@ -17,7 +17,7 @@ import java.awt.*;
 public final class GamePanel extends JPanel {
 
     private final Timer updateTimer;
-    public float frameRate = 144;
+    public float frameRate = 50;
     
     public GamePanel() {
         // Set up the update timer

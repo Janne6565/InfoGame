@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public final class Main {
     public static final double collisionThreshold = 5;
-    public static final boolean debugHitbox = true;
+    public static final boolean debugHitbox = false;
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;
@@ -35,7 +35,7 @@ public final class Main {
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(0, 0), 500, 40);
+    public static final Camera camera = new Camera(new Point(0, 0), 400, 40);
 
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -52,15 +52,16 @@ public final class Main {
         Tile.loadMapTiles();
         loadMap("resources/map.json");
         setupCamera();
+        double size = 0.4;
         mainCharacter = new Player(
-                50,
+                (double) (50.0 * size),
                 "character.png",
                 new Point( 100, -50),
                 new Hitbox( new Point[]{
-                        new Point(10, 10),
-                        new Point(10, 57),
-                        new Point(40, 57),
-                        new Point(40, 10)
+                        new Point(10, 10).scale(size),
+                        new Point(10, 57).scale(size),
+                        new Point(40, 57).scale(size),
+                        new Point(40, 10).scale(size)
                 }),
                 80,
                 200
@@ -312,13 +313,14 @@ public final class Main {
                 }
         );
 
+
         ArrayList<Hitbox> hitboxesMightBeCollidingTo = new ArrayList<>();
 
         Point minPosition = new Point((int) hitboxRange.vertices[0].x() / tileSize, (int) hitboxRange.vertices[0].y() / tileSize);
         Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / tileSize, (int) hitboxRange.vertices[2].y() / tileSize);
 
         for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x(); xIndex ++) {
-            for (int yIndex = (int) minPosition.y() + 1; yIndex <= maxPosition.y(); yIndex ++) {
+            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y(); yIndex ++) {
                 Point position = new Point(xIndex * tileSize, yIndex * tileSize);
                 if (map.containsKey(xIndex) && map.get(xIndex).containsKey(yIndex)) {
                     Tile tile = map.get(xIndex).get(yIndex);
@@ -330,6 +332,8 @@ public final class Main {
                 }
             }
         }
+        mainCharacter.drawnHitboxes = new ArrayList<>(hitboxesMightBeCollidingTo);
+        mainCharacter.drawnHitboxes.add(hitboxRange);
         return hitboxesMightBeCollidingTo;
     }
 }

@@ -20,12 +20,12 @@ public class Player extends PhysicsObject{
 
     /* Animations */
     public Animation idleAnimation = new Animation(0.0416, "playerIdle");
-    public Animation walkAnimation; // TODO: Walk Animation
+    public Animation walkAnimation = new Animation(1, "playerWalk"); // TODO: Walk Animation
     public Animation midAirAnimation; // TODO: Mid Air Animation
     public Animation currentAnimation = idleAnimation;
     public int direction = 0;
 
-    public Player(float width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
+    public Player(double width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
         super(width, pathToImage, position, hitbox);
         this.movementSpeed = movementSpeed;
         this.jumpBoost = jumpBoost;
@@ -43,11 +43,14 @@ public class Player extends PhysicsObject{
     public void moveRight() {
         this.velocity = new Vec2D(movementSpeed, this.velocity.y());
         this.direction = 1;
+        this.currentAnimation = walkAnimation;
     }
 
     public void standStill() {
         this.velocity = new Vec2D(0, this.velocity.y());
-        this.currentAnimation = idleAnimation;
+        if (velocity.y() == 0) {
+            this.currentAnimation = idleAnimation;
+        }
     }
 
     private boolean jumped = false; // this is used to not let you hold your jump key and than jump more than once
@@ -114,7 +117,7 @@ public class Player extends PhysicsObject{
                 g2.setStroke(new BasicStroke(Main.strokeSize));
                 g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }
-            for (Hitbox hitboxCollidable : possibleCollisions.toArray(new Hitbox[0])) {
+            for (Hitbox hitboxCollidable : drawnHitboxes.toArray(new Hitbox[0])) {
                 for (LineSegment line : hitboxCollidable.edges()) {
                     Point positionA = convertPositionToCamera(line.a());
                     Point positionB = convertPositionToCamera(line.b());
