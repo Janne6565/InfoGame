@@ -114,6 +114,16 @@ public class Player extends PhysicsObject{
                 g2.setStroke(new BasicStroke(Main.strokeSize));
                 g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }
+            for (Hitbox hitboxCollidable : possibleCollisions.toArray(new Hitbox[0])) {
+                for (LineSegment line : hitboxCollidable.edges()) {
+                    Point positionA = convertPositionToCamera(line.a());
+                    Point positionB = convertPositionToCamera(line.b());
+                    Graphics2D g2 = (Graphics2D) graphics;
+                    g2.setColor(Main.strokeColorPlayer);
+                    g2.setStroke(new BasicStroke(Main.strokeSize));
+                    g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
+                }
+            }
         }
     }
 

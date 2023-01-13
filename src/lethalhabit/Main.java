@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public final class Main {
     public static final double collisionThreshold = 5;
-    public static final boolean debugHitbox = false;
+    public static final boolean debugHitbox = true;
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;

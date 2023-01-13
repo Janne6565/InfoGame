@@ -5,6 +5,7 @@ import lethalhabit.math.Point;
 import lethalhabit.ui.Drawable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 public abstract class PhysicsObject extends Drawable implements Tickable {
@@ -27,72 +28,56 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
         }
-        if (isWallLeft()) {
-            velocity = new Vec2D(Math.max(0, velocity.x()), velocity.y());
-        }
-        if (isWallRight()) {
-            velocity = new Vec2D(Math.min(0, velocity.x()), velocity.y());
-        }
         if (isWallUp()) {
             velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
-            System.out.println("WALL UP");
         }
-        moveX(timeDelta);
-        moveY(timeDelta);
+        moveX(timeDelta, velocity);
+        moveY(timeDelta, velocity);
     }
 
-    public void moveX(float timeDelta) {
-        Vec2D velocityX = new Vec2D(velocity.x(), 0);
-        ArrayList<Hitbox> possibleCollisions = Main.getPossibleCollisions(hitbox.shiftAll(position), velocityX, timeDelta);
+    public void moveX(float timeDelta, Vec2D generalVelocity) {
+        Vec2D velocity = new Vec2D(generalVelocity.x(), 0);
 
-        double minTimeDelta = getFirstIntersection(hitbox.shiftAll(position), possibleCollisions, velocityX,false);
-        double min = timeDelta;
-        double safeDistance = 1.0;
-        double timeToGetToSafeDistance = safeDistance / velocityX.x();
+        ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), velocity, timeDelta);
+        Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, velocity, false);
 
-        if (!Double.isNaN(minTimeDelta)) {
-            if (minTimeDelta > 0) {
-                if (minTimeDelta - timeToGetToSafeDistance <= timeDelta) {
-                    min = (minTimeDelta - timeToGetToSafeDistance);
-                }
+        Double timeWeTake = Double.valueOf(timeDelta);
+        Double distance = generalVelocity.y() * minTime;
+        Double safeDistance = 1.0;
+        Double timeWeNeed = safeDistance / velocity.x();
+
+        if (!Double.isNaN(minTime)) {
+            if (minTime <= timeDelta) {
+                timeWeTake = 0.0;
             }
         }
-        super.position = super.position.plus(velocityX.x() * min, 0);
+        position = position.plus(velocity.scale(timeWeTake));
     }
 
-    public void moveY(float timeDelta) {
-        Vec2D velocityY = new Vec2D(0,velocity.y());
-        if (!(isWallDown() && velocityY.y() > 0) && !(isWallUp() && velocityY.y() < 0)) {
-            ArrayList<Hitbox> possibleCollisions = Main.getPossibleCollisions(hitbox.shiftAll(position), velocityY, timeDelta);
+    public void moveY(float timeDelta, Vec2D generalVelocity) {
+        Vec2D velocity = new Vec2D(0, generalVelocity.y());
 
-            double minTimeDelta = getFirstIntersection(hitbox.shiftAll(position), possibleCollisions, velocityY, false);
-            System.out.println(minTimeDelta);
+        ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), velocity, timeDelta);
+        Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, velocity, false);
 
-            double min = timeDelta;
-            double safeDistance = 1.0;
-            double timeToGetToSafeDistance = safeDistance / Math.abs(velocityY.y());
-
-            if (!Double.isNaN(minTimeDelta)) {
-                if (minTimeDelta > 0) {
-                    if (minTimeDelta <= timeDelta) {
-                        min = (minTimeDelta - timeToGetToSafeDistance);
-                    }
-
-                    if (minTimeDelta == timeToGetToSafeDistance) {
-                        min = 0;
-                    }
-                }
+        Double timeWeTake = Double.valueOf(timeDelta);
+        if (!Double.isNaN(minTime)) {
+            if (minTime <= timeDelta) {
+                timeWeTake = 0.0;
             }
-            super.position = super.position.plus(0, velocityY.y() * min);
         }
+        position = position.plus(velocity.scale(timeWeTake));
     }
 
+
+    ArrayList<Hitbox> possibleCollisions = new ArrayList<>();
     private Double getFirstIntersection(Hitbox hitbox, ArrayList<Hitbox> collidables, Vec2D direction, boolean debug) {
         Double minTime = Double.NaN;
+        possibleCollisions = collidables;
         for (Hitbox collidable : collidables) {
             for (LineSegment edge : collidable.edges()) {
                 for (LineSegment edgeCollidingFor : hitbox.edges()) {
-                    Double newTd = minimumFactorUntilIntersection(edge, direction, edgeCollidingFor, debug);
+                    Double newTd = minimumFactorUntilIntersection(edge, direction.scale(-1), edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
                         if (Double.isNaN(minTime)) {
                             minTime = newTd;
@@ -104,7 +89,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
             for (LineSegment edge : hitbox.edges()) {
                 for (LineSegment edgeCollidingFor : collidable.edges()) {
-                    Double newTd = minimumFactorUntilIntersection(edge, direction.scale(-1), edgeCollidingFor, debug);
+                    Double newTd = minimumFactorUntilIntersection(edge, direction, edgeCollidingFor, debug);
                     if (newTd != null && Double.isFinite(newTd) && !Double.isNaN(newTd)) {
                         if (Double.isNaN(minTime)) {
                             minTime = newTd;
