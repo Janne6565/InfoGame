@@ -48,7 +48,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                timeWeTake = 0.0;
+                timeWeTake = minTime - timeWeNeed;
             }
         }
         position = position.plus(velocity.scale(timeWeTake));
@@ -61,9 +61,13 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, velocity, false);
 
         Double timeWeTake = Double.valueOf(timeDelta);
+        Double distance = generalVelocity.y() * minTime;
+        Double safeDistance = 1.0;
+        Double timeWeNeed = safeDistance / velocity.y();
+
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                timeWeTake = 0.0;
+                timeWeTake = minTime - timeWeNeed;
             }
         }
         position = position.plus(velocity.scale(timeWeTake));
