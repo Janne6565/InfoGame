@@ -1,23 +1,19 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.game.MapTile;
 import lethalhabit.game.Tile;
 import lethalhabit.math.Point;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import javax.swing.*;
-import javax.swing.text.Position;
 import java.awt.*;
 
 //TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 public final class GamePanel extends JPanel {
 
     private final Timer updateTimer;
-    public float frameRate = 50;
+    public float frameRate = 144;
     
     public GamePanel() {
         // Set up the update timer
@@ -46,6 +42,7 @@ public final class GamePanel extends JPanel {
                     // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
                 }
             }
+            System.out.println("Drawables: " + ((System.nanoTime() - timeBefore) / 1000000));
         }
     }
 
@@ -57,6 +54,7 @@ public final class GamePanel extends JPanel {
             Point cameraPositionTopLeft = Main.camera.position.minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
             Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.tileSize).minus(1, 1);
 
+            long timeBefore = System.nanoTime();
             for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
                 for (int ii = (int) indexTopLeft.y() - 1; ii <= yRange + indexTopLeft.y() + 1; ii++) {
                     int x = (int) (i * Main.tileSize - cameraPositionTopLeft.x());
@@ -71,6 +69,7 @@ public final class GamePanel extends JPanel {
                     }
                 }
             }
+            System.out.println("Tiles: " + ((System.nanoTime() - timeBefore) / 1000000));
         }
     }
 

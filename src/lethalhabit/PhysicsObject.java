@@ -21,7 +21,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     }
 
     @Override
-    public void tick(float timeDelta) {
+    public void tick(Double timeDelta) {
         if (!isWallDown()) {
             velocity = velocity.plus(0, 400 * timeDelta);
         } else {
@@ -44,7 +44,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         moveY(timeDelta, velocity);
     }
 
-    public void moveX(float timeDelta, Vec2D generalVelocity) {
+    public void moveX(double timeDelta, Vec2D generalVelocity) {
         Vec2D vel = new Vec2D(generalVelocity.x(), 0);
 
         ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), vel, timeDelta);
@@ -63,7 +63,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         position = position.plus(vel.scale(timeWeTake));
     }
 
-    public void moveY(float timeDelta, Vec2D generalVelocity) {
+    public void moveY(double timeDelta, Vec2D generalVelocity) {
         Vec2D vel = new Vec2D(0, generalVelocity.y());
 
         ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), vel, timeDelta);

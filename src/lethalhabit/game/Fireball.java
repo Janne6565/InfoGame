@@ -21,7 +21,7 @@ public class Fireball extends Drawable implements Tickable {
     }
 
     @Override
-    public void tick(float timeDelta) {
+    public void tick(Double timeDelta) {
         Vec2D velocity = new Vec2D(0,0);
         switch (direction) {
             case 1:

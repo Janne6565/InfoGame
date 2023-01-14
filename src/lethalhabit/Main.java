@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class Main {
+
+    public static final boolean DEMO_MODE = true;
+
     public static final double collisionThreshold = 5;
     public static final boolean debugHitbox = false;
     public static final int strokeSize = 2;
@@ -44,14 +47,19 @@ public final class Main {
 
 
     public static void main(String[] args) {
+        /*
         IS_GAME_RUNNING = false;
         createStartWindow();
+         */
+
+        gameInit();
+        IS_GAME_RUNNING = true;
     }
 
     public static void gameInit() {
-        Tile.loadMapTiles();
         loadMap("resources/map.json");
         setupCamera();
+        Tile.loadMapTiles();
         double size = 0.4;
         mainCharacter = new Player(
                 (double) (50.0 * size),
@@ -67,6 +75,14 @@ public final class Main {
                 200
         );
     }
+
+    public static void demoGameTick(double timeDelta) {
+        if (mainCharacter.position.y() >= 500) {
+            mainCharacter.position = new Point(0, 300);
+            mainCharacter.velocity = new Vec2D(0, 0);
+        }
+    }
+
     public static void loadMap(String path) {
         map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream(path)));
     }
@@ -78,7 +94,7 @@ public final class Main {
     private static long lastTick;
 
     public static void tick() {
-        float timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
+        double timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
         lastTick = System.currentTimeMillis();
         handleKeyInput();
 
@@ -87,11 +103,15 @@ public final class Main {
                 tickable.tick(timeDelta);
             }
         }
+
         moveCamera();
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
         // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
 
+        if (DEMO_MODE) {
+            demoGameTick(timeDelta);
+        }
     }
 
     public static void handleKeyInput() {
@@ -114,6 +134,10 @@ public final class Main {
                 mainCharacter.makeFireball();
             }
         }
+    }
+
+    public static float pixelPerPixel() {
+        return (float) screenWidth / camera.width;
     }
 
     public static void moveCamera() {

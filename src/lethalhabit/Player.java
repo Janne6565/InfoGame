@@ -19,18 +19,22 @@ public class Player extends PhysicsObject{
     public double timeInGame = 0; // Used to calculate the current frame of the animation
 
     /* Animations */
-    public Animation idleAnimation = new Animation(0.0416, "playerIdle");
-    public Animation walkAnimation = new Animation(1, "playerWalk"); // TODO: Walk Animation
+    public Animation idleAnimation;
+    public Animation walkAnimation; // TODO: Walk Animation
     public Animation midAirAnimation; // TODO: Mid Air Animation
     public Animation currentAnimation = idleAnimation;
     public int direction = 0;
+    BufferedImage defaultImage;
 
     public Player(double width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
         super(width, pathToImage, position, hitbox);
         this.movementSpeed = movementSpeed;
         this.jumpBoost = jumpBoost;
-        defaultImage = graphic;
+        this.defaultImage = graphic;
+        idleAnimation = new Animation(0.0416, "playerIdle", width * Main.pixelPerPixel());
+        midAirAnimation = new Animation(1, "playerWalk", width * Main.pixelPerPixel());
         Main.tickables.add(this);
+
     }
 
     public void moveLeft() {
@@ -38,12 +42,9 @@ public class Player extends PhysicsObject{
         this.direction = -1;
     }
 
-
-    BufferedImage defaultImage;
     public void moveRight() {
         this.velocity = new Vec2D(movementSpeed, this.velocity.y());
         this.direction = 1;
-        this.currentAnimation = walkAnimation;
     }
 
     public void standStill() {
@@ -82,7 +83,7 @@ public class Player extends PhysicsObject{
     }
 
     @Override
-    public void tick(float timeDelta) {
+    public void tick(Double timeDelta) {
         timeInGame += timeDelta;
         int currentFrame = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
         defaultImage = currentAnimation.frames.get(currentFrame);
