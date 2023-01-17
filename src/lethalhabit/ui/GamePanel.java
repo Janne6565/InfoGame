@@ -25,14 +25,14 @@ public final class GamePanel extends JPanel {
     public void paintComponent(Graphics g) { // this is the stuff that's responsible for drawing all the drawables to the right position (not finished yet)
         super.paintComponent(g);
         if (Main.IS_GAME_RUNNING) {
-            drawMap(g);
             long timeBeforeTick = System.nanoTime();
             Main.tick();
+            drawMap(g);
             //  System.out.println("Tick: " + ((System.nanoTime() - timeBeforeTick) / 1000000));
             long timeBefore = System.nanoTime();
 
-            Point maxPosition = new Point(Main.camera.position.x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-            Point minPosition = new Point(Main.camera.position.x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.position.y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+            Point maxPosition = new Point(Main.camera.getRealPosition().x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+            Point minPosition = new Point(Main.camera.getRealPosition().x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.getRealPosition().y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
             for (Drawable draw : new ArrayList<>(Main.drawables)) {
                 Point posLeftTop = draw.position.plus(draw.width * -1, draw.height * -1);
                 Point posRightDown = draw.position.plus(draw.width, draw.height);
@@ -54,7 +54,7 @@ public final class GamePanel extends JPanel {
             int xRange = (int) (Main.camera.width / Main.tileSize) + 1;
             int yRange = (int) (Main.camera.getHeight() / Main.tileSize) + 1;
             double pixelPerPixel = (float) Main.screenWidth / Main.camera.width;
-            Point cameraPositionTopLeft = Main.camera.position.minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
+            Point cameraPositionTopLeft = Main.camera.getRealPosition().minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
             Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.tileSize).minus(1, 1);
 
             for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
@@ -71,7 +71,7 @@ public final class GamePanel extends JPanel {
                     }
                 }
             }
-            System.out.println("Tiles: " + ((System.nanoTime() - timeBefore) / 1000000));
+            // System.out.println("Tiles: " + ((System.nanoTime() - timeBefore) / 1000000));
         }
     }
 

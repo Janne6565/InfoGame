@@ -21,24 +21,26 @@ public final class Main {
 
     public static final boolean DEMO_MODE = false;
 
-    public static final double collisionThreshold = 2;
+    public static final double collisionThreshold = 1;
     public static final boolean debugHitbox = false;
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
     public static final Color strokeColorCollidable = Color.CYAN;
-    public static double tileSize = 20;
+    public static final double MAX_VELOCITY_SPEED = 800;
+    public static final double GRAVITATIONAL_ACCELERATION = 400;
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
+    public static double tileSize = 20;
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
-    public static final boolean MINIMIZED = false;
+    public static final boolean MINIMIZED = true;
 
     public static boolean IS_GAME_RUNNING = false;
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(37 * tileSize, 150), 400, 40);
+    public static final Camera camera = new Camera(new Point(37 * tileSize, 150), 400, 40, 80, 40);
 
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -92,16 +94,16 @@ public final class Main {
     public static void tick() {
         double timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
         lastTick = System.currentTimeMillis();
-        handleKeyInput();
+        handleKeyInput(timeDelta);
         double tickTime = System.nanoTime();
         for (Tickable tickable : new ArrayList<Tickable>(tickables)) {
             if (tickable != null) {
                 tickable.tick(timeDelta);
             }
         }
-        System.out.println("Tickables: " + ((System.nanoTime() - tickTime) / 1000000));
+        // System.out.println("Tickables: " + ((System.nanoTime() - tickTime) / 1000000));
 
-        moveCamera();
+        moveCamera(timeDelta);
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
         // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
@@ -111,7 +113,7 @@ public final class Main {
         }
     }
 
-    public static void handleKeyInput() {
+    public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
             if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.canJump()) {
                 mainCharacter.jump();
@@ -130,6 +132,13 @@ public final class Main {
             if (activeKeys.contains(KeyEvent.VK_F)) {
                 mainCharacter.makeFireball();
             }
+            if (activeKeys.contains(KeyEvent.VK_W)) {
+                camera.shift = new Point(camera.shift.x(), Math.max(camera.shift.y() + camera.speed * timeDelta * -1, -camera.shiftLimit));
+            } else if (activeKeys.contains(KeyEvent.VK_S)) {
+                camera.shift = new Point(camera.shift.x(), Math.min(camera.shift.y() + camera.speed * timeDelta, camera.shiftLimit));
+            } else {
+                camera.shift = new Point(camera.shift.x(), camera.shift.y() < 0.5 || camera.shift.y() > -0.5 ? camera.shift.y() * 0.8 : 0);
+            }
         }
     }
 
@@ -137,10 +146,10 @@ public final class Main {
         return (float) screenWidth / camera.width;
     }
 
-    public static void moveCamera() {
+    public static Point cameraPositionFixed = new Point(0, -20);
+    public static void moveCamera(double timeDelta) {
         if (mainCharacter != null) {
-
-            Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(0, -30 ));
+            Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(cameraPositionFixed));
             double moveX = 0;
             double moveY = 0;
             if (relative.x() < -camera.threshhold) {
@@ -191,14 +200,14 @@ public final class Main {
         if (!MINIMIZED) {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         } else {
-            frame.setSize(400, 400);
+            frame.setSize(1920, 1080);
         }
 
         frame.setResizable(true);
         frame.setVisible(true);
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
-        System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
+        // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
 
         frame.setContentPane(panel);
     }

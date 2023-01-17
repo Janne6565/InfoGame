@@ -135,8 +135,8 @@ public class Player extends PhysicsObject{
 
     private Point convertPositionToCamera(Point position) {
         double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
-        double offsetX = relative ? Main.camera.position.x() : 0;
-        double offsetY = relative ? Main.camera.position.y() : 0;
+        double offsetX = relative ? Main.camera.getRealPosition().x() : 0;
+        double offsetY = relative ? Main.camera.getRealPosition().y() : 0;
         int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
         int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
         return new Point(posXDisplay, posYDisplay);

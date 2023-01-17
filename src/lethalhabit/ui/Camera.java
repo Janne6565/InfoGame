@@ -11,11 +11,21 @@ public final class Camera {
     public Point position;
     public int width;
     public int threshhold;
+    public double speed;
+    public Point shift;
+    public double shiftLimit;
 
-    public Camera(Point position, int width, int threshhold) {
+    public Camera(Point position, int width, int threshhold, double speed, double shiftLimit) {
         this.position = position;
         this.width = width;
         this.threshhold = threshhold;
+        this.speed = speed;
+        this.shift = new Point(0, 0);
+        this.shiftLimit = shiftLimit;
+    }
+
+    public Point getRealPosition() {
+        return position.plus(shift);
     }
     
     public void draw(ArrayList<Drawable> drawables, Graphics2D graphics2D) {

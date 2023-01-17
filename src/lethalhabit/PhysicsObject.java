@@ -22,8 +22,14 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     @Override
     public void tick(Double timeDelta) {
+        checkDirections(timeDelta);
+        moveX(timeDelta, velocity);
+        moveY(timeDelta, velocity);
+    }
+
+    public void checkDirections(double timeDelta) {
         if (!isWallDown()) {
-            velocity = velocity.plus(0, Math.min(400 * timeDelta, 2000));
+            velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta), Main.MAX_VELOCITY_SPEED));
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
@@ -40,8 +46,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (isWallUp()) {
             velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
         }
-        moveY(timeDelta, velocity);
-        moveX(timeDelta, velocity);
     }
 
     public void moveX(double timeDelta, Vec2D generalVelocity) {
@@ -164,11 +168,11 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     public boolean isWallDown() {
         Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
-        System.out.println(td);
+        System.out.println("Abstand unten: " + td);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold);
+        return (td >= 0 && td <= Main.collisionThreshold);
     }
 
 
@@ -177,7 +181,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold);
+        return (td >= 0 && td <= Main.collisionThreshold);
     }
 
     public boolean isWallLeft() {
@@ -185,7 +189,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold);
+        return (td >= 0 && td <= Main.collisionThreshold);
     }
 
     public boolean isWallUp() {
@@ -193,6 +197,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td < Main.collisionThreshold);
+        return (td >= 0 && td <= Main.collisionThreshold);
     }
 }
