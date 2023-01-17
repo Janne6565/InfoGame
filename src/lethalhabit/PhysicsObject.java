@@ -23,7 +23,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
     @Override
     public void tick(Double timeDelta) {
         if (!isWallDown()) {
-            velocity = velocity.plus(0, 400 * timeDelta);
+            velocity = velocity.plus(0, Math.min(400 * timeDelta, 2000));
         } else {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
@@ -40,8 +40,8 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         if (isWallUp()) {
             velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
         }
-        moveX(timeDelta, velocity);
         moveY(timeDelta, velocity);
+        moveX(timeDelta, velocity);
     }
 
     public void moveX(double timeDelta, Vec2D generalVelocity) {
@@ -50,17 +50,21 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, vel, false);
 
-        Double timeWeTake = Double.valueOf(timeDelta);
-        Double distance = generalVelocity.x() * minTime;
+        Double timeWeTake = timeDelta;
         Double safeDistance = 1.0;
-        Double timeWeNeed = safeDistance / vel.x();
+        Double timeWeNeed = safeDistance / Math.abs(vel.x());
 
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                timeWeTake = minTime - timeWeNeed;
+                if (minTime < timeWeNeed) {
+                    timeWeTake = 0.0;
+                } else {
+                    timeWeTake = minTime - timeWeNeed;
+                }
             }
         }
-        position = position.plus(vel.scale(timeWeTake));
+
+        position = position.plus(vel.x() *  timeWeTake, 0);
     }
 
     public void moveY(double timeDelta, Vec2D generalVelocity) {
@@ -69,18 +73,21 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, vel, false);
 
-        Double timeWeTake = Double.valueOf(timeDelta);
-        Double distance = vel.y() * minTime;
+        Double timeWeTake = timeDelta;
         Double safeDistance = 1.0;
-        Double timeWeNeed = safeDistance / vel.y();
+        Double timeWeNeed = safeDistance / Math.abs(vel.y());
 
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                timeWeTake = minTime - timeWeNeed;
+                if (minTime < timeWeNeed) {
+                    timeWeTake = 0.0;
+                } else {
+                    timeWeTake = minTime - timeWeNeed;
+                }
             }
         }
 
-        position = position.plus(vel.scale(timeWeTake));
+        position = position.plus(new Point(0, vel.y() * timeWeTake));
     }
 
 
@@ -157,6 +164,7 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     public boolean isWallDown() {
         Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
+        System.out.println(td);
         if (Double.isNaN(td)) {
             return false;
         }

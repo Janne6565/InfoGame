@@ -18,7 +18,6 @@ public abstract class Drawable {
     
     public Point position;
     public boolean relative = true; // true if it's supposed to move with the camera false if it's supposed to be fixed on the screen (for UI elements in example)
-    public String path;
 
     public Drawable(double width, String path, Point position) {
         try {
@@ -26,7 +25,6 @@ public abstract class Drawable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this.path = path;
         this.width = width;
         this.height = (this.width / graphic.getWidth()) * graphic.getHeight();
         this.position = position;
@@ -35,7 +33,6 @@ public abstract class Drawable {
 
     public Drawable(double width, BufferedImage graphic, Point position) {
         this.graphic = graphic;
-        this.path = "null";
         this.width = width;
         this.height = (this.width / graphic.getWidth()) * graphic.getHeight();
         this.position = position;

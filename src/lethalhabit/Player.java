@@ -31,8 +31,8 @@ public class Player extends PhysicsObject{
         this.movementSpeed = movementSpeed;
         this.jumpBoost = jumpBoost;
         this.defaultImage = graphic;
-        idleAnimation = new Animation(0.0416, "playerIdle", width * Main.pixelPerPixel());
-        midAirAnimation = new Animation(1, "playerWalk", width * Main.pixelPerPixel());
+        idleAnimation = new Animation(0.0416, "playerIdle", width * Main.scaledPixelSize());
+        midAirAnimation = new Animation(1, "playerWalk", width * Main.scaledPixelSize());
         Main.tickables.add(this);
 
     }
@@ -98,7 +98,9 @@ public class Player extends PhysicsObject{
                 this.graphic = defaultImage;
                 break;
         }
+        double timeBeforeSuperTick = System.nanoTime();
         super.tick(timeDelta);
+        // System.out.println("Physics Tick: " + ((System.nanoTime() - timeBeforeSuperTick) / 1000000));
     }
 
     @Override

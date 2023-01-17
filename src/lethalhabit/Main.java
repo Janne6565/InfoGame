@@ -19,9 +19,9 @@ import java.util.Objects;
 
 public final class Main {
 
-    public static final boolean DEMO_MODE = true;
+    public static final boolean DEMO_MODE = false;
 
-    public static final double collisionThreshold = 5;
+    public static final double collisionThreshold = 2;
     public static final boolean debugHitbox = false;
     public static final int strokeSize = 2;
     public static final Color strokeColorPlayer = Color.RED;
@@ -38,7 +38,7 @@ public final class Main {
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(0, 0), 400, 40);
+    public static final Camera camera = new Camera(new Point(37 * tileSize, 150), 400, 40);
 
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -47,24 +47,20 @@ public final class Main {
 
 
     public static void main(String[] args) {
-        /*
-        IS_GAME_RUNNING = false;
-        createStartWindow();
-         */
-
         gameInit();
         IS_GAME_RUNNING = true;
     }
 
     public static void gameInit() {
-        loadMap("resources/map.json");
+        loadMap("/map.json");
         setupCamera();
         Tile.loadMapTiles();
+        // System.out.println("Finished Loading");
         double size = 0.4;
         mainCharacter = new Player(
                 (double) (50.0 * size),
                 "character.png",
-                new Point( 100, -50),
+                new Point( 100, -170),
                 new Hitbox( new Point[]{
                         new Point(10, 10).scale(size),
                         new Point(10, 57).scale(size),
@@ -97,12 +93,13 @@ public final class Main {
         double timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
         lastTick = System.currentTimeMillis();
         handleKeyInput();
-
+        double tickTime = System.nanoTime();
         for (Tickable tickable : new ArrayList<Tickable>(tickables)) {
             if (tickable != null) {
                 tickable.tick(timeDelta);
             }
         }
+        System.out.println("Tickables: " + ((System.nanoTime() - tickTime) / 1000000));
 
         moveCamera();
         screenWidth = frame.getWidth();
@@ -136,7 +133,7 @@ public final class Main {
         }
     }
 
-    public static float pixelPerPixel() {
+    public static float scaledPixelSize() {
         return (float) screenWidth / camera.width;
     }
 
@@ -343,8 +340,8 @@ public final class Main {
         Point minPosition = new Point((int) hitboxRange.vertices[0].x() / tileSize, (int) hitboxRange.vertices[0].y() / tileSize);
         Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / tileSize, (int) hitboxRange.vertices[2].y() / tileSize);
 
-        for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x(); xIndex ++) {
-            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y(); yIndex ++) {
+        for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x() + 1; xIndex ++) {
+            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y() + 1; yIndex ++) {
                 Point position = new Point(xIndex * tileSize, yIndex * tileSize);
                 if (map.containsKey(xIndex) && map.get(xIndex).containsKey(yIndex)) {
                     Tile tile = map.get(xIndex).get(yIndex);

@@ -6,10 +6,8 @@ import lethalhabit.math.Hitbox;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 public class MapTile {
     public Hitbox hitbox;
@@ -27,9 +25,9 @@ public class MapTile {
         this.hitbox = hitbox;
         try {
             assert stream != null;
-            BufferedImage baseImage = ImageIO.read(Main.class.getResourceAsStream("resources/tiles/" + path));
-            int width = (int) (Main.tileSize * Main.pixelPerPixel());
-            int height = (int) (Main.tileSize * Main.pixelPerPixel());
+            BufferedImage baseImage = ImageIO.read(Main.class.getResourceAsStream("/tiles/" + path));
+            int width = (int) (Main.tileSize * Main.scaledPixelSize());
+            int height = (int) (Main.tileSize * Main.scaledPixelSize());
             Image frame = baseImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             BufferedImage image = new BufferedImage(frame.getWidth(null), frame.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
             image.getGraphics().drawImage(frame, 0, 0, null);

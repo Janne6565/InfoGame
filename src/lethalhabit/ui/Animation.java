@@ -23,7 +23,7 @@ public class Animation {
         for (frameCount = 0; ; frameCount++) {
             try {
                 BufferedImage baseImage = ImageIO.read(new File("assets/animation/" + animationPath + "/(" + (frameCount + 1) + ").png"));
-                int width = (int) (maxWidth * Main.pixelPerPixel());
+                int width = (int) (maxWidth * Main.scaledPixelSize());
                 int height = (int) (maxWidth / baseImage.getWidth() * baseImage.getHeight());
                 Image frame = baseImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
                 BufferedImage image = new BufferedImage(frame.getWidth(null), frame.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
