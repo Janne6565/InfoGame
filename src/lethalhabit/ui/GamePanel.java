@@ -65,7 +65,7 @@ public final class GamePanel extends JPanel {
                         Tile tile = Main.map.get(i).get(ii);
                         if (Tile.TILEMAP.containsKey(tile.block)) {
                             BufferedImage image = Tile.TILEMAP.get(tile.block).graphic;
-                            Image img = image.getScaledInstance((int) (Main.tileSize * pixelPerPixel + 1), (int) (Main.tileSize * pixelPerPixel + 1), Image.SCALE_FAST);
+                            Image img = image;
                             g.drawImage(img, (int) (x * pixelPerPixel), (int) (y * pixelPerPixel), null);
                         }
                     }
