@@ -2,8 +2,8 @@ package lethalhabit.game;
 
 import lethalhabit.Main;
 import lethalhabit.Tickable;
-import lethalhabit.math.Point;
-import lethalhabit.math.Vec2D;
+import lethalhabit.technical.Point;
+import lethalhabit.technical.Vec2D;
 import lethalhabit.ui.Drawable;
 
 public class Fireball extends Drawable implements Tickable {

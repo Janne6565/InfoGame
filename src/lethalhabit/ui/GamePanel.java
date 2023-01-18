@@ -1,13 +1,15 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
+import lethalhabit.game.Block;
+import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
-import lethalhabit.math.Point;
+import lethalhabit.technical.Point;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 //TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 public final class GamePanel extends JPanel {
@@ -27,9 +29,9 @@ public final class GamePanel extends JPanel {
         if (Main.IS_GAME_RUNNING) {
             long timeBeforeTick = System.nanoTime();
             Main.tick();
-            drawMap(g);
             //  System.out.println("Tick: " + ((System.nanoTime() - timeBeforeTick) / 1000000));
             long timeBefore = System.nanoTime();
+            drawMap(g);
 
             Point maxPosition = new Point(Main.camera.getRealPosition().x() + (float) (Main.getScreenWidthGame()) / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
             Point minPosition = new Point(Main.camera.getRealPosition().x() - (float) (Main.getScreenWidthGame()) / 2, Main.camera.getRealPosition().y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
@@ -51,22 +53,28 @@ public final class GamePanel extends JPanel {
     public void drawMap(Graphics g) {
         if (Main.IS_GAME_RUNNING) {
             long timeBefore = System.nanoTime();
-            int xRange = (int) (Main.camera.width / Main.tileSize) + 1;
-            int yRange = (int) (Main.camera.getHeight() / Main.tileSize) + 1;
-            double pixelPerPixel = (float) Main.screenWidth / Main.camera.width;
+            int xRange = (int) (Main.camera.width / Main.TILE_SIZE) + 1;
+            int yRange = (int) (Main.camera.getHeight() / Main.TILE_SIZE) + 1;
+            double scaledPixelSize = (float) Main.screenWidth / Main.camera.width;
             Point cameraPositionTopLeft = Main.camera.getRealPosition().minus((float) Main.camera.width / 2, (float) Main.camera.getHeight() / 2);
-            Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.tileSize).minus(1, 1);
+            Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.TILE_SIZE).minus(1, 1);
 
             for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
-                for (int ii = (int) indexTopLeft.y() - 1; ii <= yRange + indexTopLeft.y() + 1; ii++) {
-                    int x = (int) (i * Main.tileSize - cameraPositionTopLeft.x());
-                    int y = (int) (ii * Main.tileSize - cameraPositionTopLeft.y());
-                    if (Main.map.containsKey(i) && Main.map.get(i).containsKey(ii)) {
-                        Tile tile = Main.map.get(i).get(ii);
-                        if (Tile.TILEMAP.containsKey(tile.block)) {
-                            BufferedImage image = Tile.TILEMAP.get(tile.block).graphic;
-                            Image img = image;
-                            g.drawImage(img, (int) (x * pixelPerPixel), (int) (y * pixelPerPixel), null);
+                for (int j = (int) indexTopLeft.y() - 1; j <= yRange + indexTopLeft.y() + 1; j++) {
+                    int x = (int) (i * Main.TILE_SIZE - cameraPositionTopLeft.x());
+                    int y = (int) (j * Main.TILE_SIZE - cameraPositionTopLeft.y());
+                    Map<Integer, Tile> column = Main.map.get(i);
+                    if (column != null) {
+                        Tile tile = column.get(j);
+                        if (tile != null) {
+                            Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
+                            if (liquid != null) {
+                                g.drawImage(liquid.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
+                            }
+                            Block block = Block.TILEMAP.get(tile.block);
+                            if (block != null) {
+                                g.drawImage(block.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
+                            }
                         }
                     }
                 }

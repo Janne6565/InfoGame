@@ -1,9 +1,10 @@
 package lethalhabit;
 
-import lethalhabit.game.MapTile;
+import lethalhabit.game.Block;
+import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
-import lethalhabit.math.*;
-import lethalhabit.math.Point;
+import lethalhabit.technical.Point;
+import lethalhabit.technical.*;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
@@ -17,30 +18,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Main Programm
+ *
+ */
 public final class Main {
-
     public static final boolean DEMO_MODE = false;
+    public static final boolean MINIMIZED = true;
 
-    public static final double collisionThreshold = 1;
-    public static final boolean debugHitbox = false;
-    public static final int strokeSize = 2;
-    public static final Color strokeColorPlayer = Color.RED;
-    public static final Color strokeColorCollidable = Color.CYAN;
+    public static final boolean DEBUG_HITBOX = false    ;
+    public static final int STROKE_SIZE_HITBOXES = 2;
+    public static final Color STROKE_COLOR_HITBOX = Color.RED;
+    public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
     public static final double GRAVITATIONAL_ACCELERATION = 400;
+    public static final double TILE_SIZE = 20;
+    public static final double SAFE_DISTANCE = 0.05;
 
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
-    public static double tileSize = 20;
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Collidable> collidables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
-    public static final boolean MINIMIZED = true;
-
-    public static boolean IS_GAME_RUNNING = false;
+    public static final List<Loadable> loadables = new ArrayList<>();
 
     private static final List<Integer> activeKeys = new ArrayList<>();
 
-    public static final Camera camera = new Camera(new Point(37 * tileSize, 150), 400, 40, 80, 40);
+    public static boolean IS_GAME_RUNNING = false;
+
+
+    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 40);
 
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -51,18 +57,28 @@ public final class Main {
     public static void main(String[] args) {
         gameInit();
         IS_GAME_RUNNING = true;
+        System.out.println("Pixel Per Pixel: " + scaledPixelSize());
     }
 
+
+    /**
+     * Initiates the game:
+     *  - Camera
+     *  - Tiles
+     *  - Map
+     *  - Loads Assets
+     */
     public static void gameInit() {
         loadMap("/map.json");
         setupCamera();
-        Tile.loadMapTiles();
+        Block.loadBlocks();
+        Liquid.loadLiquids();
         // System.out.println("Finished Loading");
         double size = 0.4;
         mainCharacter = new Player(
                 (double) (50.0 * size),
                 "character.png",
-                new Point( 100, -170),
+                new Point( 100, 816.2),
                 new Hitbox( new Point[]{
                         new Point(10, 10).scale(size),
                         new Point(10, 57).scale(size),
@@ -74,6 +90,10 @@ public final class Main {
         );
     }
 
+    /**
+     * Tick only used for Demo mechanics
+     * @param timeDelta time since the last tick happened
+     */
     public static void demoGameTick(double timeDelta) {
         if (mainCharacter.position.y() >= 500) {
             mainCharacter.position = new Point(0, 300);
@@ -81,16 +101,28 @@ public final class Main {
         }
     }
 
+    /**
+     * Loads Map
+     * @param path Path where to find the map
+     */
     public static void loadMap(String path) {
         map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream(path)));
     }
 
+    /**
+     * Calculate Camera Width
+     * @return camera width in ingame unit
+     */
     public static int getScreenWidthGame() {
         return camera.width;
     }
     
     private static long lastTick;
 
+
+    /**
+     * Method called on Game Tick
+     */
     public static void tick() {
         double timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
         lastTick = System.currentTimeMillis();
@@ -101,7 +133,6 @@ public final class Main {
                 tickable.tick(timeDelta);
             }
         }
-        // System.out.println("Tickables: " + ((System.nanoTime() - tickTime) / 1000000));
 
         moveCamera(timeDelta);
         screenWidth = frame.getWidth();
@@ -113,9 +144,15 @@ public final class Main {
         }
     }
 
+
+    /**
+     * Executes commands depending on the key input
+     * @param timeDelta time since last tick
+     */
+
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
-            if (activeKeys.contains(KeyEvent.VK_SPACE) && mainCharacter.canJump()) {
+            if (activeKeys.contains(KeyEvent.VK_SPACE)) {
                 mainCharacter.jump();
             } else {
                 mainCharacter.resetJump();
@@ -142,14 +179,22 @@ public final class Main {
         }
     }
 
+    /**
+     * calculates the pixel size based on screen width
+     * @return relative pixel/position ratio based on the screen width
+     */
     public static float scaledPixelSize() {
         return (float) screenWidth / camera.width;
     }
 
-    public static Point cameraPositionFixed = new Point(0, -20);
+
+    /**
+     * Shifts the camera based on player position
+     * @param timeDelta time since last tick
+     */
     public static void moveCamera(double timeDelta) {
         if (mainCharacter != null) {
-            Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2).plus(cameraPositionFixed));
+            Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.width / 2, mainCharacter.height / 2));
             double moveX = 0;
             double moveY = 0;
             if (relative.x() < -camera.threshhold) {
@@ -170,11 +215,12 @@ public final class Main {
         }
     }
     
-    // New Window
-    // public
     public static JFrame frame;
     public static GamePanel panel;
 
+    /**
+     * Initiates the screen
+     */
     public static void setupCamera() {
         panel = new GamePanel();
         // Soll Startmenu davor starten? TODO:
@@ -187,7 +233,7 @@ public final class Main {
             }
     
             public void keyReleased(KeyEvent e) {
-                activeKeys.removeIf(el -> el == e.getKeyCode());
+                activeKeys.removeIf(key -> key == e.getKeyCode());
             }
         });
 
@@ -332,7 +378,7 @@ public final class Main {
 
         Vec2D scaledVel = velocity.scale(timeDelta);
 
-        Hitbox hitboxAfterVelocity = startedHitbox.shiftAll(scaledVel.x(), scaledVel.y());
+        Hitbox hitboxAfterVelocity = startedHitbox.shift(scaledVel.x(), scaledVel.y());
 
         Hitbox hitboxRange = new Hitbox(
                 new Point[] {
@@ -346,18 +392,21 @@ public final class Main {
 
         ArrayList<Hitbox> hitboxesMightBeCollidingTo = new ArrayList<>();
 
-        Point minPosition = new Point((int) hitboxRange.vertices[0].x() / tileSize, (int) hitboxRange.vertices[0].y() / tileSize);
-        Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / tileSize, (int) hitboxRange.vertices[2].y() / tileSize);
+        Point minPosition = new Point((int) hitboxRange.vertices[0].x() / TILE_SIZE, (int) hitboxRange.vertices[0].y() / TILE_SIZE);
+        Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / TILE_SIZE, (int) hitboxRange.vertices[2].y() / TILE_SIZE);
 
         for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x() + 1; xIndex ++) {
             for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y() + 1; yIndex ++) {
-                Point position = new Point(xIndex * tileSize, yIndex * tileSize);
-                if (map.containsKey(xIndex) && map.get(xIndex).containsKey(yIndex)) {
-                    Tile tile = map.get(xIndex).get(yIndex);
-                    if (tile.block != Tile.EMPTY.block && Tile.TILEMAP.containsKey(tile.block)) {
-                        MapTile mapTile = Tile.TILEMAP.get(tile.block);
-                        Hitbox newHitbox = mapTile.hitbox.shiftAll(position);
-                        hitboxesMightBeCollidingTo.add(newHitbox);
+                Point position = new Point(xIndex * TILE_SIZE, yIndex * TILE_SIZE);
+                Map<Integer, Tile> column = map.get(xIndex);
+                if (column != null) {
+                    Tile tile = column.get(yIndex);
+                    if (tile != null && tile.block >= 0) {
+                        Block block = Block.TILEMAP.get(tile.block);
+                        if (block != null) {
+                            Hitbox newHitbox = block.hitbox.shift(position);
+                            hitboxesMightBeCollidingTo.add(newHitbox);
+                        }
                     }
                 }
             }

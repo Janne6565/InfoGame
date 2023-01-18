@@ -1,14 +1,13 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.math.Point;
+import lethalhabit.technical.Point;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 public abstract class Drawable {
     
@@ -20,14 +19,14 @@ public abstract class Drawable {
     public boolean relative = true; // true if it's supposed to move with the camera false if it's supposed to be fixed on the screen (for UI elements in example)
 
     public Drawable(double width, String path, Point position) {
+        this.width = width;
+        this.position = position;
         try {
             graphic = ImageIO.read(new File("assets/" + path));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this.width = width;
         this.height = (this.width / graphic.getWidth()) * graphic.getHeight();
-        this.position = position;
         Main.drawables.add(this);
     }
 

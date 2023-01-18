@@ -1,10 +1,8 @@
 package lethalhabit;
 
 import lethalhabit.game.Fireball;
-import lethalhabit.math.Hitbox;
-import lethalhabit.math.LineSegment;
-import lethalhabit.math.Point;
-import lethalhabit.math.Vec2D;
+import lethalhabit.technical.*;
+import lethalhabit.technical.Point;
 import lethalhabit.ui.Animation;
 
 import java.awt.*;
@@ -12,10 +10,11 @@ import java.awt.image.BufferedImage;
 
 import static lethalhabit.Util.mirrorImage;
 
-public class Player extends PhysicsObject{
+public class Player extends PhysicsObject implements Loadable {
 
     public double movementSpeed;
     public double jumpBoost;
+    public double wallJumpBoost = 150;
     public double timeInGame = 0; // Used to calculate the current frame of the animation
 
     /* Animations */
@@ -25,16 +24,23 @@ public class Player extends PhysicsObject{
     public Animation currentAnimation = idleAnimation;
     public int direction = 0;
     BufferedImage defaultImage;
+    public Vec2D recoil = new Vec2D(0, 0);
+
+    @Override
+    public void load() {
+        idleAnimation = new Animation(0.0416, "playerIdle", width * Main.scaledPixelSize());
+        midAirAnimation = new Animation(1, "playerWalk", width * Main.scaledPixelSize());
+    }
 
     public Player(double width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
         super(width, pathToImage, position, hitbox);
         this.movementSpeed = movementSpeed;
         this.jumpBoost = jumpBoost;
         this.defaultImage = graphic;
-        idleAnimation = new Animation(0.0416, "playerIdle", width * Main.scaledPixelSize());
-        midAirAnimation = new Animation(1, "playerWalk", width * Main.scaledPixelSize());
-        Main.tickables.add(this);
+        load();
 
+        Main.tickables.add(this);
+        Main.loadables.add(this);
     }
 
     public void moveLeft() {
@@ -54,9 +60,14 @@ public class Player extends PhysicsObject{
         }
     }
 
+
+
+    @Override
+    public Vec2D getVelocity() {
+        return velocity.plus(recoil);
+    }
+
     private boolean jumped = false; // this is used to not let you hold your jump key and than jump more than once
-
-
     private int timesJumped = 0;
 
     public void makeFireball() {
@@ -67,14 +78,36 @@ public class Player extends PhysicsObject{
         if (timesJumped <= 0) {
             return true;
         }
-        return isWallDown();
+        return (isWallDown());
     }
 
+    private boolean hasJumpedLeft = false;
+    private boolean hasJumpedRight = false;
     public void jump() {
         if (!jumped) {
-            velocity = new Vec2D( velocity.x(), -jumpBoost);
-            timesJumped += 1;
             jumped = true;
+            if (isWallDown()) {
+                velocity = new Vec2D(velocity.x(), -jumpBoost);
+                return;
+            }
+            if (direction == -1 && !hasJumpedLeft && isWallLeft()) {
+                hasJumpedLeft = true;
+                velocity = new Vec2D(velocity.x(), -jumpBoost);
+                recoil = new Vec2D(wallJumpBoost, 0);
+                return;
+            } else if (direction == 1 && !hasJumpedRight && isWallRight()) {
+                hasJumpedRight = true;
+                velocity = new Vec2D(velocity.x(), -jumpBoost);
+                recoil = new Vec2D(-wallJumpBoost, 0);
+                return;
+            }
+
+            if (canJump()) {
+                velocity = new Vec2D(velocity.x(), -jumpBoost);
+                if (!isWallDown()) {
+                    timesJumped += 1;
+                }
+            }
         }
     }
 
@@ -100,24 +133,33 @@ public class Player extends PhysicsObject{
         }
         double timeBeforeSuperTick = System.nanoTime();
         super.tick(timeDelta);
+        if (recoil.x() != 0) {
+            if (recoil.x() < 0) {
+                recoil = new Vec2D(Math.min(recoil.x() + 500 * timeDelta, 0), recoil.y());
+            } else if (recoil.x() > 0) {
+                recoil = new Vec2D(Math.max(recoil.x() - 500 * timeDelta, 0), recoil.y());
+            }
+        }
         // System.out.println("Physics Tick: " + ((System.nanoTime() - timeBeforeSuperTick) / 1000000));
     }
 
     @Override
     public void onGroundReset() {
+        hasJumpedLeft = false;
+        hasJumpedRight = false;
         timesJumped = 0;
     }
 
     @Override
     public void draw(Graphics graphics) {
         super.draw(graphics);
-        if (Main.debugHitbox) {
-            for (LineSegment line : hitbox.shiftAll(position).edges()) {
+        if (Main.DEBUG_HITBOX) {
+            for (LineSegment line : hitbox.shift(position).edges()) {
                 Point positionA = convertPositionToCamera(line.a());
                 Point positionB = convertPositionToCamera(line.b());
                 Graphics2D g2 = (Graphics2D) graphics;
-                g2.setColor(Main.strokeColorPlayer);
-                g2.setStroke(new BasicStroke(Main.strokeSize));
+                g2.setColor(Main.STROKE_COLOR_HITBOX);
+                g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
                 g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }
             for (Hitbox hitboxCollidable : drawnHitboxes.toArray(new Hitbox[0])) {
@@ -125,8 +167,8 @@ public class Player extends PhysicsObject{
                     Point positionA = convertPositionToCamera(line.a());
                     Point positionB = convertPositionToCamera(line.b());
                     Graphics2D g2 = (Graphics2D) graphics;
-                    g2.setColor(Main.strokeColorPlayer);
-                    g2.setStroke(new BasicStroke(Main.strokeSize));
+                    g2.setColor(Main.STROKE_COLOR_HITBOX);
+                    g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
                     g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
                 }
             }

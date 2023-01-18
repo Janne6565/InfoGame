@@ -1,9 +1,8 @@
 package lethalhabit;
 
-import lethalhabit.math.Collidable;
-import lethalhabit.math.Hitbox;
-import lethalhabit.math.Point;
-import lethalhabit.ui.Drawable;
+import lethalhabit.technical.Collidable;
+import lethalhabit.technical.Hitbox;
+import lethalhabit.technical.Point;
 
 import java.awt.image.BufferedImage;
 

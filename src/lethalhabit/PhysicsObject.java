@@ -1,12 +1,10 @@
 package lethalhabit;
 
-import lethalhabit.math.*;
-import lethalhabit.math.Point;
+import lethalhabit.technical.*;
+import lethalhabit.technical.Point;
 import lethalhabit.ui.Drawable;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 
 public abstract class PhysicsObject extends Drawable implements Tickable {
 
@@ -22,63 +20,73 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     @Override
     public void tick(Double timeDelta) {
+        moveX(timeDelta, getVelocity());
+        moveY(timeDelta, getVelocity());
         checkDirections(timeDelta);
-        moveX(timeDelta, velocity);
-        moveY(timeDelta, velocity);
     }
 
+    /**
+     * Stops the velocity if there is an collidable the way of the Physics Object
+     * @param timeDelta time between Frames
+     */
     public void checkDirections(double timeDelta) {
         if (!isWallDown()) {
             velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta), Main.MAX_VELOCITY_SPEED));
         } else {
-            velocity = new Vec2D(velocity.x(), Math.min(velocity.y(), 0));
             onGroundReset();
-        }
-
-        if (isWallLeft()) {
-            velocity = new Vec2D(Math.max(0, velocity.x()), velocity.y());
-        }
-
-        if (isWallRight()) {
-            velocity = new Vec2D(Math.min(0, velocity.x()), velocity.y());
-        }
-
-        if (isWallUp()) {
-            velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
         }
     }
 
+    /**
+     * Used to collision dependent movement on the x axis
+     * @param timeDelta time between frames
+     * @param generalVelocity general velocity of physical object
+     */
     public void moveX(double timeDelta, Vec2D generalVelocity) {
         Vec2D vel = new Vec2D(generalVelocity.x(), 0);
 
-        ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), vel, timeDelta);
-        Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, vel, false);
+        ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
+        Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel, false);
 
         Double timeWeTake = timeDelta;
-        Double safeDistance = 1.0;
-        Double timeWeNeed = safeDistance / Math.abs(vel.x());
+        Double safeDistance = Main.SAFE_DISTANCE;
+        Double timeUntilReachedSafeDistance = safeDistance / Math.abs(vel.x());
 
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                if (minTime < timeWeNeed) {
-                    timeWeTake = 0.0;
+                if (minTime < timeUntilReachedSafeDistance) {
+                    timeWeTake = minTime - timeUntilReachedSafeDistance;
                 } else {
-                    timeWeTake = minTime - timeWeNeed;
+                    timeWeTake = minTime - timeUntilReachedSafeDistance;
                 }
             }
         }
-
         position = position.plus(vel.x() *  timeWeTake, 0);
+
+        if (!Double.isNaN(minTime)) {
+            if (minTime <= timeDelta){
+                if (vel.x() > 0) {
+                    velocity = new Vec2D(Math.min(0, velocity.x()), velocity.y());
+                } else {
+                    velocity = new Vec2D(Math.max(0, velocity.x()), velocity.y());
+                }
+            }
+        }
     }
 
+    /**
+     * Used to collision dependent movement on the y axis
+     * @param timeDelta time between frames
+     * @param generalVelocity general velocity of physical object
+     */
     public void moveY(double timeDelta, Vec2D generalVelocity) {
         Vec2D vel = new Vec2D(0, generalVelocity.y());
 
-        ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shiftAll(position), vel, timeDelta);
-        Double minTime = getFirstIntersection(hitbox.shiftAll(position), collidables, vel, false);
+        ArrayList<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
+        Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel, false);
 
         Double timeWeTake = timeDelta;
-        Double safeDistance = 1.0;
+        Double safeDistance = Main.SAFE_DISTANCE;
         Double timeWeNeed = safeDistance / Math.abs(vel.y());
 
         if (!Double.isNaN(minTime)) {
@@ -90,12 +98,32 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
                 }
             }
         }
-
         position = position.plus(new Point(0, vel.y() * timeWeTake));
+        if (!Double.isNaN(minTime)) {
+            if (minTime <= timeDelta) {
+                if (vel.y() > 0) {
+                    velocity = new Vec2D(velocity.x(), Math.min(0, velocity.y()));
+                } else {
+                    velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
+                }
+            }
+        }
+
     }
 
-
+    /**
+     * Hitboxes that are drawen if Main.debug
+     */
     public ArrayList<Hitbox> drawnHitboxes = new ArrayList<>();
+
+    /**
+     * Calculates the first intersection
+     * @param hitbox hitbox that are getting moved
+     * @param collidables List of all elements the hitbox might be colliding to
+     * @param direction the direction the hitbox is getting moved in
+     * @param debug debug prints
+     * @return times we need to multiply the direction vector to get to the first point they intersect
+     */
     private Double getFirstIntersection(Hitbox hitbox, ArrayList<Hitbox> collidables, Vec2D direction, boolean debug) {
         Double minTime = Double.NaN;
         for (Hitbox collidable : collidables) {
@@ -126,6 +154,18 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         return minTime;
     }
 
+    public Vec2D getVelocity() {
+        return velocity;
+    }
+
+    /**
+     * calculates the first intersection of two lines
+     * @param s1 line moved
+     * @param direction direction s1 is getting moved in
+     * @param s2 line that might be colliding
+     * @param debug debug prints
+     * @return times we need to multiply the direction until s1 touches s2
+     */
     private Double minimumFactorUntilIntersection(LineSegment s1, Vec2D direction, LineSegment s2, boolean debug) {
         Double min = null;
         for (Point p : s1) {
@@ -150,6 +190,14 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         return min;
     }
 
+    /**
+     * calculates the time taken to reach lineSegment from Point with velocity
+     * @param point Start Point
+     * @param direction Direction we move from the Point
+     * @param lineSegment Line the Point might be crossing
+     * @param debug debug prints
+     * @return the factor we need to multiply the direction until we intersect with lineSegment
+     */
     private Double factorUntilIntersection(Point point, Vec2D direction, LineSegment lineSegment, boolean debug) {
         Vec2D p = point.loc();
         Vec2D a = lineSegment.a().loc();
@@ -166,37 +214,51 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     abstract void onGroundReset();
 
+    /**
+     * checks if there is ground below the physics object
+     * @return if there is ground below the physics object
+     */
     public boolean isWallDown() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
-        System.out.println("Abstand unten: " + td);
+        Double td = getFirstIntersection(hitbox.shift(super.position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, 1), 1), new Vec2D(0, 1), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td <= Main.collisionThreshold);
+        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
 
-
+    /**
+     * checks if there is a wall to the right
+     * @return if there is a wall to the right
+     */
     public boolean isWallRight() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(1, 0), 1), new Vec2D(1, 0), false);
+        Double td = getFirstIntersection(hitbox.shift(super.position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(1, 0), 1), new Vec2D(1, 0), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td <= Main.collisionThreshold);
+        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
 
+    /**
+     * checks if there is a wall to the left
+     * @returnif there is a wall to the left
+     */
     public boolean isWallLeft() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0), false);
+        Double td = getFirstIntersection(hitbox.shift(super.position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td <= Main.collisionThreshold);
+        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
 
+    /**
+     * checks if there is a wall above the Physics Object
+     * @return if there is a wall above the Physics Object
+     */
     public boolean isWallUp() {
-        Double td = getFirstIntersection(hitbox.shiftAll(super.position), Main.getPossibleCollisions(hitbox.shiftAll(position), new Vec2D(0, -1), 1), new Vec2D(0, -1), false);
+        Double td = getFirstIntersection(hitbox.shift(super.position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, -1), 1), new Vec2D(0, -1), false);
         if (Double.isNaN(td)) {
             return false;
         }
-        return (td >= 0 && td <= Main.collisionThreshold);
+        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
 }
