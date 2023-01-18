@@ -19,6 +19,8 @@ public class Player extends PhysicsObject implements Loadable {
     public double cooldownCameraShift = 0.5;
     public double speedOfAnimation = 5;
 
+    public int hp = 10;
+    
     /* Animations */
     public Animation idleAnimation;
     public Animation walkAnimation; // TODO: Walk Animation
