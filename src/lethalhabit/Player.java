@@ -17,6 +17,8 @@ public class Player extends PhysicsObject implements Loadable {
     public double wallJumpBoost = 150;
     public double timeInGame = 0; // Used to calculate the current frame of the animation
 
+    public int hp = 10;
+    
     /* Animations */
     public Animation idleAnimation;
     public Animation walkAnimation; // TODO: Walk Animation
