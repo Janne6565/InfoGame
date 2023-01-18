@@ -4,6 +4,8 @@ import lethalhabit.Main;
 import lethalhabit.game.Block;
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
+import lethalhabit.technical.Hitbox;
+import lethalhabit.technical.LineSegment;
 import lethalhabit.technical.Point;
 
 import java.util.ArrayList;
@@ -70,10 +72,16 @@ public final class GamePanel extends JPanel {
                             Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
                             if (liquid != null) {
                                 g.drawImage(liquid.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
+                                if (Main.DEBUG_HITBOX) {
+                                    drawHitbox(g, liquid.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
+                                }
                             }
                             Block block = Block.TILEMAP.get(tile.block);
                             if (block != null) {
                                 g.drawImage(block.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
+                                if (Main.DEBUG_HITBOX) {
+                                    drawHitbox(g, block.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
+                                }
                             }
                         }
                     }
@@ -81,6 +89,19 @@ public final class GamePanel extends JPanel {
             }
             // System.out.println("Tiles: " + ((System.nanoTime() - timeBefore) / 1000000));
         }
+    }
+
+    public static void drawHitbox(Graphics graphics, Hitbox hitbox) {
+        for (LineSegment segment : hitbox.edges()) {
+            drawLineSegment(graphics, segment);
+        }
+    }
+
+    public static void drawLineSegment(Graphics graphics, LineSegment segment) {
+        LineSegment lineRelativeToCamera = segment.minus(Main.camera.getRealPosition()).plus((float) Main.camera.width / 2, Main.camera.getHeight() / 2);
+
+        graphics.setColor(Color.RED);
+        graphics.drawLine((int) (lineRelativeToCamera.a().x() * Main.scaledPixelSize()), (int) (lineRelativeToCamera.a().y() * Main.scaledPixelSize()), (int) (lineRelativeToCamera.b().x() * Main.scaledPixelSize()), (int) (lineRelativeToCamera.b().y() * Main.scaledPixelSize()));
     }
 
     @Override

@@ -2,6 +2,7 @@ package lethalhabit.game;
 
 import com.google.gson.Gson;
 import lethalhabit.Main;
+import lethalhabit.Util;
 import lethalhabit.technical.Hitbox;
 
 import javax.imageio.ImageIO;
@@ -25,7 +26,7 @@ public final class Block {
             for (Map.Entry<String, Map<String, Object>> entry : raw.entrySet()) {
                 Integer key = Integer.parseInt(entry.getKey());
                 Hitbox.Type hitboxType = Hitbox.Type.valueOf((String) entry.getValue().get("hitbox"));
-                Block block = new Block(hitboxType.hitbox, ImageIO.read(Tile.class.getResourceAsStream("/tiles/tile" + key + ".png")));
+                Block block = new Block(hitboxType.hitbox, Util.loadScaledTileImage("/tiles/tile" + key + ".png"));
                 TILEMAP.put(key, block);
             }
         } catch (IOException ex) { }

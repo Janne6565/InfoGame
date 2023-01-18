@@ -8,11 +8,11 @@
     "hitbox": "LIQUID_SURFACE"
   },
   "2": {
-    "viscosity": 0.4,
+    "viscosity": 0.25,
     "hitbox": "FULL"
   },
   "3": {
-    "viscosity": 0.4,
+    "viscosity": 0.25,
     "hitbox": "LIQUID_SURFACE"
   }
 }

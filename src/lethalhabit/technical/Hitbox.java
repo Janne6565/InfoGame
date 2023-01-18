@@ -2,10 +2,7 @@ package lethalhabit.technical;
 
 import lethalhabit.Main;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Consumer;
 
 public final class Hitbox implements Iterable<Point> {
@@ -53,10 +50,10 @@ public final class Hitbox implements Iterable<Point> {
         return Arrays.stream(vertices).mapToDouble(Point::y).min().orElse(0);
     }
 
-    public Hitbox shift(Point shiftFor) {
+    public Hitbox shift(Point offset) {
         Point[] newVertices = new Point[vertices.length];
         for (int i = 0; i < newVertices.length; i++) {
-            newVertices[i] = new Point(vertices[i].x() + shiftFor.x(), vertices[i].y() + shiftFor.y());
+            newVertices[i] = new Point(vertices[i].x() + offset.x(), vertices[i].y() + offset.y());
         }
         return new Hitbox(newVertices);
     }
@@ -87,26 +84,58 @@ public final class Hitbox implements Iterable<Point> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(vertices);
+        return Arrays.hashCode(vertices);
     }
 
     @Override
     public String toString() {
-        return "Hitbox[" +
-                "vertices=" + Arrays.toString(vertices) + ']';
+        return "Hitbox[vertices=" + Arrays.toString(vertices) + ']';
     }
 
-
-    public boolean liesIn(Hitbox hitbox) {
+    /**
+     * Only works for primitive Square hitboxes, for precise use intersects
+     * @param hitbox Hitbox checking for
+     * @return true if other is inside this, false otherwise
+     */
+    public boolean isContained(Hitbox hitbox) {
         for (Point point : hitbox.vertices) {
             if (point.compareTo(minPosition) > 0 && point.compareTo(maxPosition) < 0) {
                 return true;
             }
         }
-
         return hitbox.minPosition.x() < minPosition.x() && hitbox.maxPosition.x() > maxPosition.x()
                 || hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y();
 
+    }
+
+    public boolean intersects(Hitbox other) {
+        for (Point point : this) {
+            Set<Point> intersections = new HashSet<>();
+            for (LineSegment segment : other.edges()) {
+                double s = (point.y() - segment.a().y()) / (segment.b().y() - segment.a().y());
+                Point intersection = segment.a().plus(segment.b().minus(segment.a()).scale(s));
+                if (intersection.x() <= segment.maxX() && intersection.x() >= segment.minX() && intersection.y() <= segment.maxY() && intersection.y() >= segment.minY() && intersection.x() >= point.x()) {
+                    intersections.add(intersection);
+                }
+            }
+            if (intersections.size() % 2 == 1) {
+                return true;
+            }
+        }
+        for (Point point : other) {
+            Set<Point> intersections = new HashSet<>();
+            for (LineSegment segment : this.edges()) {
+                double s = (point.y() - segment.a().y()) / (segment.b().y() - segment.a().y());
+                Point intersection = segment.a().plus(segment.b().minus(segment.a()).scale(s));
+                if (intersection.x() <= segment.maxX() && intersection.x() >= segment.minX() && intersection.y() <= segment.maxY() && intersection.y() >= segment.minY() && intersection.x() >= point.x()) {
+                    intersections.add(intersection);
+                }
+            }
+            if (intersections.size() % 2 == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Hitbox shift(double x, double y) {

@@ -16,6 +16,8 @@ public class Player extends PhysicsObject implements Loadable {
     public double jumpBoost;
     public double wallJumpBoost = 150;
     public double timeInGame = 0; // Used to calculate the current frame of the animation
+    public double cooldownCameraShift = 0.5;
+    public double speedOfAnimation = 5;
 
     /* Animations */
     public Animation idleAnimation;
@@ -83,6 +85,7 @@ public class Player extends PhysicsObject implements Loadable {
 
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
+
     public void jump() {
         if (!jumped) {
             jumped = true;
@@ -113,6 +116,41 @@ public class Player extends PhysicsObject implements Loadable {
 
     public void resetJump() {
         jumped = false;
+    }
+
+    double moveCameraDownCooldown = cooldownCameraShift;
+    public void moveCameraDown(double timeDelta) {
+        if (moveCameraDownCooldown > 0) {
+            moveCameraDownCooldown = Math.max(moveCameraDownCooldown - timeDelta, 0);
+        } else {
+            System.out.println(Main.camera.shift.y() - Main.camera.speed * timeDelta);
+            Main.camera.shift = new Point(Main.camera.shift.x(), Math.max(Main.camera.shift.y() - Math.abs(-Main.camera.shiftLimit - Main.camera.shift.y()) * speedOfAnimation * timeDelta, -Main.camera.shiftLimit));
+        }
+    }
+
+    public void resetCameraDown() {
+        moveCameraDownCooldown = cooldownCameraShift;
+    }
+
+    double moveCameraUpCooldown = cooldownCameraShift;
+    public void moveCameraUp(double timeDelta) {
+        if (moveCameraUpCooldown > 0) {
+            moveCameraUpCooldown = Math.max(moveCameraUpCooldown - timeDelta, 0);
+        } else {
+            Main.camera.shift = new Point(Main.camera.shift.x(), Math.min(Main.camera.shift.y() + Math.abs(Main.camera.shiftLimit - Main.camera.shift.y()) * speedOfAnimation * timeDelta, Main.camera.shiftLimit));
+        }
+    }
+
+    public void resetCameraUp() {
+        moveCameraUpCooldown = cooldownCameraShift;
+    }
+
+    public void resetCameraShift(double timeDelta) {
+        if (Main.camera.shift.y() <= 0.5 && Main.camera.shift.y() >= -0.5) {
+            Main.camera.shift = new Point(Main.camera.shift.x(), 0);
+        } else {
+            Main.camera.shift = new Point(Main.camera.shift.x(), Main.camera.shift.y() - Main.camera.shift.y() * speedOfAnimation * timeDelta);
+        }
     }
 
     @Override
@@ -161,16 +199,6 @@ public class Player extends PhysicsObject implements Loadable {
                 g2.setColor(Main.STROKE_COLOR_HITBOX);
                 g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
                 g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
-            }
-            for (Hitbox hitboxCollidable : drawnHitboxes.toArray(new Hitbox[0])) {
-                for (LineSegment line : hitboxCollidable.edges()) {
-                    Point positionA = convertPositionToCamera(line.a());
-                    Point positionB = convertPositionToCamera(line.b());
-                    Graphics2D g2 = (Graphics2D) graphics;
-                    g2.setColor(Main.STROKE_COLOR_HITBOX);
-                    g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
-                    g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
-                }
             }
         }
     }

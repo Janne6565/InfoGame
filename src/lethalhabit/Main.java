@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public final class Main {
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = true;
+    public static final boolean MINIMIZED = false;
 
     public static final boolean DEBUG_HITBOX = false    ;
     public static final int STROKE_SIZE_HITBOXES = 2;
@@ -45,8 +45,7 @@ public final class Main {
 
     public static boolean IS_GAME_RUNNING = false;
 
-
-    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 40);
+    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 60);
 
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -57,9 +56,18 @@ public final class Main {
     public static void main(String[] args) {
         gameInit();
         IS_GAME_RUNNING = true;
+
         System.out.println("Pixel Per Pixel: " + scaledPixelSize());
     }
 
+    public static Tile tileAt(int tileX, int tileY) {
+        Map<Integer, Tile> column = Main.map.get(tileX);
+        if (column != null) {
+            return column.get(tileY);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Initiates the game:
@@ -170,11 +178,13 @@ public final class Main {
                 mainCharacter.makeFireball();
             }
             if (activeKeys.contains(KeyEvent.VK_W)) {
-                camera.shift = new Point(camera.shift.x(), Math.max(camera.shift.y() + camera.speed * timeDelta * -1, -camera.shiftLimit));
+                mainCharacter.moveCameraDown(timeDelta);
             } else if (activeKeys.contains(KeyEvent.VK_S)) {
-                camera.shift = new Point(camera.shift.x(), Math.min(camera.shift.y() + camera.speed * timeDelta, camera.shiftLimit));
+                mainCharacter.moveCameraUp(timeDelta);
             } else {
-                camera.shift = new Point(camera.shift.x(), camera.shift.y() < 0.5 || camera.shift.y() > -0.5 ? camera.shift.y() * 0.8 : 0);
+                mainCharacter.resetCameraShift(timeDelta);
+                mainCharacter.resetCameraUp();
+                mainCharacter.resetCameraDown();
             }
         }
     }
@@ -246,7 +256,7 @@ public final class Main {
         if (!MINIMIZED) {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         } else {
-            frame.setSize(1920, 1080);
+            frame.setSize(400, 400);
         }
 
         frame.setResizable(true);
@@ -286,7 +296,6 @@ public final class Main {
             startFrame.dispose();
             gameInit();
         });
-
         settingsButton.addActionListener(e -> {
             startFrame.dispose();
             createSettingsWindow();
@@ -296,7 +305,6 @@ public final class Main {
 
         });
 
-        //
         panel.add(gameLabel, BorderLayout.PAGE_START);
         panel.add(startButton, BorderLayout.CENTER);
         panel.add(settingsButton, BorderLayout.EAST);
@@ -305,13 +313,9 @@ public final class Main {
         startFrame.add(panel);
         startFrame.setLocationRelativeTo(null);
         startFrame.setVisible(true);
-
-
-
-
     }
-    public static void createSettingsWindow() {
 
+    public static void createSettingsWindow() {
         String[] petStrings = { "Bird", "Cat", "Dog", "Rabbit", "Pig" };
 
         //Create the combo box, select item at index 4.
@@ -337,11 +341,7 @@ public final class Main {
         JButton startButton = new JButton("Start");
         JButton backButton = new JButton("Back");
 
-
-
-
         //action event listeners:
-
         startButton.addActionListener(e -> {
             settingsFrame.dispose();
             setupCamera();
@@ -351,20 +351,13 @@ public final class Main {
             createStartWindow();
         });
 
-
-        //
         panel.add(gameLabel, BorderLayout.NORTH);
         panel.add(petList, BorderLayout.CENTER);
         panel.add(backButton, BorderLayout.SOUTH);
 
-
         settingsFrame.add(panel);
         settingsFrame.setLocationRelativeTo(null);
         settingsFrame.setVisible(true);
-
-
-
-
     }
 
 
@@ -411,8 +404,6 @@ public final class Main {
                 }
             }
         }
-        mainCharacter.drawnHitboxes = new ArrayList<>(hitboxesMightBeCollidingTo);
-        mainCharacter.drawnHitboxes.add(hitboxRange);
         return hitboxesMightBeCollidingTo;
     }
 }

@@ -1,10 +1,14 @@
 package lethalhabit;
 
+import lethalhabit.game.Block;
+import lethalhabit.game.Liquid;
+import lethalhabit.game.Tile;
 import lethalhabit.technical.*;
 import lethalhabit.technical.Point;
 import lethalhabit.ui.Drawable;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public abstract class PhysicsObject extends Drawable implements Tickable {
 
@@ -20,9 +24,29 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
 
     @Override
     public void tick(Double timeDelta) {
+        checkViscosity();
         moveX(timeDelta, getVelocity());
         moveY(timeDelta, getVelocity());
         checkDirections(timeDelta);
+    }
+
+    public void checkViscosity() {
+        Hitbox absolute = hitbox.shift(position);
+        double minViscosity = 1;
+        for (int tileX = (int) (absolute.minPosition.x() / Main.TILE_SIZE) - 1; tileX <= (absolute.maxPosition.x() / Main.TILE_SIZE) + 1; tileX ++) {
+            for (int tileY = (int) (absolute.minPosition.y() / Main.TILE_SIZE) - 1; tileY <= (absolute.maxPosition.y() / Main.TILE_SIZE) + 1; tileY ++) {
+                Tile tile = Main.tileAt(tileX, tileY);
+                if (tile != null) {
+                    Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
+                    if (liquid != null) {
+                        if (absolute.intersects(liquid.hitbox.shift(tileX * Main.TILE_SIZE, tileY * Main.TILE_SIZE))) {
+                            minViscosity = Math.min(minViscosity, liquid.viscosity);
+                        }
+                    }
+                }
+            }
+        }
+        velocity = velocity.scale(minViscosity);
     }
 
     /**
@@ -110,11 +134,6 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         }
 
     }
-
-    /**
-     * Hitboxes that are drawen if Main.debug
-     */
-    public ArrayList<Hitbox> drawnHitboxes = new ArrayList<>();
 
     /**
      * Calculates the first intersection

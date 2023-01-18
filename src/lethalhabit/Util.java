@@ -3,6 +3,7 @@ package lethalhabit;
 import com.google.gson.Gson;
 import lethalhabit.game.Tile;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -64,6 +65,15 @@ public final class Util {
         g.drawImage(image, 0, 0, null);
         g.dispose();
         return newImage;
+    }
+
+    public static BufferedImage loadScaledTileImage(String path) throws IOException {
+        BufferedImage image = ImageIO.read(Util.class.getResourceAsStream(path));
+        Image scaled = image.getScaledInstance((int) (Main.TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.scaledPixelSize()), Image.SCALE_DEFAULT);
+        BufferedImage scaledBuffered = new BufferedImage(scaled.getWidth(null), scaled.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
+        scaledBuffered.getGraphics().drawImage(scaled, 0, 0, null);
+        scaledBuffered.getGraphics().dispose();
+        return scaledBuffered;
     }
 
 }
