@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import static lethalhabit.Util.mirrorImage;
 
 public class Player extends PhysicsObject implements Loadable {
-
     public double movementSpeed;
     public double jumpBoost;
     public double wallJumpBoost = 150;
@@ -19,7 +18,7 @@ public class Player extends PhysicsObject implements Loadable {
     public double cooldownCameraShift = 0.5;
     public double speedOfAnimation = 5;
 
-    public int hp = 10;
+    public int hp = 10; // Wow really great job you did here my friend :)
     
     /* Animations */
     public Animation idleAnimation;
@@ -47,16 +46,26 @@ public class Player extends PhysicsObject implements Loadable {
         Main.loadables.add(this);
     }
 
+
+    /**
+     * Changes the move velocity of the player based on moveSpeed
+     */
     public void moveLeft() {
         this.velocity = new Vec2D(movementSpeed * -1, this.velocity.y());
         this.direction = -1;
     }
 
+    /**
+     * Changes the move velocity of the player based on moveSpeed
+     */
     public void moveRight() {
         this.velocity = new Vec2D(movementSpeed, this.velocity.y());
         this.direction = 1;
     }
 
+    /**
+     * Resets the move velocity
+     */
     public void standStill() {
         this.velocity = new Vec2D(0, this.velocity.y());
         if (velocity.y() == 0) {
@@ -65,7 +74,10 @@ public class Player extends PhysicsObject implements Loadable {
     }
 
 
-
+    /**
+     * Calculates the real velocity (including move velocity (controllable) and knockback (uncontrollable))
+     * @return the real velocity
+     */
     @Override
     public Vec2D getVelocity() {
         return velocity.plus(recoil);
@@ -74,10 +86,17 @@ public class Player extends PhysicsObject implements Loadable {
     private boolean jumped = false; // this is used to not let you hold your jump key and than jump more than once
     private int timesJumped = 0;
 
+    /**
+     * Shoots Fireball <3
+     */
     public void makeFireball() {
         new Fireball(this.position, direction);
     }
 
+    /**
+     * Checks if the player is able to jump
+     * @return if the player is able to jump
+     */
     public boolean canJump() {
         if (timesJumped <= 0) {
             return true;
@@ -88,6 +107,9 @@ public class Player extends PhysicsObject implements Loadable {
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
 
+    /**
+     * Calls the player to jump
+     */
     public void jump() {
         if (!jumped) {
             jumped = true;
@@ -116,25 +138,40 @@ public class Player extends PhysicsObject implements Loadable {
         }
     }
 
+    /**
+     * Resets jump so you cant hold the space bar to instantly trigger double jump or wall jumps
+     */
     public void resetJump() {
         jumped = false;
     }
 
-    double moveCameraDownCooldown = cooldownCameraShift;
+    public double moveCameraDownCooldown = cooldownCameraShift;
+
+    /**
+     * Shifts the camera Downwards
+     * @param timeDelta time since last tick (used to calculate the speed of the camera)
+     */
     public void moveCameraDown(double timeDelta) {
         if (moveCameraDownCooldown > 0) {
             moveCameraDownCooldown = Math.max(moveCameraDownCooldown - timeDelta, 0);
         } else {
-            System.out.println(Main.camera.shift.y() - Main.camera.speed * timeDelta);
             Main.camera.shift = new Point(Main.camera.shift.x(), Math.max(Main.camera.shift.y() - Math.abs(-Main.camera.shiftLimit - Main.camera.shift.y()) * speedOfAnimation * timeDelta, -Main.camera.shiftLimit));
         }
     }
 
+    /**
+     * Resets the cooldown for the down movement
+     */
     public void resetCameraDown() {
         moveCameraDownCooldown = cooldownCameraShift;
     }
 
-    double moveCameraUpCooldown = cooldownCameraShift;
+    public double moveCameraUpCooldown = cooldownCameraShift;
+
+    /**
+     * Shifts the camera upwards
+     * @param timeDelta time since last tick (used to calculate the speed of the camera)
+     */
     public void moveCameraUp(double timeDelta) {
         if (moveCameraUpCooldown > 0) {
             moveCameraUpCooldown = Math.max(moveCameraUpCooldown - timeDelta, 0);
@@ -143,10 +180,17 @@ public class Player extends PhysicsObject implements Loadable {
         }
     }
 
+    /**
+     * Resets the cooldown for the up movement
+     */
     public void resetCameraUp() {
         moveCameraUpCooldown = cooldownCameraShift;
     }
 
+    /**
+     * Resets the shift of the camera to go back to (0, 0)
+     * @param timeDelta time since last tick (used to calculate the speed of the camera)
+     */
     public void resetCameraShift(double timeDelta) {
         if (Main.camera.shift.y() <= 0.5 && Main.camera.shift.y() >= -0.5) {
             Main.camera.shift = new Point(Main.camera.shift.x(), 0);
@@ -155,6 +199,10 @@ public class Player extends PhysicsObject implements Loadable {
         }
     }
 
+    /**
+     * Method called for handling animation and every other tick based mechanic
+     * @param timeDelta time since last tick (used for calculating the speed of the camera)
+     */
     @Override
     public void tick(Double timeDelta) {
         timeInGame += timeDelta;
@@ -183,6 +231,9 @@ public class Player extends PhysicsObject implements Loadable {
         // System.out.println("Physics Tick: " + ((System.nanoTime() - timeBeforeSuperTick) / 1000000));
     }
 
+    /**
+     * Resets all the jumps on Ground Touch
+     */
     @Override
     public void onGroundReset() {
         hasJumpedLeft = false;

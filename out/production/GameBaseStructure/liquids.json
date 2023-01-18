@@ -1,0 +1,18 @@
+{
+  "0": {
+    "viscosity": 0.7,
+    "hitbox": "FULL"
+  },
+  "1": {
+    "viscosity": 0.7,
+    "hitbox": "LIQUID_SURFACE"
+  },
+  "2": {
+    "viscosity": 0.25,
+    "hitbox": "FULL"
+  },
+  "3": {
+    "viscosity": 0.25,
+    "hitbox": "LIQUID_SURFACE"
+  }
+}

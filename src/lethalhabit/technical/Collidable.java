@@ -3,8 +3,10 @@ package lethalhabit.technical;
 import lethalhabit.Main;
 import lethalhabit.ui.Drawable;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 abstract public class Collidable {
     public Hitbox hitbox;
@@ -23,34 +25,38 @@ abstract public class Collidable {
         this.hitbox = hitbox;
         this.position = position;
         Point pos = position;
-        this.drawable = new Drawable(width, path, position) {
-            public void draw(Graphics g) {
-                super.draw(g);
-                super.position = pos;
-                if (Main.DEBUG_HITBOX) {
-                    for (LineSegment line : hitbox.shift(position).edges()) {
-                        Point positionA = convertPositionToCamera(line.a());
-                        Point positionB = convertPositionToCamera(line.b());
-                        Graphics2D g2 = (Graphics2D) g;
+        try {
+            BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream(path));
+            this.drawable = new Drawable(width, image, position) {
+                public void draw(Graphics g) {
+                    super.draw(g);
+                    super.position = pos;
+                    if (Main.DEBUG_HITBOX) {
+                        for (LineSegment line : hitbox.shift(position).edges()) {
+                            Point positionA = convertPositionToCamera(line.a());
+                            Point positionB = convertPositionToCamera(line.b());
+                            Graphics2D g2 = (Graphics2D) g;
 
-                        g2.setColor(Main.STROKE_COLOR_HITBOX);
-                        g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
-                        g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
+                            g2.setColor(Main.STROKE_COLOR_HITBOX);
+                            g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
+                            g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
+                        }
                     }
                 }
 
-            }
-
-            private Point convertPositionToCamera(Point position) {
-                double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
-                double offsetX = relative ? Main.camera.position.x() : 0;
-                double offsetY = relative ? Main.camera.position.y() : 0;
-                int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
-                int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
-                return new Point(posXDisplay, posYDisplay);
-            }
-        };
-        calulateLimits();
+                private Point convertPositionToCamera(Point position) {
+                    double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
+                    double offsetX = relative ? Main.camera.position.x() : 0;
+                    double offsetY = relative ? Main.camera.position.y() : 0;
+                    int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
+                    int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
+                    return new Point(posXDisplay, posYDisplay);
+                }
+            };
+            calulateLimits();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Collidable(Hitbox hitbox, Point position, BufferedImage graphic, int width) {

@@ -21,6 +21,11 @@ public final class Util {
 
     private Util() {}
 
+    /**
+     * Converts JSON to HashMap
+     * @param stream Stream of the JSON File
+     * @return A decoded Map that represents like this: map[xPosition][yPosition]
+     */
     public static Map<Integer, Map<Integer, Tile>> readWorldData(InputStream stream) {
         Map<Integer, Map<Integer, Tile>> worldData = new HashMap<>();
         try {
@@ -48,6 +53,12 @@ public final class Util {
         return worldData;
     }
 
+
+    /**
+     * Mirrors Image
+     * @param image Image that needs to be Mirrored
+     * @return Mirrored Image
+     */
     public static BufferedImage mirrorImage(BufferedImage image) {
         AffineTransform at = new AffineTransform();
         at.concatenate(AffineTransform.getScaleInstance(-1, 1));
@@ -67,6 +78,13 @@ public final class Util {
         return newImage;
     }
 
+
+    /**
+     * Loads Image and returns scaled version (based on TILE_SIZE and ScaledPixelSize())
+     * @param path Path of the Image
+     * @return Scaled BufferdImage
+     * @throws IOException if Image cant be found on the specified path
+     */
     public static BufferedImage loadScaledTileImage(String path) throws IOException {
         BufferedImage image = ImageIO.read(Util.class.getResourceAsStream(path));
         Image scaled = image.getScaledInstance((int) (Main.TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.scaledPixelSize()), Image.SCALE_DEFAULT);

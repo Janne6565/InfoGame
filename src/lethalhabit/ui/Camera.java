@@ -6,6 +6,9 @@ import lethalhabit.technical.Point;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * Structure Class for Informations of the Position, Speed, Threshhold, Shift and Width of the game
+ */
 public final class Camera {
     
     public Point position;
@@ -24,18 +27,19 @@ public final class Camera {
         this.shiftLimit = shiftLimit;
     }
 
+    /**
+     * Calculates the Real Position of the camera (with the shift)
+     * @return Real Position of the Camera
+     */
     public Point getRealPosition() {
         return position.plus(shift);
     }
-    
-    public void draw(ArrayList<Drawable> drawables, Graphics2D graphics2D) {
-        for (Drawable draw : drawables) {
-            graphics2D.drawImage(draw.graphic, (int) draw.position.x(), (int) draw.position.y(), null);
-        }
-    }
 
+    /**
+     * Calculates the Height based on the width and the Screen Size
+     * @return the Calculated Height of the Screen
+     */
     public double getHeight() {
         return (float) width / Main.screenWidth * Main.screenHeight;
     }
-    
 }

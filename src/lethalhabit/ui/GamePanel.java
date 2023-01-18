@@ -14,6 +14,10 @@ import java.awt.*;
 import java.util.Map;
 
 //TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
+
+/**
+ * GamePanel used to draw Game Elements
+ */
 public final class GamePanel extends JPanel {
 
     private final Timer updateTimer;
@@ -24,7 +28,11 @@ public final class GamePanel extends JPanel {
         updateTimer = new Timer((int) (1000 / frameRate), e -> repaint());
         updateTimer.start();
     }
-    
+
+    /**
+     * Method called on every Frame (from the Abstract super class)
+     * @param g Graphics passed into the function
+     */
     @Override
     public void paintComponent(Graphics g) { // this is the stuff that's responsible for drawing all the drawables to the right position (not finished yet)
         super.paintComponent(g);
@@ -44,15 +52,16 @@ public final class GamePanel extends JPanel {
                 if ((posRightDown.compareTo(minPosition) > 0 && posLeftTop.compareTo(maxPosition) < 0) || !draw.relative) { // Check if element is inside our camera
                     // Image in our lethalhabit.ui.Camera Frame -> render Graphic
                     draw.draw(g);
-                } else {
-                    // Image not in our lethalhabit.ui.Camera Frame -> dont render Graphic
                 }
             }
-            // System.out.println("Drawables: " + ((System.nanoTime() - timeBefore) / 1000000));
         }
     }
 
-    public void drawMap(Graphics g) {
+    /**
+     * Drawes the Map (Blocks and Liquids) using the Main.Map and the Main.camera to get the ID's of the Tiles and using Block.TILEMAP and Liquid.TILEMAP to get the graphics of the Block/Liqids
+     * @param g graphics everything gets drawen at
+     */
+    private void drawMap(Graphics g) {
         if (Main.IS_GAME_RUNNING) {
             long timeBefore = System.nanoTime();
             int xRange = (int) (Main.camera.width / Main.TILE_SIZE) + 1;

@@ -10,6 +10,9 @@ import lethalhabit.ui.Drawable;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * An object that has movement and collides with Map Tiles and is affected by Viscosity of Liquids its in
+ */
 public abstract class PhysicsObject extends Drawable implements Tickable {
 
     public Hitbox hitbox;
@@ -30,6 +33,9 @@ public abstract class PhysicsObject extends Drawable implements Tickable {
         checkDirections(timeDelta);
     }
 
+    /**
+     * Checks the viscosity and sets the player movement depending on the lowest viscosity of the blocks you are in
+     */
     public void checkViscosity() {
         Hitbox absolute = hitbox.shift(position);
         double minViscosity = 1;
