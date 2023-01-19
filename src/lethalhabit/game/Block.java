@@ -21,6 +21,7 @@ public final class Block {
     public static void loadBlocks() {
         try {
             String json = new String(Tile.class.getResourceAsStream("/blocks.json").readAllBytes(), StandardCharsets.UTF_8);
+            System.out.println(json + "\n\n");
             Gson gson = new Gson();
             Map<String, Map<String, Object>> raw = gson.fromJson(json, Map.class);
             for (Map.Entry<String, Map<String, Object>> entry : raw.entrySet()) {

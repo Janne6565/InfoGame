@@ -1,6 +1,7 @@
 package lethalhabit.game;
 
 import com.google.gson.Gson;
+import lethalhabit.Util;
 import lethalhabit.technical.Hitbox;
 
 import javax.imageio.ImageIO;
@@ -24,7 +25,7 @@ public final class Liquid {
                 Integer key = Integer.parseInt(entry.getKey());
                 Double viscosity = (Double) entry.getValue().get("viscosity");
                 Hitbox.Type hitboxType = Hitbox.Type.valueOf((String) entry.getValue().get("hitbox"));
-                Liquid liquid = new Liquid(viscosity, hitboxType.hitbox, ImageIO.read(Tile.class.getResourceAsStream("/liquids/liquid" + key + ".png")));
+                Liquid liquid = new Liquid(viscosity, hitboxType.hitbox, Util.loadScaledTileImage("/liquids/liquid" + key + ".png"));
                 TILEMAP.put(key, liquid);
             }
         } catch (IOException ex) { }

@@ -7,216 +7,236 @@ import lethalhabit.ui.Animation;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Comparator;
 
 import static lethalhabit.Util.mirrorImage;
 
-public class Player extends PhysicsObject implements Loadable {
-    public double movementSpeed;
-    public double jumpBoost;
-    public double wallJumpBoost = 150;
-    public double timeInGame = 0; // Used to calculate the current frame of the animation
-    public double cooldownCameraShift = 0.5;
-    public double speedOfAnimation = 5;
-
-    public int hp = 10; // Wow really great job you did here my friend :)
+public class Player extends PhysicsObject {
     
-    /* Animations */
-    public Animation idleAnimation;
-    public Animation walkAnimation; // TODO: Walk Animation
-    public Animation midAirAnimation; // TODO: Mid Air Animation
-    public Animation currentAnimation = idleAnimation;
+    public static final int WIDTH = 20;
+    
+    public static final Hitbox HITBOX = new Hitbox(new Point[]{
+            new Point(10, 10).scale(WIDTH / 50.0),
+            new Point(10, 57).scale(WIDTH / 50.0),
+            new Point(40, 57).scale(WIDTH / 50.0),
+            new Point(40, 10).scale(WIDTH / 50.0)
+    });
+    
+    public static final double MOVEMENT_SPEED = 80;
+    public static final double JUMP_BOOST = 200;
+    public static final double WALL_JUMP_BOOST = 150;
+    public static final double COOLDOWN_CAMERA_SHIFT = 0.5;
+    public static final double ANIMATION_SPEED = 5;
+    
+    public static final Animation ANIMATION_IDLE = new Animation(0.0416, "playerIdle", WIDTH * Main.scaledPixelSize());
+    public static final Animation ANIMATION_WALK = new Animation(1, "playerWalk", WIDTH * Main.scaledPixelSize());
+    public static final Animation ANIMATION_MID_AIR = new Animation(1, "playerMidAir", WIDTH * Main.scaledPixelSize());
+    
+    public int hp = 10; // Wow really great job you did here my friend :)))))))))
+    
+    public double timeInGame = 0; // Used to calculate the current frame of the animation
     public int direction = 0;
-    BufferedImage defaultImage;
+    public Animation currentAnimation = ANIMATION_IDLE;
     public Vec2D recoil = new Vec2D(0, 0);
-
-    @Override
-    public void load() {
-        idleAnimation = new Animation(0.0416, "playerIdle", width * Main.scaledPixelSize());
-        midAirAnimation = new Animation(1, "playerWalk", width * Main.scaledPixelSize());
+    
+    public double jumpBoost = 1.0;
+    public double speedBoost = 1.0;
+    
+    public double moveCameraUpCooldown = COOLDOWN_CAMERA_SHIFT;
+    public double moveCameraDownCooldown = COOLDOWN_CAMERA_SHIFT;
+    
+    private boolean hasJumpedLeft = false;
+    private boolean hasJumpedRight = false;
+    private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
+    private int timesJumped = 0;
+    
+    public Player(Point position) {
+        super(WIDTH, ANIMATION_IDLE.get(0), position, HITBOX);
     }
-
-    public Player(double width, String pathToImage, Point position, Hitbox hitbox, double movementSpeed, double jumpBoost) {
-        super(width, pathToImage, position, hitbox);
-        this.movementSpeed = movementSpeed;
-        this.jumpBoost = jumpBoost;
-        this.defaultImage = graphic;
-        load();
-
-        Main.tickables.add(this);
-        Main.loadables.add(this);
-    }
-
-
+    
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
     public void moveLeft() {
-        this.velocity = new Vec2D(movementSpeed * -1, this.velocity.y());
+        this.velocity = new Vec2D(-MOVEMENT_SPEED * speedBoost, this.velocity.y());
         this.direction = -1;
     }
-
+    
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
     public void moveRight() {
-        this.velocity = new Vec2D(movementSpeed, this.velocity.y());
+        this.velocity = new Vec2D(MOVEMENT_SPEED * speedBoost, this.velocity.y());
         this.direction = 1;
     }
-
+    
+    public void moveUp() {
+        this.velocity = new Vec2D(this.velocity.x(), -MOVEMENT_SPEED * speedBoost);
+    }
+    
+    public void moveDown() {
+        this.velocity = new Vec2D(this.velocity.x(), MOVEMENT_SPEED * speedBoost);
+    }
+    
     /**
-     * Resets the move velocity
+     * Resets the x velocity
      */
-    public void standStill() {
+    public void stopMovementX() {
         this.velocity = new Vec2D(0, this.velocity.y());
-        if (velocity.y() == 0) {
-            this.currentAnimation = idleAnimation;
+        if (this.velocity.y() == 0) {
+            this.currentAnimation = ANIMATION_IDLE;
         }
     }
-
-
+    
     /**
-     * Calculates the real velocity (including move velocity (controllable) and knockback (uncontrollable))
-     * @return the real velocity
+     * Resets the y velocity
      */
-    @Override
-    public Vec2D getVelocity() {
-        return velocity.plus(recoil);
+    public void stopMovementY() {
+        this.velocity = new Vec2D(this.velocity.x(), 0);
+        if (this.velocity.x() == 0) {
+            this.currentAnimation = ANIMATION_IDLE;
+        }
     }
-
-    private boolean jumped = false; // this is used to not let you hold your jump key and than jump more than once
-    private int timesJumped = 0;
-
+    
     /**
-     * Shoots Fireball <3
+     * Shoots fireball <3
      */
     public void makeFireball() {
         new Fireball(this.position, direction);
     }
-
+    
     /**
-     * Checks if the player is able to jump
-     * @return if the player is able to jump
+     * Checks the player's ability to jump
+     *
+     * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
         if (timesJumped <= 0) {
             return true;
         }
-        return (isWallDown());
+        return isWallDown();
     }
-
-    private boolean hasJumpedLeft = false;
-    private boolean hasJumpedRight = false;
-
-    /**
-     * Calls the player to jump
-     */
+    
     public void jump() {
-        if (!jumped) {
-            jumped = true;
-            if (isWallDown()) {
-                velocity = new Vec2D(velocity.x(), -jumpBoost);
-                return;
-            }
-            if (direction == -1 && !hasJumpedLeft && isWallLeft()) {
-                hasJumpedLeft = true;
-                velocity = new Vec2D(velocity.x(), -jumpBoost);
-                recoil = new Vec2D(wallJumpBoost, 0);
-                return;
-            } else if (direction == 1 && !hasJumpedRight && isWallRight()) {
-                hasJumpedRight = true;
-                velocity = new Vec2D(velocity.x(), -jumpBoost);
-                recoil = new Vec2D(-wallJumpBoost, 0);
-                return;
-            }
-
-            if (canJump()) {
-                velocity = new Vec2D(velocity.x(), -jumpBoost);
-                if (!isWallDown()) {
-                    timesJumped += 1;
-                }
+        if (jumped || !surroundingLiquids().isEmpty()) {
+            return;
+        }
+        jumped = true;
+        if (isWallDown()) {
+            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+            return;
+        }
+        if (direction == -1 && !hasJumpedLeft && isWallLeft()) {
+            hasJumpedLeft = true;
+            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+            recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
+            return;
+        } else if (direction == 1 && !hasJumpedRight && isWallRight()) {
+            hasJumpedRight = true;
+            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+            recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+            return;
+        }
+        if (canJump()) {
+            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+            if (!isWallDown()) {
+                timesJumped += 1;
             }
         }
+        jumpBoost = 1.0;
     }
-
+    
+    @Override
+    public void checkViscosity() {
+        surroundingLiquids().stream()
+                .min(Comparator.comparing(liquid -> liquid.viscosity))
+                .ifPresent(liquid -> {
+                    onGroundReset();
+                    velocity = velocity.scale(liquid.viscosity);
+                    jumpBoost = 0.6;
+                });
+    }
+    
     /**
-     * Resets jump so you cant hold the space bar to instantly trigger double jump or wall jumps
+     * Resets jump to prevent re-jumping
      */
     public void resetJump() {
         jumped = false;
+        jumpBoost = 1.0;
     }
-
-    public double moveCameraDownCooldown = cooldownCameraShift;
-
+    
     /**
-     * Shifts the camera Downwards
+     * Shifts the camera downwards
+     *
      * @param timeDelta time since last tick (used to calculate the speed of the camera)
      */
     public void moveCameraDown(double timeDelta) {
         if (moveCameraDownCooldown > 0) {
             moveCameraDownCooldown = Math.max(moveCameraDownCooldown - timeDelta, 0);
         } else {
-            Main.camera.shift = new Point(Main.camera.shift.x(), Math.max(Main.camera.shift.y() - Math.abs(-Main.camera.shiftLimit - Main.camera.shift.y()) * speedOfAnimation * timeDelta, -Main.camera.shiftLimit));
+            Main.camera.shift = new Point(Main.camera.shift.x(), Math.max(Main.camera.shift.y() - Math.abs(-Main.camera.shiftLimit - Main.camera.shift.y()) * ANIMATION_SPEED * timeDelta, -Main.camera.shiftLimit));
         }
     }
-
+    
     /**
-     * Resets the cooldown for the down movement
+     * Resets the cooldown for the camera downward movement
      */
     public void resetCameraDown() {
-        moveCameraDownCooldown = cooldownCameraShift;
+        moveCameraDownCooldown = COOLDOWN_CAMERA_SHIFT;
     }
-
-    public double moveCameraUpCooldown = cooldownCameraShift;
-
+    
     /**
      * Shifts the camera upwards
+     *
      * @param timeDelta time since last tick (used to calculate the speed of the camera)
      */
     public void moveCameraUp(double timeDelta) {
         if (moveCameraUpCooldown > 0) {
             moveCameraUpCooldown = Math.max(moveCameraUpCooldown - timeDelta, 0);
         } else {
-            Main.camera.shift = new Point(Main.camera.shift.x(), Math.min(Main.camera.shift.y() + Math.abs(Main.camera.shiftLimit - Main.camera.shift.y()) * speedOfAnimation * timeDelta, Main.camera.shiftLimit));
+            Main.camera.shift = new Point(Main.camera.shift.x(), Math.min(Main.camera.shift.y() + Math.abs(Main.camera.shiftLimit - Main.camera.shift.y()) * ANIMATION_SPEED * timeDelta, Main.camera.shiftLimit));
         }
     }
-
+    
     /**
-     * Resets the cooldown for the up movement
+     * Resets the cooldown for the camera upward movement
      */
     public void resetCameraUp() {
-        moveCameraUpCooldown = cooldownCameraShift;
+        moveCameraUpCooldown = COOLDOWN_CAMERA_SHIFT;
     }
-
+    
     /**
      * Resets the shift of the camera to go back to (0, 0)
+     *
      * @param timeDelta time since last tick (used to calculate the speed of the camera)
      */
     public void resetCameraShift(double timeDelta) {
         if (Main.camera.shift.y() <= 0.5 && Main.camera.shift.y() >= -0.5) {
             Main.camera.shift = new Point(Main.camera.shift.x(), 0);
         } else {
-            Main.camera.shift = new Point(Main.camera.shift.x(), Main.camera.shift.y() - Main.camera.shift.y() * speedOfAnimation * timeDelta);
+            Main.camera.shift = new Point(Main.camera.shift.x(), Main.camera.shift.y() - Main.camera.shift.y() * ANIMATION_SPEED * timeDelta);
         }
     }
-
+    
     /**
      * Method called for handling animation and every other tick based mechanic
+     *
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
     @Override
     public void tick(Double timeDelta) {
         timeInGame += timeDelta;
-        int currentFrame = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
-        defaultImage = currentAnimation.frames.get(currentFrame);
+        int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
+        BufferedImage currentImage = currentAnimation.frames.get(currentFrameIndex);
         switch (direction) {
             case 1:
-                this.graphic = defaultImage;
+                this.graphic = currentImage;
                 break;
             case -1:
-                this.graphic = mirrorImage(defaultImage);
+                this.graphic = mirrorImage(currentImage);
                 break;
             case 0:
-                this.graphic = defaultImage;
+                this.graphic = currentImage;
                 break;
         }
         double timeBeforeSuperTick = System.nanoTime();
@@ -230,9 +250,9 @@ public class Player extends PhysicsObject implements Loadable {
         }
         // System.out.println("Physics Tick: " + ((System.nanoTime() - timeBeforeSuperTick) / 1000000));
     }
-
+    
     /**
-     * Resets all the jumps on Ground Touch
+     * Resets all the jumps on ground touch
      */
     @Override
     public void onGroundReset() {
@@ -240,12 +260,12 @@ public class Player extends PhysicsObject implements Loadable {
         hasJumpedRight = false;
         timesJumped = 0;
     }
-
+    
     @Override
     public void draw(Graphics graphics) {
         super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
-            for (LineSegment line : hitbox.shift(position).edges()) {
+            for (LineSegment line : hitbox.shift(getPosition()).edges()) {
                 Point positionA = convertPositionToCamera(line.a());
                 Point positionB = convertPositionToCamera(line.b());
                 Graphics2D g2 = (Graphics2D) graphics;
@@ -255,13 +275,13 @@ public class Player extends PhysicsObject implements Loadable {
             }
         }
     }
-
+    
     private Point convertPositionToCamera(Point position) {
-        double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
-        double offsetX = relative ? Main.camera.getRealPosition().x() : 0;
-        double offsetY = relative ? Main.camera.getRealPosition().y() : 0;
-        int posXDisplay = (int) ((int) (position.x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
-        int posYDisplay = (int) ((int) (position.y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
+        double offsetX = isRelative() ? Main.camera.getRealPosition().x() : 0;
+        double offsetY = isRelative() ? Main.camera.getRealPosition().y() : 0;
+        int posXDisplay = (int) ((int) (position.x() - offsetX) * Main.scaledPixelSize() + (Main.screenWidth / 2));
+        int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
         return new Point(posXDisplay, posYDisplay);
     }
+    
 }

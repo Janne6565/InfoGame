@@ -46,4 +46,5 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
         Point relativePosition = minus(point);
         return Math.sqrt(relativePosition.x() * relativePosition.x() + relativePosition.y() * relativePosition.y());
     }
+    
 }

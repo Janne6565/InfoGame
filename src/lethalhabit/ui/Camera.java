@@ -3,41 +3,38 @@ package lethalhabit.ui;
 import lethalhabit.Main;
 import lethalhabit.technical.Point;
 
-import java.awt.*;
-import java.util.ArrayList;
-
 /**
- * Structure Class for Informations of the Position, Speed, Threshhold, Shift and Width of the game
+ * Structure class for information of the position, speed, threshold, shift and width of the game
  */
 public final class Camera {
     
     public Point position;
     public int width;
-    public int threshhold;
+    public int threshold;
     public double speed;
     public Point shift;
     public double shiftLimit;
 
-    public Camera(Point position, int width, int threshhold, double speed, double shiftLimit) {
+    public Camera(Point position, int width, int threshold, double speed, double shiftLimit) {
         this.position = position;
         this.width = width;
-        this.threshhold = threshhold;
+        this.threshold = threshold;
         this.speed = speed;
         this.shift = new Point(0, 0);
         this.shiftLimit = shiftLimit;
     }
 
     /**
-     * Calculates the Real Position of the camera (with the shift)
-     * @return Real Position of the Camera
+     * Calculates the real position of the camera (with the shift)
+     * @return real position of the camera
      */
     public Point getRealPosition() {
         return position.plus(shift);
     }
 
     /**
-     * Calculates the Height based on the width and the Screen Size
-     * @return the Calculated Height of the Screen
+     * Calculates the height based on the width and the screen size
+     * @return the calculated height of the screen
      */
     public double getHeight() {
         return (float) width / Main.screenWidth * Main.screenHeight;
