@@ -49,6 +49,7 @@ public final class Main {
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
     public static Player mainCharacter;
+    public static Player enemy;
     public static Map<Integer, Map<Integer, Tile>> map;
     
     public static void main(String[] args) {
@@ -80,6 +81,10 @@ public final class Main {
         // System.out.println("Finished Loading");
         double size = 0.4;
         mainCharacter = new Player(new Point(100, 816.2));
+        enemy = new Player(new Point(100, 700));
+
+
+
     }
     
     /**
@@ -121,6 +126,7 @@ public final class Main {
         double timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
+        enemyMovement(timeDelta);
         double tickTime = System.nanoTime();
         for (Tickable tickable : new ArrayList<Tickable>(tickables)) {
             if (tickable != null) {
@@ -143,6 +149,52 @@ public final class Main {
      *
      * @param timeDelta time since last tick
      */
+    private static boolean active = false;
+
+    private static float count = 0;
+    private static void enemyMovement(double timeDelta){
+
+        if (enemy.isWallDown()) {
+            active = true;
+        }
+
+        if (active && count < 1) {
+
+            System.out.println("is active");
+            enemy.moveLeft();
+
+            if (enemy.isWallLeft() && count < 1) {
+                enemy.jump();
+                System.out.println("jump");
+            } else {
+                enemy.resetJump();
+                System.out.println("jump reset");
+
+            }
+            count += timeDelta;
+            if(count>1){
+                active = false;
+            }
+
+
+        }
+        if(count > 1){
+            count = 0;
+            enemy.moveRight();
+
+            if (enemy.isWallRight() && count < 1) {
+                enemy.jump();
+                System.out.println("jump");
+            } else {
+                enemy.resetJump();
+                System.out.println("jump reset");
+
+            }
+            count += timeDelta;
+            System.out.println(count);
+        }
+    }
+
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
             if (activeKeys.contains(KeyEvent.VK_SPACE)) {
@@ -169,6 +221,7 @@ public final class Main {
             
             if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
                 mainCharacter.moveLeft();
+
             } else if (activeKeys.contains(KeyEvent.VK_D) && !activeKeys.contains(KeyEvent.VK_A)) {
                 mainCharacter.moveRight();
             } else {
