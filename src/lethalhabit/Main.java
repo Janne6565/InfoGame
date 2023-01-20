@@ -23,17 +23,6 @@ import java.util.Objects;
  */
 public final class Main {
     
-    public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = false;
-    
-    public static final boolean DEBUG_HITBOX = false;
-    public static final int STROKE_SIZE_HITBOXES = 2;
-    public static final Color STROKE_COLOR_HITBOX = Color.RED;
-    public static final double COLLISION_THRESHOLD = 1;
-    public static final double MAX_VELOCITY_SPEED = 800;
-    public static final double GRAVITATIONAL_ACCELERATION = 400;
-    public static final double TILE_SIZE = 20;
-    public static final double SAFE_DISTANCE = 0.05;
     
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
@@ -81,6 +70,16 @@ public final class Main {
         double size = 0.4;
         mainCharacter = new Player(new Point(100, 816.2));
     }
+     public static void gameInit2() {
+        loadMap("/map.json");
+        setupCamera();
+        Block.loadBlocks();
+        Liquid.loadLiquids();
+        // System.out.println("Finished Loading");
+        double size = 0.4;
+        mainCharacter = new Player(new Point(100, 816.2));
+    }
+    
     
     /**
      * Tick only used for demo mechanics
@@ -133,7 +132,7 @@ public final class Main {
         screenHeight = frame.getHeight();
         // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
         
-        if (DEMO_MODE) {
+        if (DEMO_MODE == false) {
             demoGameTick(timeDelta);
         }
     }
