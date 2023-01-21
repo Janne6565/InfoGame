@@ -1,9 +1,7 @@
 package lethalhabit.technical;
 
-import java.lang.Comparable;
-
 public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
-
+    
     @Override
     public int compareTo(Point other) {
         if (this.x > other.x && this.y > other.y) {
@@ -13,6 +11,11 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
         } else {
             return 0;
         }
+    }
+    
+    @Override
+    public String toString() {
+        return "(" + x + "|" + y + ")";
     }
     
     public Vec2D pos() {
@@ -34,17 +37,17 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     public Point minus(TwoDimensional other) {
         return new Point(this.x - other.x(), this.y - other.y());
     }
+    
     public Point scale(double factor) {
         return new Point(this.x * factor, this.y * factor);
     }
-
+    
     public Vec2D loc() {
         return new Vec2D(x, y);
     }
-
-    public double getDistance(Point point) {
-        Point relativePosition = minus(point);
-        return Math.sqrt(relativePosition.x() * relativePosition.x() + relativePosition.y() * relativePosition.y());
+    
+    public double distance(Point point) {
+        return minus(point).loc().length();
     }
     
 }

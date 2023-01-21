@@ -28,15 +28,11 @@ public class Player extends PhysicsObject {
     public static final double COOLDOWN_CAMERA_SHIFT = 0.5;
     public static final double ANIMATION_SPEED = 5;
     
-    public static final Animation ANIMATION_IDLE = new Animation(0.0416, "playerIdle", WIDTH * Main.scaledPixelSize());
-    public static final Animation ANIMATION_WALK = new Animation(1, "playerWalk", WIDTH * Main.scaledPixelSize());
-    public static final Animation ANIMATION_MID_AIR = new Animation(1, "playerMidAir", WIDTH * Main.scaledPixelSize());
-    
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
     
     public double timeInGame = 0; // Used to calculate the current frame of the animation
     public int direction = 0;
-    public Animation currentAnimation = ANIMATION_IDLE;
+    public Animation currentAnimation = Animation.PLAYER_IDLE;
     public Vec2D recoil = new Vec2D(0, 0);
     
     public double jumpBoost = 1.0;
@@ -51,7 +47,7 @@ public class Player extends PhysicsObject {
     private int timesJumped = 0;
     
     public Player(Point position) {
-        super(WIDTH, ANIMATION_IDLE.get(0), position, HITBOX);
+        super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
     }
     
     /**
@@ -84,7 +80,7 @@ public class Player extends PhysicsObject {
     public void stopMovementX() {
         this.velocity = new Vec2D(0, this.velocity.y());
         if (this.velocity.y() == 0) {
-            this.currentAnimation = ANIMATION_IDLE;
+            this.currentAnimation = Animation.PLAYER_IDLE;
         }
     }
     
@@ -94,7 +90,7 @@ public class Player extends PhysicsObject {
     public void stopMovementY() {
         this.velocity = new Vec2D(this.velocity.x(), 0);
         if (this.velocity.x() == 0) {
-            this.currentAnimation = ANIMATION_IDLE;
+            this.currentAnimation = Animation.PLAYER_IDLE;
         }
     }
     
@@ -248,7 +244,6 @@ public class Player extends PhysicsObject {
                 recoil = new Vec2D(Math.max(recoil.x() - 500 * timeDelta, 0), recoil.y());
             }
         }
-        // System.out.println("Physics Tick: " + ((System.nanoTime() - timeBeforeSuperTick) / 1000000));
     }
     
     /**
@@ -269,7 +264,7 @@ public class Player extends PhysicsObject {
                 Point positionA = convertPositionToCamera(line.a());
                 Point positionB = convertPositionToCamera(line.b());
                 Graphics2D g2 = (Graphics2D) graphics;
-                g2.setColor(Main.STROKE_COLOR_HITBOX);
+                g2.setColor(Main.HITBOX_STROKE_COLOR);
                 g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
                 g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }

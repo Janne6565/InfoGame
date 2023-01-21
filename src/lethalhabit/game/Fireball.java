@@ -42,7 +42,7 @@ public class Fireball implements Tickable, Drawable {
         }
         Point distanceTraveled = new Point(velocity.scale(timeDelta).x(), velocity.scale(timeDelta).y());
         position = position.plus(distanceTraveled);
-        if (position.getDistance(Main.mainCharacter.position) > 600) {
+        if (position.distance(Main.mainCharacter.position) > 600) {
             delete();
         }
     }

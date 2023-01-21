@@ -8,13 +8,14 @@ import lethalhabit.technical.Point;
  */
 public final class Camera {
     
+    public final int width;
+    public final int threshold;
+    public final double speed;
+    public final double shiftLimit;
+    
     public Point position;
-    public int width;
-    public int threshold;
-    public double speed;
     public Point shift;
-    public double shiftLimit;
-
+    
     public Camera(Point position, int width, int threshold, double speed, double shiftLimit) {
         this.position = position;
         this.width = width;
@@ -23,7 +24,7 @@ public final class Camera {
         this.shift = new Point(0, 0);
         this.shiftLimit = shiftLimit;
     }
-
+    
     /**
      * Calculates the real position of the camera (with the shift)
      * @return real position of the camera
@@ -31,12 +32,13 @@ public final class Camera {
     public Point getRealPosition() {
         return position.plus(shift);
     }
-
+    
     /**
      * Calculates the height based on the width and the screen size
      * @return the calculated height of the screen
      */
     public double getHeight() {
-        return (float) width / Main.screenWidth * Main.screenHeight;
+        return (double) width / Main.screenWidth * Main.screenHeight;
     }
+    
 }

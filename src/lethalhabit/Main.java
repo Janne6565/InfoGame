@@ -3,11 +3,14 @@ package lethalhabit;
 import lethalhabit.game.Block;
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
+import lethalhabit.technical.Hitbox;
+import lethalhabit.technical.Loadable;
 import lethalhabit.technical.Point;
-import lethalhabit.technical.*;
+import lethalhabit.technical.Vec2D;
+import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
-import lethalhabit.ui.GamePanel;
 import lethalhabit.ui.Drawable;
+import lethalhabit.ui.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,9 +29,11 @@ public final class Main {
     public static final boolean DEMO_MODE = false;
     public static final boolean MINIMIZED = false;
     
+    public static final Color HITBOX_STROKE_COLOR = Color.RED;
+    public static final Color PROGRESS_BAR_COLOR = new Color(0x4030e0);
+    
     public static final boolean DEBUG_HITBOX = false;
     public static final int STROKE_SIZE_HITBOXES = 2;
-    public static final Color STROKE_COLOR_HITBOX = Color.RED;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
     public static final double GRAVITATIONAL_ACCELERATION = 400;
@@ -51,6 +56,8 @@ public final class Main {
     public static Player mainCharacter;
     public static Player enemy;
     public static Map<Integer, Map<Integer, Tile>> map;
+    
+    private static long lastTick;
     
     public static void main(String[] args) {
         gameInit();
@@ -76,20 +83,16 @@ public final class Main {
     public static void gameInit() {
         loadMap("/map.json");
         setupCamera();
-        Block.loadBlocks();
         Liquid.loadLiquids();
-        // System.out.println("Finished Loading");
+        Animation.loadAnimations();
+        Block.loadBlocks();
         double size = 0.4;
         mainCharacter = new Player(new Point(100, 816.2));
         enemy = new Player(new Point(100, 700));
-
-
-
     }
     
     /**
      * Tick only used for demo mechanics
-     *
      * @param timeDelta time since the last tick happened
      */
     public static void demoGameTick(double timeDelta) {
@@ -101,43 +104,36 @@ public final class Main {
     
     /**
      * Loads map
-     *
      * @param path Path where to find the map
      */
     public static void loadMap(String path) {
-        map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream(path)));
+        map = Util.readWorldData(Main.class.getResourceAsStream(path));
     }
     
     /**
      * Calculate camera width
-     *
      * @return camera width in in-game unit
      */
     public static int getScreenWidthGame() {
         return camera.width;
     }
     
-    private static long lastTick;
-    
     /**
      * Method called on game tick
      */
     public static void tick() {
-        double timeDelta = (float) (System.currentTimeMillis() - lastTick) / 1000;
+        double timeDelta = (double) (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
         enemyMovement(timeDelta);
         double tickTime = System.nanoTime();
-        for (Tickable tickable : new ArrayList<Tickable>(tickables)) {
+        for (Tickable tickable : new ArrayList<>(tickables)) {
             if (tickable != null) {
                 tickable.tick(timeDelta);
             }
         }
         
         moveCamera(timeDelta);
-        screenWidth = frame.getWidth();
-        screenHeight = frame.getHeight();
-        // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
         
         if (DEMO_MODE) {
             demoGameTick(timeDelta);
@@ -146,55 +142,54 @@ public final class Main {
     
     /**
      * Executes commands depending on the key input
-     *
-     * @param timeDelta time since last tick
      */
     private static boolean active = false;
-
+    
     private static float count = 0;
-    private static void enemyMovement(double timeDelta){
-
+    
+    private static void enemyMovement(double timeDelta) {
+        
         if (enemy.isWallDown()) {
             active = true;
         }
-
+        
         if (active && count < 1) {
-
+            
             System.out.println("is active");
             enemy.moveLeft();
-
+            
             if (enemy.isWallLeft() && count < 1) {
                 enemy.jump();
                 System.out.println("jump");
             } else {
                 enemy.resetJump();
                 System.out.println("jump reset");
-
+                
             }
             count += timeDelta;
-            if(count>1){
+            if (count > 1) {
                 active = false;
             }
-
-
+            
+            
         }
-        if(count > 1){
+        if (count > 1) {
             count = 0;
             enemy.moveRight();
-
+            
             if (enemy.isWallRight() && count < 1) {
                 enemy.jump();
                 System.out.println("jump");
             } else {
                 enemy.resetJump();
                 System.out.println("jump reset");
-
+                
             }
             count += timeDelta;
             System.out.println(count);
         }
     }
-
+    
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
             if (activeKeys.contains(KeyEvent.VK_SPACE)) {
@@ -221,7 +216,7 @@ public final class Main {
             
             if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
                 mainCharacter.moveLeft();
-
+                
             } else if (activeKeys.contains(KeyEvent.VK_D) && !activeKeys.contains(KeyEvent.VK_A)) {
                 mainCharacter.moveRight();
             } else {
@@ -245,7 +240,6 @@ public final class Main {
     
     /**
      * Calculates the pixel size based on screen width
-     *
      * @return relative pixel/position ratio based on the screen width
      */
     public static double scaledPixelSize() {
@@ -254,7 +248,6 @@ public final class Main {
     
     /**
      * Shifts the camera based on player position
-     *
      * @param timeDelta time since last tick
      */
     public static void moveCamera(double timeDelta) {
@@ -280,16 +273,13 @@ public final class Main {
         }
     }
     
-    public static JFrame frame;
-    public static GamePanel panel;
-    
     /**
      * Initiates the screen
      */
     public static void setupCamera() {
-        panel = new GamePanel();
-        // Soll Startmenu davor starten? TODO:
-        frame = new JFrame("Lethal Habit");
+        // TODO: start menu?
+        GamePanel panel = new GamePanel();
+        JFrame frame = new JFrame("Lethal Habit");
         
         // KeyListener 
         frame.addKeyListener(new KeyAdapter() {
@@ -307,20 +297,17 @@ public final class Main {
         frame.setUndecorated(true);
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen
-        
-        if (!MINIMIZED) {
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        } else {
+        if (MINIMIZED) {
             frame.setSize(400, 400);
+        } else {
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
         
-        frame.setResizable(true);
+        frame.setResizable(false);
         frame.setVisible(true);
-        frame.setContentPane(panel);
         
         screenWidth = frame.getWidth();
         screenHeight = frame.getHeight();
-        // System.out.println("Width: " + screenWidth + " Height: " + screenHeight);
     }
     
     public static void createStartWindow() {
@@ -334,18 +321,17 @@ public final class Main {
         
         startFrame.setSize(200, 200);
         startFrame.setResizable(false);
-        startFrame.show();
+        startFrame.setVisible(true);
         
         JLabel gameLabel = new JLabel("Lethal Habit");
         JButton startButton = new JButton("Start");
         JButton settingsButton = new JButton("Settings");
         JButton exitButton = new JButton("Exit");
         
-        //New Panel mit Button Layout
+        // New Panel mit Button Layout
         panel.setLayout(new BorderLayout());
         
-        //action event listeners:
-        
+        // action event listeners:
         startButton.addActionListener(e -> {
             IS_GAME_RUNNING = true;
             startFrame.dispose();

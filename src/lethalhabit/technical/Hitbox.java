@@ -7,13 +7,6 @@ import java.util.function.Consumer;
 
 public final class Hitbox implements Iterable<Point> {
     
-    public static final Hitbox HITBOX_1x1 = new Hitbox(new Point[]{
-            new Point(0, 0),
-            new Point(0, Main.TILE_SIZE),
-            new Point(Main.TILE_SIZE, Main.TILE_SIZE),
-            new Point(Main.TILE_SIZE, 0)
-    });
-    
     public final Point[] vertices;
     
     public final Point maxPosition;
