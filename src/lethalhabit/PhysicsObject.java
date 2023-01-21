@@ -12,7 +12,7 @@ import java.util.List;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import static lethalhabit.Util.getFirstIntersection;
+import static lethalhabit.util.Util.getFirstIntersection;
 
 /**
  * A movable object that interacts with the world.

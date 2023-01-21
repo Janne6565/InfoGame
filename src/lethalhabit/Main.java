@@ -11,7 +11,12 @@ import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
+import lethalhabit.util.AudioUtil;
+import lethalhabit.util.Util;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -19,7 +24,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Main program
@@ -55,7 +59,9 @@ public final class Main {
     public static int screenHeight; // In Pixels based on the screen size
     public static Player mainCharacter;
     public static Player enemy;
+    
     public static Map<Integer, Map<Integer, Tile>> map;
+    public static Settings settings;
     
     private static long lastTick;
     
@@ -81,14 +87,19 @@ public final class Main {
      * - assets <br>
      */
     public static void gameInit() {
-        loadMap("/map.json");
+        loadMap();
+        loadSettings();
         setupCamera();
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        double size = 0.4;
+        startSoundtrack();
         mainCharacter = new Player(new Point(100, 816.2));
         enemy = new Player(new Point(100, 700));
+    }
+    
+    public static void startSoundtrack() {
+        AudioUtil.play("/assets/music/soundtrack1.wav", (int) settings.soundTrackVolume);
     }
     
     /**
@@ -103,11 +114,18 @@ public final class Main {
     }
     
     /**
-     * Loads map
-     * @param path Path where to find the map
+     * Loads the map (map.json).
      */
-    public static void loadMap(String path) {
-        map = Util.readWorldData(Main.class.getResourceAsStream(path));
+    public static void loadMap() {
+        map = Util.readWorldData(Main.class.getResourceAsStream("/map.json"));
+    }
+    
+    /**
+     *
+     */
+    public static void loadSettings() {
+        settings = new Settings();
+        // TODO: Read settings from some settings.json file
     }
     
     /**
@@ -148,30 +166,20 @@ public final class Main {
     private static float count = 0;
     
     private static void enemyMovement(double timeDelta) {
-        
         if (enemy.isWallDown()) {
             active = true;
         }
-        
         if (active && count < 1) {
-            
-            System.out.println("is active");
             enemy.moveLeft();
-            
             if (enemy.isWallLeft() && count < 1) {
                 enemy.jump();
-                System.out.println("jump");
             } else {
                 enemy.resetJump();
-                System.out.println("jump reset");
-                
             }
             count += timeDelta;
             if (count > 1) {
                 active = false;
             }
-            
-            
         }
         if (count > 1) {
             count = 0;
@@ -179,11 +187,8 @@ public final class Main {
             
             if (enemy.isWallRight() && count < 1) {
                 enemy.jump();
-                System.out.println("jump");
             } else {
                 enemy.resetJump();
-                System.out.println("jump reset");
-                
             }
             count += timeDelta;
             System.out.println(count);

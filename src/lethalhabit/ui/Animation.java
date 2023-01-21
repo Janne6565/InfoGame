@@ -2,7 +2,7 @@ package lethalhabit.ui;
 
 import lethalhabit.Main;
 import lethalhabit.Player;
-import lethalhabit.Util;
+import lethalhabit.util.Util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

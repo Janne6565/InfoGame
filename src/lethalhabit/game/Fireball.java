@@ -2,7 +2,7 @@ package lethalhabit.game;
 
 import lethalhabit.Main;
 import lethalhabit.Tickable;
-import lethalhabit.Util;
+import lethalhabit.util.Util;
 import lethalhabit.technical.Point;
 import lethalhabit.technical.Vec2D;
 import lethalhabit.ui.Drawable;

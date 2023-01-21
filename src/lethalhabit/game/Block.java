@@ -1,7 +1,7 @@
 package lethalhabit.game;
 
 import com.google.gson.Gson;
-import lethalhabit.Util;
+import lethalhabit.util.Util;
 import lethalhabit.technical.Hitbox;
 
 import java.awt.image.BufferedImage;
@@ -24,7 +24,7 @@ public final class Block {
             for (Map.Entry<String, Map<String, Object>> entry : raw.entrySet()) {
                 Integer key = Integer.parseInt(entry.getKey());
                 Hitbox.Type hitboxType = Hitbox.Type.valueOf((String) entry.getValue().get("hitbox"));
-                Block block = new Block(hitboxType.hitbox, Util.loadScaledTileImage("/tiles/tile" + key + ".png"));
+                Block block = new Block(hitboxType.hitbox, Util.loadScaledTileImage("/assets/tiles/tile" + key + ".png"));
                 TILEMAP.put(key, block);
                 loadingProgress += 1.0 / raw.size();
             }

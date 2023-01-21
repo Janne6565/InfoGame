@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 
-import static lethalhabit.Util.mirrorImage;
+import static lethalhabit.util.Util.mirrorImage;
 
 public class Player extends PhysicsObject {
     
