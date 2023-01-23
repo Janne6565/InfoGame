@@ -3,6 +3,7 @@ package lethalhabit;
 import lethalhabit.game.Block;
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
+import lethalhabit.sound.Sound;
 import lethalhabit.technical.Hitbox;
 import lethalhabit.technical.Loadable;
 import lethalhabit.technical.Point;
@@ -11,19 +12,15 @@ import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
-import lethalhabit.util.AudioUtil;
+import lethalhabit.util.Settings;
 import lethalhabit.util.Util;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Main program
@@ -93,13 +90,16 @@ public final class Main {
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        startSoundtrack();
+        playSoundtrack();
         mainCharacter = new Player(new Point(100, 816.2));
         enemy = new Player(new Point(100, 700));
     }
     
-    public static void startSoundtrack() {
-        AudioUtil.play("/assets/music/soundtrack1.wav", (int) settings.soundTrackVolume);
+    public static void playSoundtrack() {
+        try {
+            Sound soundtrack = new Sound("/assets/music/soundtrack1.wav");
+            soundtrack.loop();
+        } catch (Exception ignored) { }
     }
     
     /**
@@ -191,7 +191,6 @@ public final class Main {
                 enemy.resetJump();
             }
             count += timeDelta;
-            System.out.println(count);
         }
     }
     

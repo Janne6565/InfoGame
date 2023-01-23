@@ -2,15 +2,16 @@ package lethalhabit;
 
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
-import lethalhabit.technical.*;
+import lethalhabit.technical.Hitbox;
 import lethalhabit.technical.Point;
+import lethalhabit.technical.Vec2D;
 import lethalhabit.ui.Drawable;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 
 import static lethalhabit.util.Util.getFirstIntersection;
 
@@ -39,8 +40,8 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     @Override
     public void tick(Double timeDelta) {
         checkViscosity();
-        moveX(timeDelta, velocity);
-        moveY(timeDelta, velocity);
+        moveX(timeDelta);
+        moveY(timeDelta);
         checkDirections(timeDelta);
     }
     
@@ -75,7 +76,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     
     /**
      * Checks the environment for liquids the object is submerged in.
-     *
      * @return A complete list of liquids that surround the player (may be empty)
      */
     public List<Liquid> surroundingLiquids() {
@@ -99,7 +99,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     
     /**
      * Stops movement if a collidable is hit.
-     *
      * @param timeDelta time between Frames
      */
     public void checkDirections(double timeDelta) {
@@ -111,13 +110,11 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     }
     
     /**
-     * Used to collision dependent movement on the x axis
-     *
-     * @param timeDelta       time between frames
-     * @param generalVelocity general velocity of physical object
+     * Movement on the x-axis
+     * @param timeDelta time between frames
      */
-    public void moveX(double timeDelta, Vec2D generalVelocity) {
-        Vec2D vel = new Vec2D(generalVelocity.x(), 0);
+    public void moveX(double timeDelta) {
+        Vec2D vel = new Vec2D(this.velocity.x(), 0);
         
         List<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
@@ -140,22 +137,20 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
                 if (vel.x() > 0) {
-                    velocity = new Vec2D(Math.min(0, velocity.x()), velocity.y());
+                    this.velocity = new Vec2D(Math.min(0, this.velocity.x()), this.velocity.y());
                 } else {
-                    velocity = new Vec2D(Math.max(0, velocity.x()), velocity.y());
+                    this.velocity = new Vec2D(Math.max(0, this.velocity.x()), this.velocity.y());
                 }
             }
         }
     }
     
     /**
-     * Used to collision dependent movement on the y axis
-     *
-     * @param timeDelta       time between frames
-     * @param generalVelocity general velocity of physical object
+     * Movement on the y-axis
+     * @param timeDelta time between frames
      */
-    public void moveY(double timeDelta, Vec2D generalVelocity) {
-        Vec2D vel = new Vec2D(0, generalVelocity.y());
+    public void moveY(double timeDelta) {
+        Vec2D vel = new Vec2D(0, this.velocity.y());
         
         List<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
@@ -177,9 +172,9 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
                 if (vel.y() > 0) {
-                    velocity = new Vec2D(velocity.x(), Math.min(0, velocity.y()));
+                    this.velocity = new Vec2D(this.velocity.x(), Math.min(0, this.velocity.y()));
                 } else {
-                    velocity = new Vec2D(velocity.x(), Math.max(0, velocity.y()));
+                    this.velocity = new Vec2D(this.velocity.x(), Math.max(0, this.velocity.y()));
                 }
             }
         }
@@ -190,7 +185,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     
     /**
      * Checks downward ground collision
-     *
      * @return true in case of collision with a ground, false otherwise
      */
     public boolean isWallDown() {
@@ -203,7 +197,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     
     /**
      * Checks wall collision to the right
-     *
      * @return true in case of collision with a right wall, false otherwise
      */
     public boolean isWallRight() {
@@ -216,7 +209,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     
     /**
      * Checks wall collision to the left
-     *
      * @return true in case of collision with a left wall, false otherwise
      */
     public boolean isWallLeft() {
@@ -229,7 +221,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     
     /**
      * Checks upward ceiling collision
-     *
      * @return true in case of collision with a ceiling, false otherwise
      */
     public boolean isWallUp() {
@@ -239,4 +230,5 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         }
         return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
+    
 }

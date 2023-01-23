@@ -1,4 +1,4 @@
-package lethalhabit;
+package lethalhabit.util;
 
 public final class Settings {
     
