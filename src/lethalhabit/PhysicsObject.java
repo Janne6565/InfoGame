@@ -26,7 +26,11 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public BufferedImage graphic;
     public Point position;
     public Vec2D velocity = new Vec2D(0, 0);
-    
+    /**
+     * Velocity added onto the normal velocity, you cant change this
+     */
+    public Vec2D recoil = new Vec2D(0, 0);
+
     public PhysicsObject(double width, BufferedImage graphic, Point position, Hitbox hitbox) {
         this.size = new Dimension((int) width, (int) (graphic.getHeight() * width / graphic.getWidth()));
         this.graphic = graphic;
@@ -36,7 +40,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         Main.tickables.add(this);
         Main.drawables.add(this);
     }
-    
+
     @Override
     public void tick(Double timeDelta) {
         checkViscosity();
@@ -71,7 +75,10 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public void checkViscosity() {
         surroundingLiquids().stream()
                 .min(Comparator.comparing(liquid -> liquid.viscosity))
-                .ifPresent(liquid -> velocity = velocity.scale(liquid.viscosity));
+                .ifPresent(liquid -> {
+                    velocity = velocity.scale(liquid.viscosity);
+                    recoil = recoil.scale(liquid.viscosity);
+                });
     }
     
     /**
@@ -114,7 +121,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @param timeDelta time between frames
      */
     public void moveX(double timeDelta) {
-        Vec2D vel = new Vec2D(this.velocity.x(), 0);
+        Vec2D vel = new Vec2D(getTotalVelocity().x(), 0);
         
         List<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
@@ -126,7 +133,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
                 if (minTime < timeUntilReachedSafeDistance) {
-                    timeWeTake = minTime - timeUntilReachedSafeDistance;
+                    timeWeTake = 0.0;
                 } else {
                     timeWeTake = minTime - timeUntilReachedSafeDistance;
                 }
@@ -150,7 +157,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @param timeDelta time between frames
      */
     public void moveY(double timeDelta) {
-        Vec2D vel = new Vec2D(0, this.velocity.y());
+        Vec2D vel = new Vec2D(0, getTotalVelocity().y());
         
         List<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
@@ -181,7 +188,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         
     }
     
-    abstract void onGroundReset();
+    public abstract void onGroundReset();
     
     /**
      * Checks downward ground collision
@@ -230,5 +237,9 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         }
         return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
-    
+
+    public Vec2D getTotalVelocity() {
+        System.out.println(recoil);
+        return velocity.plus(recoil);
+    }
 }

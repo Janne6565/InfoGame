@@ -29,7 +29,7 @@ import java.util.List;
 public final class Main {
     
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = false;
+    public static final boolean MINIMIZED = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x4030e0);
@@ -204,7 +204,7 @@ public final class Main {
                 mainCharacter.resetJump();
             }
             
-            if (activeKeys.contains(KeyEvent.VK_SPACE) && activeKeys.contains(KeyEvent.VK_SHIFT)) {
+            if (activeKeys.contains(KeyEvent.VK_SPACE) && activeKeys.contains(KeyEvent.VK_CONTROL)) {
                 mainCharacter.stopMovementY();
             } else if (activeKeys.contains(KeyEvent.VK_SPACE)) {
                 if (!mainCharacter.surroundingLiquids().isEmpty()) {
@@ -212,12 +212,16 @@ public final class Main {
                 } else {
                     mainCharacter.jump();
                 }
-            } else if (activeKeys.contains(KeyEvent.VK_SHIFT)) {
+            } else if (activeKeys.contains(KeyEvent.VK_CONTROL)) {
                 if (!mainCharacter.surroundingLiquids().isEmpty()) {
                     mainCharacter.moveDown();
                 }
             } else {
                 mainCharacter.resetJump();
+            }
+
+            if (activeKeys.contains(KeyEvent.VK_SHIFT)) {
+                mainCharacter.dash();
             }
             
             if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
