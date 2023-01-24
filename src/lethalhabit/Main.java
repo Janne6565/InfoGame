@@ -1,6 +1,7 @@
 package lethalhabit;
 
 import lethalhabit.game.Block;
+import lethalhabit.game.Enemy;
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
 import lethalhabit.sound.Sound;
@@ -55,7 +56,7 @@ public final class Main {
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
     public static Player mainCharacter;
-    public static Player enemy;
+    public static Enemy enemy;
     
     public static Map<Integer, Map<Integer, Tile>> map;
     public static Settings settings;
@@ -92,7 +93,8 @@ public final class Main {
         Block.loadBlocks();
         playSoundtrack();
         mainCharacter = new Player(new Point(100, 816.2));
-        enemy = new Player(new Point(100, 700));
+        enemy = new Enemy(new Point(100, 700));
+        enemy.setMovementSpeed(30);
     }
     
     public static void playSoundtrack() {
