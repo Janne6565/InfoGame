@@ -33,6 +33,7 @@ public final class GamePanel extends JPanel {
     public void paintComponent(Graphics g) { // this is the stuff that's responsible for drawing all the drawables to the right position (not finished yet)
         super.paintComponent(g);
         if (Main.IS_GAME_RUNNING) {
+            g.drawString(String.valueOf(Main.mainCharacter.position), 100, 100);
             Main.tick();
             drawMap(g);
             Point maxPosition = new Point(Main.camera.getRealPosition().x() + (double) Main.camera.width / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
