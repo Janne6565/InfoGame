@@ -32,7 +32,7 @@ public final class Main {
     public static final boolean MINIMIZED = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
-    public static final Color PROGRESS_BAR_COLOR = new Color(0x4030e0);
+    public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
     
     public static final boolean DEBUG_HITBOX = false;
     public static final int STROKE_SIZE_HITBOXES = 2;
@@ -92,9 +92,9 @@ public final class Main {
         Animation.loadAnimations();
         Block.loadBlocks();
         playSoundtrack();
-        mainCharacter = new Player(new Point(100, 816.2));
-        enemy = new Enemy(new Point(100, 700));
-        enemy.setMovementSpeed(30);
+        mainCharacter = new Player(/*new Point(100, 816.2)*/ new Point(100,  700));
+        // enemy = new Enemy(new Point(100, 700));
+        // enemy.setMovementSpeed(30);
     }
     
     public static void playSoundtrack() {
@@ -145,7 +145,7 @@ public final class Main {
         double timeDelta = (double) (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
-        enemyMovement(timeDelta);
+        // enemyMovement(timeDelta);
         double tickTime = System.nanoTime();
         for (Tickable tickable : new ArrayList<>(tickables)) {
             if (tickable != null) {
@@ -308,7 +308,7 @@ public final class Main {
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen
         if (MINIMIZED) {
-            frame.setSize(400, 400);
+            frame.setSize(1000, 1000);
         } else {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }

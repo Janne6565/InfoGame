@@ -26,6 +26,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public BufferedImage graphic;
     public Point position;
     public Vec2D velocity = new Vec2D(0, 0);
+    protected double viscosity = 1;
     /**
      * Velocity added onto the normal velocity, you cant change this
      */
@@ -75,9 +76,10 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public void checkViscosity() {
         surroundingLiquids().stream()
                 .min(Comparator.comparing(liquid -> liquid.viscosity))
-                .ifPresent(liquid -> {
-                    velocity = velocity.scale(liquid.viscosity);
-                    recoil = recoil.scale(liquid.viscosity);
+                .ifPresentOrElse(liquid -> {
+                    viscosity = liquid.viscosity;
+                }, () -> {
+                    viscosity = 1;
                 });
     }
     
@@ -239,7 +241,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     }
 
     public Vec2D getTotalVelocity() {
-        System.out.println(recoil);
-        return velocity.plus(recoil);
+        return velocity.plus(recoil).scale(viscosity);
     }
 }
