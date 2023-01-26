@@ -2,6 +2,10 @@ package lethalhabit.technical;
 
 public record Vec2D(double x, double y) implements TwoDimensional {
     
+    public Vec2D(TwoDimensional other) {
+        this(other.x(), other.y());
+    }
+    
     @Override
     public String toString() {
         return "(" + x + "," + y + ")";

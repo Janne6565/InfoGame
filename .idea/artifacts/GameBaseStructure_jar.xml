@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/GameBaseStructure_jar</output-path>
     <root id="archive" name="GameBaseStructure.jar">
       <element id="module-output" name="GameBaseStructure" />
+      <element id="library" level="project" name="gson-2.8.2" />
     </root>
   </artifact>
 </component>

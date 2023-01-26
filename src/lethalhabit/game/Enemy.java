@@ -2,14 +2,13 @@ package lethalhabit.game;
 
 import lethalhabit.Main;
 import lethalhabit.PhysicsObject;
-import lethalhabit.game.Fireball;
 import lethalhabit.technical.*;
 import lethalhabit.technical.Point;
 import lethalhabit.ui.Animation;
+import lethalhabit.ui.Camera;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Comparator;
 
 import static lethalhabit.util.Util.mirrorImage;
 
@@ -24,36 +23,42 @@ public class Enemy extends PhysicsObject {
             new Point(40, 10).scale(WIDTH / 50.0)
     });
 
-    public static double MOVEMENT_SPEED = 80;
+    public static final double MOVEMENT_SPEED = 80;
     public static final double JUMP_BOOST = 200;
-    public static final double WALL_JUMP_BOOST = 150;
-    public static final double COOLDOWN_CAMERA_SHIFT = 0.5;
-    public static final double ANIMATION_SPEED = 5;
+    public static final double WALL_JUMP_BOOST = 200;
+    public static final double DASH_BOOST = 300;
+    public static final double DASH_COOLDOWN = 2;
+    public static final double DOUBLE_JUMP_COOLDOWN = 1;
+    public static final double RECOIL_RESET_DASH = 1000;
+    public static final double RECOIL_RESET_WALL_JUMP = 1000;
+
+    private double resetRecoil = 0;
+
 
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
 
     public double timeInGame = 0; // Used to calculate the current frame of the animation
-    public int direction = 0;
+    public Direction direction = Direction.NONE;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
-    public Vec2D recoil = new Vec2D(0, 0);
 
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
-
-    public double moveCameraUpCooldown = COOLDOWN_CAMERA_SHIFT;
-    public double moveCameraDownCooldown = COOLDOWN_CAMERA_SHIFT;
 
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
     private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
     private int timesJumped = 0;
 
-    public void setMovementSpeed(int i) {
-        this.MOVEMENT_SPEED = i;
-    }
-
     public Enemy(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
+    }
+
+
+    public double dashCoolDown = 0;
+    public double doubleJumpCooldown = 0;
+    private void resetCooldowns(double timeDelta) {
+        dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
+        doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
     }
 
     /**
@@ -61,7 +66,7 @@ public class Enemy extends PhysicsObject {
      */
     public void moveLeft() {
         this.velocity = new Vec2D(-MOVEMENT_SPEED * speedBoost, this.velocity.y());
-        this.direction = -1;
+        this.direction = Direction.LEFT;
     }
 
     /**
@@ -69,7 +74,7 @@ public class Enemy extends PhysicsObject {
      */
     public void moveRight() {
         this.velocity = new Vec2D(MOVEMENT_SPEED * speedBoost, this.velocity.y());
-        this.direction = 1;
+        this.direction = Direction.RIGHT;
     }
 
     public void moveUp() {
@@ -80,7 +85,6 @@ public class Enemy extends PhysicsObject {
         this.velocity = new Vec2D(this.velocity.x(), MOVEMENT_SPEED * speedBoost);
     }
 
-
     /**
      * Resets the x velocity
      */
@@ -89,6 +93,7 @@ public class Enemy extends PhysicsObject {
         if (this.velocity.y() == 0) {
             this.currentAnimation = Animation.PLAYER_IDLE;
         }
+        this.direction = Direction.NONE;
     }
 
     /**
@@ -129,15 +134,17 @@ public class Enemy extends PhysicsObject {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             return;
         }
-        if (direction == -1 && !hasJumpedLeft && isWallLeft()) {
+        if (direction == Direction.LEFT && !hasJumpedLeft && isWallLeft()) {
             hasJumpedLeft = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
+            resetRecoil = RECOIL_RESET_WALL_JUMP;
             return;
-        } else if (direction == 1 && !hasJumpedRight && isWallRight()) {
+        } else if (direction == Direction.RIGHT && !hasJumpedRight && isWallRight()) {
             hasJumpedRight = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+            resetRecoil = RECOIL_RESET_WALL_JUMP;
             return;
         }
         if (canJump()) {
@@ -151,13 +158,13 @@ public class Enemy extends PhysicsObject {
 
     @Override
     public void checkViscosity() {
-        surroundingLiquids().stream()
-                .min(Comparator.comparing(liquid -> liquid.viscosity))
-                .ifPresent(liquid -> {
-                    onGroundReset();
-                    velocity = velocity.scale(liquid.viscosity);
-                    jumpBoost = 0.6;
-                });
+        super.checkViscosity();
+        if (viscosity == 1) {
+            jumpBoost = 1;
+        } else {
+            onGroundReset();
+            jumpBoost = 0.6;
+        }
     }
 
     /**
@@ -169,86 +176,27 @@ public class Enemy extends PhysicsObject {
     }
 
     /**
-     * Shifts the camera downwards
-     *
-     * @param timeDelta time since last tick (used to calculate the speed of the camera)
-     */
-    public void moveCameraDown(double timeDelta) {
-        if (moveCameraDownCooldown > 0) {
-            moveCameraDownCooldown = Math.max(moveCameraDownCooldown - timeDelta, 0);
-        } else {
-            Main.camera.shift = new Point(Main.camera.shift.x(), Math.max(Main.camera.shift.y() - Math.abs(-Main.camera.shiftLimit - Main.camera.shift.y()) * ANIMATION_SPEED * timeDelta, -Main.camera.shiftLimit));
-        }
-    }
-
-    /**
-     * Resets the cooldown for the camera downward movement
-     */
-    public void resetCameraDown() {
-        moveCameraDownCooldown = COOLDOWN_CAMERA_SHIFT;
-    }
-
-    /**
-     * Shifts the camera upwards
-     *
-     * @param timeDelta time since last tick (used to calculate the speed of the camera)
-     */
-    public void moveCameraUp(double timeDelta) {
-        if (moveCameraUpCooldown > 0) {
-            moveCameraUpCooldown = Math.max(moveCameraUpCooldown - timeDelta, 0);
-        } else {
-            Main.camera.shift = new Point(Main.camera.shift.x(), Math.min(Main.camera.shift.y() + Math.abs(Main.camera.shiftLimit - Main.camera.shift.y()) * ANIMATION_SPEED * timeDelta, Main.camera.shiftLimit));
-        }
-    }
-
-    /**
-     * Resets the cooldown for the camera upward movement
-     */
-    public void resetCameraUp() {
-        moveCameraUpCooldown = COOLDOWN_CAMERA_SHIFT;
-    }
-
-    /**
-     * Resets the shift of the camera to go back to (0, 0)
-     *
-     * @param timeDelta time since last tick (used to calculate the speed of the camera)
-     */
-    public void resetCameraShift(double timeDelta) {
-        if (Main.camera.shift.y() <= 0.5 && Main.camera.shift.y() >= -0.5) {
-            Main.camera.shift = new Point(Main.camera.shift.x(), 0);
-        } else {
-            Main.camera.shift = new Point(Main.camera.shift.x(), Main.camera.shift.y() - Main.camera.shift.y() * ANIMATION_SPEED * timeDelta);
-        }
-    }
-
-    /**
      * Method called for handling animation and every other tick based mechanic
      *
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
     @Override
     public void tick(Double timeDelta) {
+        super.tick(timeDelta);
+        resetCooldowns(timeDelta);
         timeInGame += timeDelta;
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
         BufferedImage currentImage = currentAnimation.frames.get(currentFrameIndex);
         switch (direction) {
-            case 1:
-                this.graphic = currentImage;
-                break;
-            case -1:
-                this.graphic = mirrorImage(currentImage);
-                break;
-            case 0:
-                this.graphic = currentImage;
-                break;
+            case RIGHT -> this.graphic = currentImage;
+            case LEFT -> this.graphic = mirrorImage(currentImage);
         }
         double timeBeforeSuperTick = System.nanoTime();
-        super.tick(timeDelta);
         if (recoil.x() != 0) {
             if (recoil.x() < 0) {
-                recoil = new Vec2D(Math.min(recoil.x() + 500 * timeDelta, 0), recoil.y());
-            } else if (recoil.x() > 0) {
-                recoil = new Vec2D(Math.max(recoil.x() - 500 * timeDelta, 0), recoil.y());
+                recoil = new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y());
+            } else {
+                recoil = new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
             }
         }
     }
@@ -261,6 +209,11 @@ public class Enemy extends PhysicsObject {
         hasJumpedLeft = false;
         hasJumpedRight = false;
         timesJumped = 0;
+    }
+
+    @Override
+    public int layer() {
+        return Camera.LAYER_GAME;
     }
 
     @Override
@@ -279,11 +232,22 @@ public class Enemy extends PhysicsObject {
     }
 
     private Point convertPositionToCamera(Point position) {
-        double offsetX = isRelative() ? Main.camera.getRealPosition().x() : 0;
-        double offsetY = isRelative() ? Main.camera.getRealPosition().y() : 0;
+        double offsetX = Main.camera.getRealPosition().x();
+        double offsetY = Main.camera.getRealPosition().y();
         int posXDisplay = (int) ((int) (position.x() - offsetX) * Main.scaledPixelSize() + (Main.screenWidth / 2));
         int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
         return new Point(posXDisplay, posYDisplay);
     }
 
+    public void dash() {
+        if (dashCoolDown == 0 && direction != Direction.NONE) {
+            recoil = switch (direction) {
+                case LEFT -> new Vec2D(DASH_BOOST * -1, 0);
+                case RIGHT -> new Vec2D(DASH_BOOST * 1, 0);
+                default -> null;
+            };
+            resetRecoil = RECOIL_RESET_DASH;
+            dashCoolDown = DASH_COOLDOWN;
+        }
+    }
 }

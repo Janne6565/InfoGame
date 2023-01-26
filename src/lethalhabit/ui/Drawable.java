@@ -11,12 +11,12 @@ public interface Drawable {
     BufferedImage getGraphic();
     Dimension getSize();
     Point getPosition();
-    boolean isRelative();
+    int layer();
     
     default void draw(Graphics graphics) {
         double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
-        double offsetX = isRelative() ? Main.camera.getRealPosition().x() : 0;
-        double offsetY = isRelative() ? Main.camera.getRealPosition().y() : 0;
+        double offsetX = Main.camera.getRealPosition().x();
+        double offsetY = Main.camera.getRealPosition().y();
         int posXDisplay = (int) ((int) (getPosition().x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
         int posYDisplay = (int) ((int) (getPosition().y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
         Image img = getGraphic().getScaledInstance((int) (getSize().width * pixelPerPixel), (int) (getSize().height * pixelPerPixel), Image.SCALE_DEFAULT);

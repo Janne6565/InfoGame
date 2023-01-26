@@ -19,7 +19,12 @@ import static lethalhabit.util.Util.getFirstIntersection;
  * A movable object that interacts with the world.
  */
 public abstract class PhysicsObject implements Tickable, Drawable {
-    
+
+    /**
+     * Velocity gets impacted by Gravity
+     */
+    public final boolean TAKES_GRAVITY = true;
+
     public final Dimension size;
     public final Hitbox hitbox;
     
@@ -42,13 +47,20 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         Main.drawables.add(this);
     }
 
+    private boolean onGround = false;
+    
     @Override
     public void tick(Double timeDelta) {
+        if (isWallDown() && !onGround) {
+            onLand(getTotalVelocity());
+            onGround = true;
+        }
         checkViscosity();
         moveX(timeDelta);
         moveY(timeDelta);
         checkDirections(timeDelta);
     }
+    
     
     @Override
     public BufferedImage getGraphic() {
@@ -63,11 +75,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     @Override
     public Point getPosition() {
         return position;
-    }
-    
-    @Override
-    public boolean isRelative() {
-        return true;
     }
     
     /**
@@ -111,8 +118,9 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @param timeDelta time between Frames
      */
     public void checkDirections(double timeDelta) {
-        if (!isWallDown()) {
-            velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta), Main.MAX_VELOCITY_SPEED));
+        if (!isWallDown() && TAKES_GRAVITY) {
+            onGround = false;
+            velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosity), Main.MAX_VELOCITY_SPEED * viscosity));
         } else {
             onGroundReset();
         }
@@ -190,7 +198,9 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         
     }
     
-    public abstract void onGroundReset();
+    public void onGroundReset() { }
+    
+    public void onLand(Vec2D velocity) { }
     
     /**
      * Checks downward ground collision

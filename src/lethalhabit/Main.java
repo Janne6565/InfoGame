@@ -29,7 +29,7 @@ import java.util.List;
 public final class Main {
     
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = true;
+    public static final boolean MINIMIZED = false;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
@@ -41,17 +41,18 @@ public final class Main {
     public static final double GRAVITATIONAL_ACCELERATION = 400;
     public static final double TILE_SIZE = 20;
     public static final double SAFE_DISTANCE = 0.05;
-    
+
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
     public static final List<Loadable> loadables = new ArrayList<>();
-    
+
     private static final List<Integer> activeKeys = new ArrayList<>();
-    
+
+    public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
     
-    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 60);
+    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 60, 0);
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -65,7 +66,6 @@ public final class Main {
     
     public static void main(String[] args) {
         gameInit();
-        IS_GAME_RUNNING = true;
     }
     
     public static Tile tileAt(int tileX, int tileY) {
@@ -92,7 +92,10 @@ public final class Main {
         Animation.loadAnimations();
         Block.loadBlocks();
         playSoundtrack();
-        mainCharacter = new Player(/*new Point(100, 816.2)*/ new Point(100,  700));
+        GamePanel.generateMap();
+        mainCharacter = new Player(Point.SPAWN);
+        IS_GAME_LOADING = false;
+        IS_GAME_RUNNING = true;
         // enemy = new Enemy(new Point(100, 700));
         // enemy.setMovementSpeed(30);
     }
@@ -135,7 +138,7 @@ public final class Main {
      * @return camera width in in-game unit
      */
     public static int getScreenWidthGame() {
-        return camera.width;
+        return camera.WIDTH;
     }
     
     /**
@@ -145,19 +148,21 @@ public final class Main {
         double timeDelta = (double) (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
+
         // enemyMovement(timeDelta);
-        double tickTime = System.nanoTime();
-        for (Tickable tickable : new ArrayList<>(tickables)) {
-            if (tickable != null) {
-                tickable.tick(timeDelta);
+        if (IS_GAME_RUNNING) {
+            for (Tickable tickable : new ArrayList<>(tickables)) {
+                if (tickable != null) {
+                    tickable.tick(timeDelta);
+                }
             }
+            if (DEMO_MODE) {
+                demoGameTick(timeDelta);
+            }
+            moveCamera(timeDelta);
         }
-        
-        moveCamera(timeDelta);
-        
-        if (DEMO_MODE) {
-            demoGameTick(timeDelta);
-        }
+
+
     }
     
     /**
@@ -195,55 +200,86 @@ public final class Main {
             count += timeDelta;
         }
     }
-    
+
+
+    public static List<Integer> listKeysHolding = new ArrayList<>();
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
-            if (activeKeys.contains(KeyEvent.VK_SPACE)) {
-                mainCharacter.jump();
+            if (activeKeys.contains(KeyEvent.VK_BACK_SPACE) && !listKeysHolding.contains(KeyEvent.VK_BACK_SPACE)) {
+                IS_GAME_RUNNING = !IS_GAME_RUNNING;
+                listKeysHolding.add(KeyEvent.VK_BACK_SPACE);
             } else {
-                mainCharacter.resetJump();
-            }
-            
-            if (activeKeys.contains(KeyEvent.VK_SPACE) && activeKeys.contains(KeyEvent.VK_CONTROL)) {
-                mainCharacter.stopMovementY();
-            } else if (activeKeys.contains(KeyEvent.VK_SPACE)) {
-                if (!mainCharacter.surroundingLiquids().isEmpty()) {
-                    mainCharacter.moveUp();
-                } else {
-                    mainCharacter.jump();
-                }
-            } else if (activeKeys.contains(KeyEvent.VK_CONTROL)) {
-                if (!mainCharacter.surroundingLiquids().isEmpty()) {
-                    mainCharacter.moveDown();
-                }
-            } else {
-                mainCharacter.resetJump();
+                listKeysHolding.remove(Integer.valueOf(KeyEvent.VK_BACK_SPACE));
             }
 
-            if (activeKeys.contains(KeyEvent.VK_SHIFT)) {
-                mainCharacter.dash();
+
+            if (IS_GAME_RUNNING) {
+                if (activeKeys.contains(KeyEvent.VK_SPACE)) {
+                    mainCharacter.jump();
+                } else {
+                    mainCharacter.resetJump();
+                }
+
+                if (activeKeys.contains(KeyEvent.VK_SPACE) && activeKeys.contains(KeyEvent.VK_CONTROL)) {
+                    mainCharacter.stopMovementY();
+                } else if (activeKeys.contains(KeyEvent.VK_SPACE)) {
+                    if (!mainCharacter.surroundingLiquids().isEmpty()) {
+                        mainCharacter.moveUp();
+                    } else {
+                        mainCharacter.jump();
+                    }
+                } else if (activeKeys.contains(KeyEvent.VK_CONTROL)) {
+                    if (!mainCharacter.surroundingLiquids().isEmpty()) {
+                        mainCharacter.moveDown();
+                    }
+                } else {
+                    mainCharacter.resetJump();
+                }
+
+                if (activeKeys.contains(KeyEvent.VK_SHIFT)) {
+                    mainCharacter.dash();
+                }
+
+                if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
+                    mainCharacter.moveLeft();
+
+                } else if (activeKeys.contains(KeyEvent.VK_D) && !activeKeys.contains(KeyEvent.VK_A)) {
+                    mainCharacter.moveRight();
+                } else {
+                    mainCharacter.stopMovementX();
+                }
+
+                if (activeKeys.contains(KeyEvent.VK_F)) {
+                    mainCharacter.makeFireball();
+                }
+
+
+                if (activeKeys.contains(KeyEvent.VK_W)) {
+                    camera.moveCameraDown(timeDelta);
+                } else if (activeKeys.contains(KeyEvent.VK_S)) {
+                    camera.moveCameraUp(timeDelta);
+                } else {
+                    camera.resetCameraShift(timeDelta);
+                    camera.resetCameraUp();
+                    camera.resetCameraDown();
+                }
             }
-            
-            if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
-                mainCharacter.moveLeft();
-                
-            } else if (activeKeys.contains(KeyEvent.VK_D) && !activeKeys.contains(KeyEvent.VK_A)) {
-                mainCharacter.moveRight();
-            } else {
-                mainCharacter.stopMovementX();
+
+            if (activeKeys.contains(KeyEvent.VK_0)) {
+                camera.layerRendering = 0;
+                IS_GAME_RUNNING = true;
             }
-            
-            if (activeKeys.contains(KeyEvent.VK_F)) {
-                mainCharacter.makeFireball();
+            if (activeKeys.contains(KeyEvent.VK_1)) {
+                camera.layerRendering = 1;
+                IS_GAME_RUNNING = false;
             }
-            if (activeKeys.contains(KeyEvent.VK_W)) {
-                mainCharacter.moveCameraDown(timeDelta);
-            } else if (activeKeys.contains(KeyEvent.VK_S)) {
-                mainCharacter.moveCameraUp(timeDelta);
-            } else {
-                mainCharacter.resetCameraShift(timeDelta);
-                mainCharacter.resetCameraUp();
-                mainCharacter.resetCameraDown();
+            if (activeKeys.contains(KeyEvent.VK_2)) {
+                camera.layerRendering = 2;
+                IS_GAME_RUNNING = false;
+            }
+            if (activeKeys.contains(KeyEvent.VK_3)) {
+                camera.layerRendering = 3;
+                IS_GAME_RUNNING = false;
             }
         }
     }
@@ -253,7 +289,7 @@ public final class Main {
      * @return relative pixel/position ratio based on the screen width
      */
     public static double scaledPixelSize() {
-        return (double) screenWidth / (double) camera.width;
+        return (double) screenWidth / (double) camera.WIDTH;
     }
     
     /**
@@ -265,18 +301,18 @@ public final class Main {
             Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.getSize().width / 2.0, mainCharacter.getSize().height / 2.0));
             double moveX = 0;
             double moveY = 0;
-            if (relative.x() < -camera.threshold) {
-                moveX = -camera.threshold - relative.x();
+            if (relative.x() < -camera.THRESHOLD) {
+                moveX = -camera.THRESHOLD - relative.x();
             }
-            if (relative.x() > camera.threshold) {
-                moveX = camera.threshold - relative.x();
+            if (relative.x() > camera.THRESHOLD) {
+                moveX = camera.THRESHOLD - relative.x();
             }
             
-            if (relative.y() < -camera.threshold) {
-                moveY = -camera.threshold - relative.y();
+            if (relative.y() < -camera.THRESHOLD) {
+                moveY = -camera.THRESHOLD - relative.y();
             }
-            if (relative.y() > camera.threshold) {
-                moveY = camera.threshold - relative.y();
+            if (relative.y() > camera.THRESHOLD) {
+                moveY = camera.THRESHOLD - relative.y();
             }
             
             camera.position = camera.position.plus(moveX, moveY);
@@ -308,7 +344,7 @@ public final class Main {
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen
         if (MINIMIZED) {
-            frame.setSize(1000, 1000);
+            frame.setSize(500, 500);
         } else {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }

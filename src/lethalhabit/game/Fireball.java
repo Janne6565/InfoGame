@@ -2,6 +2,8 @@ package lethalhabit.game;
 
 import lethalhabit.Main;
 import lethalhabit.Tickable;
+import lethalhabit.technical.Direction;
+import lethalhabit.ui.Camera;
 import lethalhabit.util.Util;
 import lethalhabit.technical.Point;
 import lethalhabit.technical.Vec2D;
@@ -15,31 +17,29 @@ public class Fireball implements Tickable, Drawable {
     public static final double SPEED = 200;
     
     public static final Dimension SIZE = new Dimension(20, 20);
-    public static final BufferedImage IMAGE = Util.getImage("/fireball.png");
+    public static final BufferedImage IMAGE = Util.getImage("/assets/fireball.png");
     
     public Point position;
-    public int direction;
+    public Direction direction;
     
-    public Fireball(Point position, int direction) {
+    public Fireball(Point position, Direction direction) {
         this.position = position;
         this.direction = direction;
         Main.tickables.add(this);
-        if (direction == 0) {
+        Main.drawables.add(this);
+        if (direction == Direction.NONE) {
             delete();
         }
     }
     
     @Override
     public void tick(Double timeDelta) {
-        Vec2D velocity = new Vec2D(0, 0);
-        switch (direction) {
-            case 1:
-                velocity = new Vec2D(SPEED, 0);
-                break;
-            case -1:
-                velocity = new Vec2D(-SPEED, 0);
-                break;
-        }
+        new Vec2D(0, 0);
+        Vec2D velocity = switch (direction) {
+            case RIGHT -> new Vec2D(SPEED, 0);
+            case LEFT -> new Vec2D(-SPEED, 0);
+            default -> new Vec2D(0, 0);
+        };
         Point distanceTraveled = new Point(velocity.scale(timeDelta).x(), velocity.scale(timeDelta).y());
         position = position.plus(distanceTraveled);
         if (position.distance(Main.mainCharacter.position) > 600) {
@@ -49,6 +49,7 @@ public class Fireball implements Tickable, Drawable {
     
     public void delete() {
         Main.tickables.remove(this);
+        Main.drawables.remove(this);
     }
     
     @Override
@@ -67,8 +68,8 @@ public class Fireball implements Tickable, Drawable {
     }
     
     @Override
-    public boolean isRelative() {
-        return true;
+    public int layer() {
+        return Camera.LAYER_GAME;
     }
-    
+
 }
