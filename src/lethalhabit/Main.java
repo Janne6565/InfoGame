@@ -20,8 +20,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static java.awt.event.KeyEvent.*;
 
 /**
  * Main program
@@ -29,7 +32,7 @@ import java.util.List;
 public final class Main {
     
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = false;
+    public static final boolean MINIMIZED = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
@@ -41,14 +44,14 @@ public final class Main {
     public static final double GRAVITATIONAL_ACCELERATION = 400;
     public static final double TILE_SIZE = 20;
     public static final double SAFE_DISTANCE = 0.05;
-
+    
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
     public static final List<Loadable> loadables = new ArrayList<>();
-
+    
     private static final List<Integer> activeKeys = new ArrayList<>();
-
+    
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
     
@@ -93,7 +96,7 @@ public final class Main {
         Block.loadBlocks();
         playSoundtrack();
         GamePanel.generateMap();
-        mainCharacter = new Player(Point.SPAWN);
+        mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
         // enemy = new Enemy(new Point(100, 700));
@@ -104,7 +107,8 @@ public final class Main {
         try {
             Sound soundtrack = new Sound("/assets/music/soundtrack1.wav");
             soundtrack.loop();
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
     
     /**
@@ -148,7 +152,7 @@ public final class Main {
         double timeDelta = (double) (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
-
+        
         // enemyMovement(timeDelta);
         if (IS_GAME_RUNNING) {
             for (Tickable tickable : new ArrayList<>(tickables)) {
@@ -161,8 +165,8 @@ public final class Main {
             }
             moveCamera(timeDelta);
         }
-
-
+        
+        
     }
     
     /**
@@ -200,63 +204,60 @@ public final class Main {
             count += timeDelta;
         }
     }
-
-
+    
+    
     public static List<Integer> listKeysHolding = new ArrayList<>();
+    
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
-            if (activeKeys.contains(KeyEvent.VK_BACK_SPACE) && !listKeysHolding.contains(KeyEvent.VK_BACK_SPACE)) {
+            if (activeKeys.contains(VK_BACK_SPACE) && !listKeysHolding.contains(VK_BACK_SPACE)) {
                 IS_GAME_RUNNING = !IS_GAME_RUNNING;
-                listKeysHolding.add(KeyEvent.VK_BACK_SPACE);
+                listKeysHolding.add(VK_BACK_SPACE);
             } else {
-                listKeysHolding.remove(Integer.valueOf(KeyEvent.VK_BACK_SPACE));
+                listKeysHolding.remove(Integer.valueOf(VK_BACK_SPACE));
             }
-
-
+            
             if (IS_GAME_RUNNING) {
-                if (activeKeys.contains(KeyEvent.VK_SPACE)) {
-                    mainCharacter.jump();
-                } else {
-                    mainCharacter.resetJump();
-                }
-
-                if (activeKeys.contains(KeyEvent.VK_SPACE) && activeKeys.contains(KeyEvent.VK_CONTROL)) {
+                
+                if (activeKeys.contains(VK_SPACE) && activeKeys.contains(VK_CONTROL) && mainCharacter.isSubmerged()) {
                     mainCharacter.stopMovementY();
-                } else if (activeKeys.contains(KeyEvent.VK_SPACE)) {
-                    if (!mainCharacter.surroundingLiquids().isEmpty()) {
+                } else if (activeKeys.contains(VK_SPACE)) {
+                    if (mainCharacter.isSubmerged()) {
                         mainCharacter.moveUp();
                     } else {
                         mainCharacter.jump();
                     }
-                } else if (activeKeys.contains(KeyEvent.VK_CONTROL)) {
-                    if (!mainCharacter.surroundingLiquids().isEmpty()) {
+                } else if (activeKeys.contains(VK_CONTROL)) {
+                    if (mainCharacter.isSubmerged() && mainCharacter.skills.swim > 0) {
                         mainCharacter.moveDown();
                     }
                 } else {
                     mainCharacter.resetJump();
                 }
-
-                if (activeKeys.contains(KeyEvent.VK_SHIFT)) {
+                
+                if (activeKeys.contains(VK_SHIFT) && mainCharacter.skills.dash > 0) {
                     mainCharacter.dash();
                 }
-
-                if (activeKeys.contains(KeyEvent.VK_A) && !activeKeys.contains(KeyEvent.VK_D)) {
-                    mainCharacter.moveLeft();
-
-                } else if (activeKeys.contains(KeyEvent.VK_D) && !activeKeys.contains(KeyEvent.VK_A)) {
-                    mainCharacter.moveRight();
+                
+                if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
+                    if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
+                        mainCharacter.moveLeft();
+                    }
+                } else if (activeKeys.contains(VK_D) && !activeKeys.contains(VK_A)) {
+                    if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
+                        mainCharacter.moveRight();
+                    }
                 } else {
                     mainCharacter.stopMovementX();
                 }
-
-                if (activeKeys.contains(KeyEvent.VK_F)) {
+                
+                if (activeKeys.contains(VK_F)) {
                     mainCharacter.makeFireball();
                 }
-
-
-                if (activeKeys.contains(KeyEvent.VK_W)) {
+                
+                if (activeKeys.contains(VK_W)) {
                     camera.moveCameraDown(timeDelta);
-                } else if (activeKeys.contains(KeyEvent.VK_S)) {
+                } else if (activeKeys.contains(VK_S)) {
                     camera.moveCameraUp(timeDelta);
                 } else {
                     camera.resetCameraShift(timeDelta);
@@ -264,20 +265,20 @@ public final class Main {
                     camera.resetCameraDown();
                 }
             }
-
-            if (activeKeys.contains(KeyEvent.VK_0)) {
+            
+            if (activeKeys.contains(VK_0)) {
                 camera.layerRendering = 0;
                 IS_GAME_RUNNING = true;
             }
-            if (activeKeys.contains(KeyEvent.VK_1)) {
+            if (activeKeys.contains(VK_1)) {
                 camera.layerRendering = 1;
                 IS_GAME_RUNNING = false;
             }
-            if (activeKeys.contains(KeyEvent.VK_2)) {
+            if (activeKeys.contains(VK_2)) {
                 camera.layerRendering = 2;
                 IS_GAME_RUNNING = false;
             }
-            if (activeKeys.contains(KeyEvent.VK_3)) {
+            if (activeKeys.contains(VK_3)) {
                 camera.layerRendering = 3;
                 IS_GAME_RUNNING = false;
             }

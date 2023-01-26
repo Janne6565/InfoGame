@@ -49,8 +49,11 @@ public class Player extends PhysicsObject {
     private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
     private int timesJumped = 0;
     
-    public Player(Point position) {
+    public PlayerSkills skills;
+    
+    public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
+        this.skills = skills;
     }
     
     public double dashCoolDown = 0;
@@ -135,7 +138,7 @@ public class Player extends PhysicsObject {
     }
     
     public void jump() {
-        if (jumped || !surroundingLiquids().isEmpty()) {
+        if (jumped || isSubmerged()) {
             return;
         }
         jumped = true;
@@ -143,20 +146,22 @@ public class Player extends PhysicsObject {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             return;
         }
-        if (direction == Direction.LEFT && !hasJumpedLeft && isWallLeft()) {
-            hasJumpedLeft = true;
-            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
-            recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
-            resetRecoil = RECOIL_RESET_WALL_JUMP;
-            return;
-        } else if (direction == Direction.RIGHT && !hasJumpedRight && isWallRight()) {
-            hasJumpedRight = true;
-            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
-            recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
-            resetRecoil = RECOIL_RESET_WALL_JUMP;
-            return;
+        if (skills.wallJump > 0) {
+            if (direction == Direction.LEFT && !hasJumpedLeft && isWallLeft()) {
+                hasJumpedLeft = true;
+                velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+                recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+                resetRecoil = RECOIL_RESET_WALL_JUMP;
+                return;
+            } else if (direction == Direction.RIGHT && !hasJumpedRight && isWallRight()) {
+                hasJumpedRight = true;
+                velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+                recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+                resetRecoil = RECOIL_RESET_WALL_JUMP;
+                return;
+            }
         }
-        if (canJump()) {
+        if (canJump() && skills.doubleJump > 0) {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             if (!isWallDown()) {
                 timesJumped += 1;
@@ -172,7 +177,18 @@ public class Player extends PhysicsObject {
             jumpBoost = 1;
         } else {
             onGroundReset();
-            jumpBoost = 0.6;
+            jumpBoost = switch (skills.swim) {
+                case 1 -> 0.3;
+                case 2 -> 0.5;
+                case 3 -> 0.8;
+                default -> 0.0;
+            };
+            viscosity = switch (skills.swim) {
+                case 1 -> 0.6 * viscosity;
+                case 2 -> 0.8 * viscosity;
+                case 3 -> viscosity;
+                default -> 0.0;
+            };
         }
     }
     
@@ -255,10 +271,10 @@ public class Player extends PhysicsObject {
     }
     
     public void dash() {
-        if (dashCoolDown == 0 && direction != Direction.NONE) {
+        if (dashCoolDown <= 0 && direction != Direction.NONE) {
             recoil = switch (direction) {
-                case LEFT -> new Vec2D(DASH_BOOST * -1, 0);
-                case RIGHT -> new Vec2D(DASH_BOOST * 1, 0);
+                case LEFT -> new Vec2D(-DASH_BOOST, 0);
+                case RIGHT -> new Vec2D(DASH_BOOST, 0);
                 default -> null;
             };
             resetRecoil = RECOIL_RESET_DASH;

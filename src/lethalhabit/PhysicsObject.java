@@ -90,6 +90,10 @@ public abstract class PhysicsObject implements Tickable, Drawable {
                 });
     }
     
+    public final boolean isSubmerged() {
+        return !surroundingLiquids().isEmpty();
+    }
+    
     /**
      * Checks the environment for liquids the object is submerged in.
      * @return A complete list of liquids that surround the player (may be empty)

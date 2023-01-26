@@ -126,7 +126,7 @@ public class Enemy extends PhysicsObject {
     }
 
     public void jump() {
-        if (jumped || !surroundingLiquids().isEmpty()) {
+        if (jumped || isSubmerged()) {
             return;
         }
         jumped = true;
