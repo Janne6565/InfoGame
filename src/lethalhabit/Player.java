@@ -24,17 +24,24 @@ public class Player extends PhysicsObject {
     
     public static final double MOVEMENT_SPEED = 80;
     public static final double JUMP_BOOST = 200;
-    public static final double WALL_JUMP_BOOST = 150;
+    public static final double WALL_JUMP_BOOST = 200;
     public static final double COOLDOWN_CAMERA_SHIFT = 0.5;
     public static final double ANIMATION_SPEED = 5;
-    
+    public static final double DASH_BOOST = 300;
+    public static final double DASH_COOLDOWN = 2;
+    public static final double DOUBLE_JUMP_COOLDOWN = 1;
+    public static final double RECOIL_RESET_DASH = 1000;
+    public static final double RECOIL_RESET_WALL_JUMP = 1000;
+
+    private double resetRecoil = 0;
+
+
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
     
     public double timeInGame = 0; // Used to calculate the current frame of the animation
     public int direction = 0;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
-    public Vec2D recoil = new Vec2D(0, 0);
-    
+
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
 
@@ -51,7 +58,15 @@ public class Player extends PhysicsObject {
     public Player(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
     }
-    
+
+
+    public double dashCoolDown = 0;
+    public double doubleJumpCooldown = 0;
+    private void resetCooldowns(double timeDelta) {
+        dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
+        doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
+    }
+
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
@@ -128,13 +143,21 @@ public class Player extends PhysicsObject {
             hasJumpedLeft = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
+<<<<<<< HEAD
             recoilFalloff = 200;
+=======
+            resetRecoil = RECOIL_RESET_WALL_JUMP;
+>>>>>>> d8781ebc56fa2c49d6ff90f238224247d106d398
             return;
         } else if (direction == 1 && !hasJumpedRight && isWallRight()) {
             hasJumpedRight = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+<<<<<<< HEAD
             recoilFalloff = 200;
+=======
+            resetRecoil = RECOIL_RESET_WALL_JUMP;
+>>>>>>> d8781ebc56fa2c49d6ff90f238224247d106d398
             return;
         }
         if (canJump()) {
@@ -145,18 +168,18 @@ public class Player extends PhysicsObject {
         }
         jumpBoost = 1.0;
     }
-    
+
     @Override
     public void checkViscosity() {
-        surroundingLiquids().stream()
-                .min(Comparator.comparing(liquid -> liquid.viscosity))
-                .ifPresent(liquid -> {
-                    onGroundReset();
-                    velocity = velocity.scale(liquid.viscosity);
-                    jumpBoost = 0.6;
-                });
+        super.checkViscosity();
+        if (viscosity == 1) {
+            jumpBoost = 1;
+        } else {
+            onGroundReset();
+            jumpBoost = 0.6;
+        }
     }
-    
+
     /**
      * Resets jump to prevent re-jumping
      */
@@ -225,6 +248,8 @@ public class Player extends PhysicsObject {
      */
     @Override
     public void tick(Double timeDelta) {
+        super.tick(timeDelta);
+        resetCooldowns(timeDelta);
         timeInGame += timeDelta;
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
         BufferedImage currentImage = currentAnimation.frames.get(currentFrameIndex);
@@ -240,12 +265,17 @@ public class Player extends PhysicsObject {
                 break;
         }
         double timeBeforeSuperTick = System.nanoTime();
-        super.tick(timeDelta);
         if (recoil.x() != 0) {
             if (recoil.x() < 0) {
+<<<<<<< HEAD
                 recoil = new Vec2D(Math.min(recoil.x() + recoilFalloff * timeDelta, 0), recoil.y());
             } else if (recoil.x() > 0) {
                 recoil = new Vec2D(Math.max(recoil.x() - recoilFalloff * timeDelta, 0), recoil.y());
+=======
+                recoil = new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y());
+            } else {
+                recoil = new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
+>>>>>>> d8781ebc56fa2c49d6ff90f238224247d106d398
             }
         }
     }
@@ -282,5 +312,12 @@ public class Player extends PhysicsObject {
         int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
         return new Point(posXDisplay, posYDisplay);
     }
-    
+
+    public void dash() {
+        if (dashCoolDown == 0) {
+            recoil = new Vec2D(direction * DASH_BOOST, 0);
+            resetRecoil = RECOIL_RESET_DASH;
+            dashCoolDown = DASH_COOLDOWN;
+        }
+    }
 }
