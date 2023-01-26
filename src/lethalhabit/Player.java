@@ -37,6 +37,8 @@ public class Player extends PhysicsObject {
     
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
+
+    private double recoilFalloff = 0;
     
     public double moveCameraUpCooldown = COOLDOWN_CAMERA_SHIFT;
     public double moveCameraDownCooldown = COOLDOWN_CAMERA_SHIFT;
@@ -126,11 +128,13 @@ public class Player extends PhysicsObject {
             hasJumpedLeft = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
+            recoilFalloff = 200;
             return;
         } else if (direction == 1 && !hasJumpedRight && isWallRight()) {
             hasJumpedRight = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+            recoilFalloff = 200;
             return;
         }
         if (canJump()) {
@@ -239,9 +243,9 @@ public class Player extends PhysicsObject {
         super.tick(timeDelta);
         if (recoil.x() != 0) {
             if (recoil.x() < 0) {
-                recoil = new Vec2D(Math.min(recoil.x() + 500 * timeDelta, 0), recoil.y());
+                recoil = new Vec2D(Math.min(recoil.x() + recoilFalloff * timeDelta, 0), recoil.y());
             } else if (recoil.x() > 0) {
-                recoil = new Vec2D(Math.max(recoil.x() - 500 * timeDelta, 0), recoil.y());
+                recoil = new Vec2D(Math.max(recoil.x() - recoilFalloff * timeDelta, 0), recoil.y());
             }
         }
     }
