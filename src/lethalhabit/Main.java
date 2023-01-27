@@ -51,6 +51,7 @@ public final class Main {
     public static final List<Loadable> loadables = new ArrayList<>();
     
     private static final List<Integer> activeKeys = new ArrayList<>();
+    private static final List<Integer> listKeysHolding = new ArrayList<>();
     
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
@@ -94,7 +95,7 @@ public final class Main {
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        playSoundtrack();
+        //playSoundtrack();
         GamePanel.generateMap();
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
@@ -205,9 +206,6 @@ public final class Main {
         }
     }
     
-    
-    public static List<Integer> listKeysHolding = new ArrayList<>();
-    
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
             if (activeKeys.contains(VK_BACK_SPACE) && !listKeysHolding.contains(VK_BACK_SPACE)) {
@@ -232,6 +230,9 @@ public final class Main {
                         mainCharacter.moveDown();
                     }
                 } else {
+                    if (mainCharacter.isSubmerged()) {
+                        mainCharacter.moveDown();
+                    }
                     mainCharacter.resetJump();
                 }
                 
@@ -446,45 +447,6 @@ public final class Main {
         settingsFrame.add(panel);
         settingsFrame.setLocationRelativeTo(null);
         settingsFrame.setVisible(true);
-    }
-    
-    public static ArrayList<Hitbox> getPossibleCollisions(Hitbox hitbox, Vec2D velocity, double timeDelta) {
-        /* To make the code wey more efficient, instead of using an arraylist to hold all the unmovable Collidables we could simple use an HashMap with the map being seperated into little "boxes" and than for an PhysicsObject we would only need to check in which part of the map it is (could be more than one) and return all the collidables that are in that same area */
-        Vec2D scaledVel = velocity.scale(timeDelta);
-        
-        Hitbox hitboxAfterVelocity = hitbox.shift(scaledVel.x(), scaledVel.y());
-        
-        Hitbox hitboxRange = new Hitbox(
-                new Point[]{
-                        new Point(Math.min(hitboxAfterVelocity.minPosition.x(), hitbox.minPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), hitbox.minPosition.y())),
-                        new Point(Math.min(hitboxAfterVelocity.minPosition.x(), hitbox.minPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), hitbox.maxPosition.y())),
-                        new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), hitbox.maxPosition.x()), Math.max(hitboxAfterVelocity.maxPosition.y(), hitbox.maxPosition.y())),
-                        new Point(Math.max(hitboxAfterVelocity.maxPosition.x(), hitbox.maxPosition.x()), Math.min(hitboxAfterVelocity.minPosition.y(), hitbox.minPosition.y()))
-                }
-        );
-        
-        ArrayList<Hitbox> hitboxesMightBeCollidingTo = new ArrayList<>();
-        
-        Point minPosition = new Point((int) hitboxRange.vertices[0].x() / TILE_SIZE, (int) hitboxRange.vertices[0].y() / TILE_SIZE);
-        Point maxPosition = new Point((int) hitboxRange.vertices[2].x() / TILE_SIZE, (int) hitboxRange.vertices[2].y() / TILE_SIZE);
-        
-        for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x() + 1; xIndex++) {
-            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y() + 1; yIndex++) {
-                Point position = new Point(xIndex * TILE_SIZE, yIndex * TILE_SIZE);
-                Map<Integer, Tile> column = map.get(xIndex);
-                if (column != null) {
-                    Tile tile = column.get(yIndex);
-                    if (tile != null && tile.block >= 0) {
-                        Block block = Block.TILEMAP.get(tile.block);
-                        if (block != null) {
-                            Hitbox newHitbox = block.hitbox.shift(position);
-                            hitboxesMightBeCollidingTo.add(newHitbox);
-                        }
-                    }
-                }
-            }
-        }
-        return hitboxesMightBeCollidingTo;
     }
     
 }

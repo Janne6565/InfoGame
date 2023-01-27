@@ -77,7 +77,6 @@ public final class Camera {
         return (double) WIDTH / Main.screenWidth * Main.screenHeight;
     }
     
-    
     /**
      * Shifts the camera downwards
      *
@@ -130,4 +129,13 @@ public final class Camera {
             shift = new Point(shift.x(), shift.y() - shift.y() * ANIMATION_SPEED * timeDelta);
         }
     }
+    
+    public Point getAbsolutePosition(Point position) {
+        double offsetX = getRealPosition().x();
+        double offsetY = getRealPosition().y();
+        int posXDisplay = (int) ((int) (position.x() - offsetX) * Main.scaledPixelSize() + (Main.screenWidth / 2));
+        int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
+        return new Point(posXDisplay, posYDisplay);
+    }
+    
 }

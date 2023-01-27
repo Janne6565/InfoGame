@@ -1,7 +1,7 @@
 package lethalhabit.technical;
 
 public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
-
+    
     /**
      * Position of Spawn (hardcoded to fit onto start map)
      */
@@ -10,7 +10,7 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
      * Position of Lava Falls (hardcoded to fit onto start map)
      */
     public static Point LAVA_FALLS = new Point(500, 1700);
-
+    
     @Override
     public int compareTo(Point other) {
         if (this.x > other.x && this.y > other.y) {

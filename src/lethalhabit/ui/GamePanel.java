@@ -4,15 +4,14 @@ import lethalhabit.Main;
 import lethalhabit.game.Block;
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
-import lethalhabit.technical.Hitbox;
-import lethalhabit.technical.LineSegment;
 import lethalhabit.technical.Point;
+import lethalhabit.util.Util;
 
-import java.awt.image.BufferedImage;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Map;
 
 //TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 
@@ -23,71 +22,66 @@ public final class GamePanel extends JPanel {
     
     public static final double FRAME_RATE = 280;
     public static BufferedImage mapImage;
-    public static double mapPixelSizeRelativeToInGameSize;
-
+    public static double minimapPixelScale;
+    
     public GamePanel() {
         // Set up the update timer
         Timer updateTimer = new Timer((int) (1000.0 / FRAME_RATE), e -> repaint());
         updateTimer.start();
     }
-
+    
     public static void generateMap() {
-        mapImage = renderMiniMap((int) (Main.screenWidth * Main.camera.MAP_SCALE.x()), (int) (Main.screenHeight * Main.camera.MAP_SCALE.y()));
+        mapImage = generateMinimap((int) (Main.screenWidth * Main.camera.MAP_SCALE.x()), (int) (Main.screenHeight * Main.camera.MAP_SCALE.y()));
     }
-
+    
     @Override
-    public void paintComponent(Graphics g) { // this is the stuff that's responsible for drawing all the drawables to the right position (not finished yet)
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Main.tick();
-        if (!Main.IS_GAME_LOADING) {
-            g.drawString(String.valueOf(Main.mainCharacter.position), 100, 100);
-
-            renderLayer(g, Main.camera.layerRendering);
-
-        } else {
+        if (Main.IS_GAME_LOADING) {
             int height = 40;
             int width = 200;
             g.setColor(Color.BLACK);
             g.drawRect((Main.screenWidth - width) / 2 - 1, (Main.screenHeight - height) / 2 - 1, width + 1, height + 1);
             g.setColor(Main.PROGRESS_BAR_COLOR);
             g.fillRect((Main.screenWidth - width) / 2, (Main.screenHeight - height) / 2, (int) (width * (Block.loadingProgress + Liquid.loadingProgress + Animation.loadingProgress) / 3.0), height);
+        } else {
+            g.drawString(String.valueOf(Main.mainCharacter.position), 100, 100);
+            renderLayer(g, Main.camera.layerRendering);
         }
     }
-
+    
     public void renderLayer(Graphics g, int layer) {
-        ArrayList<Drawable> arrayRenderedDrawables = new ArrayList<>(Main.drawables.stream().filter(drawable -> drawable.layer() == Main.camera.layerRendering).toList());
+        List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == Main.camera.layerRendering).toList();
         switch (layer) {
-            case Camera.LAYER_GAME:
+            case Camera.LAYER_GAME -> {
                 drawMap(g);
                 Point maxPosition = new Point(Main.camera.getRealPosition().x() + (double) Main.camera.WIDTH / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
                 Point minPosition = new Point(Main.camera.getRealPosition().x() - (double) Main.camera.WIDTH / 2, Main.camera.getRealPosition().y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-
-                for (Drawable drawable : arrayRenderedDrawables) {
+                for (Drawable drawable : drawablesInLayer) {
                     Point posLeftTop = drawable.getPosition().minus(drawable.getSize().width, drawable.getSize().height);
                     Point posRightDown = drawable.getPosition().plus(drawable.getSize().width, drawable.getSize().height);
                     if ((posRightDown.compareTo(minPosition) > 0 && posLeftTop.compareTo(maxPosition) < 0)) { // Check if element is inside our camera
                         drawable.draw(g);
                     }
                 }
-                break;
-
-            case Camera.LAYER_MENU:
+            }
+            case Camera.LAYER_MENU -> {
                 g.drawString("Main Menu", Main.screenWidth / 2, Main.screenHeight / 2);
-                break;
-
-            case Camera.LAYER_MAP:
-                Dimension mapShiftage = new Dimension((Main.screenWidth - mapImage.getWidth()) / 2, (Main.screenHeight - mapImage.getHeight()) / 2);
-                g.drawImage(mapImage,mapShiftage.width, mapShiftage.height, null);
+            }
+            case Camera.LAYER_MAP -> {
+                Dimension mapShift = new Dimension((Main.screenWidth - mapImage.getWidth()) / 2, (Main.screenHeight - mapImage.getHeight()) / 2);
+                g.drawImage(mapImage, mapShift.width, mapShift.height, null);
                 g.setColor(Color.RED);
                 int circleRadius = 10;
-                g.fillOval((int) (Main.mainCharacter.position.x() * mapPixelSizeRelativeToInGameSize) - circleRadius / 2 + mapShiftage.width, (int) (Main.mainCharacter.position.y() * mapPixelSizeRelativeToInGameSize) - circleRadius / 2 + mapShiftage.height, circleRadius, circleRadius);
-                for (Drawable drawable : arrayRenderedDrawables) {
+                g.fillOval((int) (Main.mainCharacter.position.x() * minimapPixelScale) - circleRadius / 2 + mapShift.width, (int) (Main.mainCharacter.position.y() * minimapPixelScale) - circleRadius / 2 + mapShift.height, circleRadius, circleRadius);
+                for (Drawable drawable : drawablesInLayer) {
                     drawable.draw(g);
                 }
-                break;
+            }
         }
     }
-
+    
     /**
      * Draws the physical map (blocks and liquids).
      */
@@ -109,14 +103,14 @@ public final class GamePanel extends JPanel {
                         if (liquid != null) {
                             g.drawImage(liquid.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
                             if (Main.DEBUG_HITBOX) {
-                                drawHitbox(g, liquid.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
+                                Util.drawHitbox(g, liquid.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
                             }
                         }
                         Block block = Block.TILEMAP.get(tile.block);
                         if (block != null) {
                             g.drawImage(block.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
                             if (Main.DEBUG_HITBOX) {
-                                drawHitbox(g, block.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
+                                Util.drawHitbox(g, block.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
                             }
                         }
                     }
@@ -124,27 +118,24 @@ public final class GamePanel extends JPanel {
             }
         }
     }
-
+    
     /**
      * Creates an image of the Map
-     * @param width the width of the returned image
+     * @param width  the width of the returned image
      * @param height the height of the returned image
      * @return the rendered image
      */
-    public static BufferedImage renderMiniMap(int width, int height) {
-        Set<Map.Entry<Integer, Map<Integer, Tile>>> tilesX = Main.map.entrySet();
-
+    public static BufferedImage generateMinimap(int width, int height) {
         Integer maxValueX = null;
         Integer maxValueY = null;
-
-        for (Map.Entry<Integer, Map<Integer, Tile>> mapEntry : tilesX) {
+        
+        for (Map.Entry<Integer, Map<Integer, Tile>> entry : Main.map.entrySet()) {
             if (maxValueX == null) {
-                maxValueX = mapEntry.getKey();
+                maxValueX = entry.getKey();
             } else {
-                maxValueX = Math.max(mapEntry.getKey(), maxValueX);
+                maxValueX = Math.max(entry.getKey(), maxValueX);
             }
-            Set<Map.Entry<Integer, Tile>> tilesY = mapEntry.getValue().entrySet();
-            for (Map.Entry<Integer, Tile> tileY : tilesY) {
+            for (Map.Entry<Integer, Tile> tileY : entry.getValue().entrySet()) {
                 if (maxValueY == null) {
                     maxValueY = tileY.getKey();
                 } else {
@@ -152,28 +143,24 @@ public final class GamePanel extends JPanel {
                 }
             }
         }
-
+        
         if (maxValueX == null || maxValueY == null) {
-            try {
-                throw(new Exception("Map Equals null"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            return null;
         }
-
+        
         int tilePixelSize = Math.min(width / maxValueX, height / maxValueY);
-
+        
         BufferedImage map = new BufferedImage((maxValueX + 1) * tilePixelSize, (maxValueY + 1) * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
-        mapPixelSizeRelativeToInGameSize = tilePixelSize / Main.TILE_SIZE;
-
-        for (Map.Entry<Integer, Map<Integer, Tile>> row : tilesX) {
+        minimapPixelScale = tilePixelSize / Main.TILE_SIZE;
+        
+        for (Map.Entry<Integer, Map<Integer, Tile>> row : Main.map.entrySet()) {
             for (Map.Entry<Integer, Tile> mapTile : row.getValue().entrySet()) {
                 Tile tile = mapTile.getValue();
                 Block block = Block.TILEMAP.get(tile.block);
                 Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
-
+                
                 Point position = new Point(row.getKey() * tilePixelSize, mapTile.getKey() * tilePixelSize);
-
+                
                 if (liquid != null) {
                     map.getGraphics().drawImage(liquid.graphic, (int) position.x(), (int) position.y(), tilePixelSize, tilePixelSize, null);
                 }
@@ -182,20 +169,8 @@ public final class GamePanel extends JPanel {
                 }
             }
         }
+        map.getGraphics().dispose();
         return map;
-    }
-
-    public static void drawHitbox(Graphics graphics, Hitbox hitbox) {
-        for (LineSegment segment : hitbox.edges()) {
-            drawLineSegment(graphics, segment);
-        }
-    }
-    
-    public static void drawLineSegment(Graphics graphics, LineSegment segment) {
-        LineSegment lineRelativeToCamera = segment.minus(Main.camera.getRealPosition()).plus((float) Main.camera.WIDTH / 2, Main.camera.getHeight() / 2);
-        
-        graphics.setColor(Color.RED);
-        graphics.drawLine((int) (lineRelativeToCamera.a().x() * Main.scaledPixelSize()), (int) (lineRelativeToCamera.a().y() * Main.scaledPixelSize()), (int) (lineRelativeToCamera.b().x() * Main.scaledPixelSize()), (int) (lineRelativeToCamera.b().y() * Main.scaledPixelSize()));
     }
     
 }

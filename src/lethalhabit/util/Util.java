@@ -2,6 +2,7 @@ package lethalhabit.util;
 
 import com.google.gson.Gson;
 import lethalhabit.Main;
+import lethalhabit.game.Block;
 import lethalhabit.game.Tile;
 import lethalhabit.technical.Hitbox;
 import lethalhabit.technical.LineSegment;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +133,39 @@ public final class Util {
         }
     }
     
+    public static List<Hitbox> getPossibleCollisions(Hitbox hitbox, Vec2D velocity, double timeDelta) {
+        Hitbox shiftedHitbox = hitbox.shift(velocity.scale(timeDelta));
+        Hitbox totalHitbox = new Hitbox(
+                new Point[]{
+                        new Point(Math.min(shiftedHitbox.minPosition.x(), hitbox.minPosition.x()), Math.min(shiftedHitbox.minPosition.y(), hitbox.minPosition.y())),
+                        new Point(Math.min(shiftedHitbox.minPosition.x(), hitbox.minPosition.x()), Math.max(shiftedHitbox.maxPosition.y(), hitbox.maxPosition.y())),
+                        new Point(Math.max(shiftedHitbox.maxPosition.x(), hitbox.maxPosition.x()), Math.max(shiftedHitbox.maxPosition.y(), hitbox.maxPosition.y())),
+                        new Point(Math.max(shiftedHitbox.maxPosition.x(), hitbox.maxPosition.x()), Math.min(shiftedHitbox.minPosition.y(), hitbox.minPosition.y()))
+                }
+        );
+        List<Hitbox> possibleCollisions = new ArrayList<>();
+        Point minPosition = new Point((int) totalHitbox.vertices[0].x() / Main.TILE_SIZE, (int) totalHitbox.vertices[0].y() / Main.TILE_SIZE);
+        Point maxPosition = new Point((int) totalHitbox.vertices[2].x() / Main.TILE_SIZE, (int) totalHitbox.vertices[2].y() / Main.TILE_SIZE);
+        
+        for (int xIndex = (int) minPosition.x() - 1; xIndex <= maxPosition.x() + 1; xIndex++) {
+            for (int yIndex = (int) minPosition.y() - 1; yIndex <= maxPosition.y() + 1; yIndex++) {
+                Point position = new Point(xIndex * Main.TILE_SIZE, yIndex * Main.TILE_SIZE);
+                Map<Integer, Tile> column = Main.map.get(xIndex);
+                if (column != null) {
+                    Tile tile = column.get(yIndex);
+                    if (tile != null && tile.block >= 0) {
+                        Block block = Block.TILEMAP.get(tile.block);
+                        if (block != null) {
+                            Hitbox newHitbox = block.hitbox.shift(position);
+                            possibleCollisions.add(newHitbox);
+                        }
+                    }
+                }
+            }
+        }
+        return possibleCollisions;
+    }
+    
     /**
      * Calculates the time until first intersection of the active hitbox with any of the passive hitboxes.
      *
@@ -215,6 +250,18 @@ public final class Util {
             return Double.NaN;
         }
         return answer;
+    }
+    
+    public static void drawHitbox(Graphics graphics, Hitbox hitbox) {
+        for (LineSegment segment : hitbox.edges()) {
+            drawLineSegment(graphics, segment);
+        }
+    }
+    
+    public static void drawLineSegment(Graphics graphics, LineSegment segment) {
+        LineSegment relativeLineSegment = segment.minus(Main.camera.getRealPosition()).plus((float) Main.camera.WIDTH / 2, Main.camera.getHeight() / 2);
+        graphics.setColor(Color.RED);
+        graphics.drawLine((int) (relativeLineSegment.a().x() * Main.scaledPixelSize()), (int) (relativeLineSegment.a().y() * Main.scaledPixelSize()), (int) (relativeLineSegment.b().x() * Main.scaledPixelSize()), (int) (relativeLineSegment.b().y() * Main.scaledPixelSize()));
     }
     
 }

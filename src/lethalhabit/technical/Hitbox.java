@@ -43,7 +43,7 @@ public final class Hitbox implements Iterable<Point> {
         return Arrays.stream(vertices).mapToDouble(Point::y).min().orElse(0);
     }
     
-    public Hitbox shift(Point offset) {
+    public Hitbox shift(TwoDimensional offset) {
         Point[] newVertices = new Point[vertices.length];
         for (int i = 0; i < newVertices.length; i++) {
             newVertices[i] = new Point(vertices[i].x() + offset.x(), vertices[i].y() + offset.y());

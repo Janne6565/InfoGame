@@ -26,15 +26,15 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
     public double minY() {
         return Math.min(a.y(), b.y());
     }
-
+    
     public LineSegment minus(Point other) {
         return new LineSegment(a.minus(other), b.minus(other));
     }
-
+    
     public LineSegment plus(Point other) {
         return new LineSegment(a.plus(other), b.plus(other));
     }
-
+    
     @Override
     public void forEach(Consumer<? super Point> action) {
         List.of(a, b).forEach(action);
@@ -49,12 +49,13 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
     public Iterator<Point> iterator() {
         return List.of(a, b).iterator();
     }
-
+    
     public LineSegment plus(double x, double y) {
         return plus(new Point(x, y));
     }
-
+    
     public LineSegment minus(double x, double y) {
         return minus(new Point(x, y));
     }
+    
 }

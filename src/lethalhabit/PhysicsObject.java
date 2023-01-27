@@ -6,6 +6,7 @@ import lethalhabit.technical.Hitbox;
 import lethalhabit.technical.Point;
 import lethalhabit.technical.Vec2D;
 import lethalhabit.ui.Drawable;
+import lethalhabit.util.Util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,12 +20,12 @@ import static lethalhabit.util.Util.getFirstIntersection;
  * A movable object that interacts with the world.
  */
 public abstract class PhysicsObject implements Tickable, Drawable {
-
+    
     /**
      * Velocity gets impacted by Gravity
      */
     public final boolean TAKES_GRAVITY = true;
-
+    
     public final Dimension size;
     public final Hitbox hitbox;
     
@@ -36,7 +37,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * Velocity added onto the normal velocity, you cant change this
      */
     public Vec2D recoil = new Vec2D(0, 0);
-
+    
     public PhysicsObject(double width, BufferedImage graphic, Point position, Hitbox hitbox) {
         this.size = new Dimension((int) width, (int) (graphic.getHeight() * width / graphic.getWidth()));
         this.graphic = graphic;
@@ -46,7 +47,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         Main.tickables.add(this);
         Main.drawables.add(this);
     }
-
+    
     private boolean onGround = false;
     
     @Override
@@ -137,7 +138,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public void moveX(double timeDelta) {
         Vec2D vel = new Vec2D(getTotalVelocity().x(), 0);
         
-        List<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
+        List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
         
         Double timeWeTake = timeDelta;
@@ -173,7 +174,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public void moveY(double timeDelta) {
         Vec2D vel = new Vec2D(0, getTotalVelocity().y());
         
-        List<Hitbox> collidables = Main.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
+        List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
         
         Double timeWeTake = timeDelta;
@@ -211,7 +212,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @return true in case of collision with a ground, false otherwise
      */
     public boolean isWallDown() {
-        Double td = getFirstIntersection(hitbox.shift(position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, 1), 1), new Vec2D(0, 1));
+        Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, 1), 1), new Vec2D(0, 1));
         if (Double.isNaN(td)) {
             return false;
         }
@@ -223,7 +224,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @return true in case of collision with a right wall, false otherwise
      */
     public boolean isWallRight() {
-        Double td = getFirstIntersection(hitbox.shift(position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(1, 0), 1), new Vec2D(1, 0));
+        Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(1, 0), 1), new Vec2D(1, 0));
         if (Double.isNaN(td)) {
             return false;
         }
@@ -235,7 +236,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @return true in case of collision with a left wall, false otherwise
      */
     public boolean isWallLeft() {
-        Double td = getFirstIntersection(hitbox.shift(position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0));
+        Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0));
         if (Double.isNaN(td)) {
             return false;
         }
@@ -247,14 +248,15 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @return true in case of collision with a ceiling, false otherwise
      */
     public boolean isWallUp() {
-        Double td = getFirstIntersection(hitbox.shift(position), Main.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, -1), 1), new Vec2D(0, -1));
+        Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, -1), 1), new Vec2D(0, -1));
         if (Double.isNaN(td)) {
             return false;
         }
         return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
-
+    
     public Vec2D getTotalVelocity() {
         return velocity.plus(recoil).scale(viscosity);
     }
+    
 }

@@ -2,8 +2,8 @@ package lethalhabit.game;
 
 import lethalhabit.Main;
 import lethalhabit.PhysicsObject;
-import lethalhabit.technical.*;
 import lethalhabit.technical.Point;
+import lethalhabit.technical.*;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 
@@ -13,16 +13,16 @@ import java.awt.image.BufferedImage;
 import static lethalhabit.util.Util.mirrorImage;
 
 public class Enemy extends PhysicsObject {
-
+    
     public static final int WIDTH = 20;
-
+    
     public static final Hitbox HITBOX = new Hitbox(new Point[]{
             new Point(10, 10).scale(WIDTH / 50.0),
             new Point(10, 57).scale(WIDTH / 50.0),
             new Point(40, 57).scale(WIDTH / 50.0),
             new Point(40, 10).scale(WIDTH / 50.0)
     });
-
+    
     public static final double MOVEMENT_SPEED = 80;
     public static final double JUMP_BOOST = 200;
     public static final double WALL_JUMP_BOOST = 200;
@@ -31,36 +31,35 @@ public class Enemy extends PhysicsObject {
     public static final double DOUBLE_JUMP_COOLDOWN = 1;
     public static final double RECOIL_RESET_DASH = 1000;
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
-
+    
     private double resetRecoil = 0;
-
-
+    
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
-
+    
     public double timeInGame = 0; // Used to calculate the current frame of the animation
     public Direction direction = Direction.NONE;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
-
+    
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
-
+    
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
     private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
     private int timesJumped = 0;
-
+    
     public Enemy(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
     }
-
-
+    
     public double dashCoolDown = 0;
     public double doubleJumpCooldown = 0;
+    
     private void resetCooldowns(double timeDelta) {
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
     }
-
+    
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
@@ -68,7 +67,7 @@ public class Enemy extends PhysicsObject {
         this.velocity = new Vec2D(-MOVEMENT_SPEED * speedBoost, this.velocity.y());
         this.direction = Direction.LEFT;
     }
-
+    
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
@@ -76,15 +75,15 @@ public class Enemy extends PhysicsObject {
         this.velocity = new Vec2D(MOVEMENT_SPEED * speedBoost, this.velocity.y());
         this.direction = Direction.RIGHT;
     }
-
+    
     public void moveUp() {
         this.velocity = new Vec2D(this.velocity.x(), -MOVEMENT_SPEED * speedBoost);
     }
-
+    
     public void moveDown() {
         this.velocity = new Vec2D(this.velocity.x(), MOVEMENT_SPEED * speedBoost);
     }
-
+    
     /**
      * Resets the x velocity
      */
@@ -95,7 +94,7 @@ public class Enemy extends PhysicsObject {
         }
         this.direction = Direction.NONE;
     }
-
+    
     /**
      * Resets the y velocity
      */
@@ -105,17 +104,16 @@ public class Enemy extends PhysicsObject {
             this.currentAnimation = Animation.PLAYER_IDLE;
         }
     }
-
+    
     /**
      * Shoots fireball <3
      */
     public void makeFireball() {
         new Fireball(this.position, direction);
     }
-
+    
     /**
      * Checks the player's ability to jump
-     *
      * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
@@ -124,7 +122,7 @@ public class Enemy extends PhysicsObject {
         }
         return isWallDown();
     }
-
+    
     public void jump() {
         if (jumped || isSubmerged()) {
             return;
@@ -155,7 +153,7 @@ public class Enemy extends PhysicsObject {
         }
         jumpBoost = 1.0;
     }
-
+    
     @Override
     public void checkViscosity() {
         super.checkViscosity();
@@ -166,7 +164,7 @@ public class Enemy extends PhysicsObject {
             jumpBoost = 0.6;
         }
     }
-
+    
     /**
      * Resets jump to prevent re-jumping
      */
@@ -174,10 +172,9 @@ public class Enemy extends PhysicsObject {
         jumped = false;
         jumpBoost = 1.0;
     }
-
+    
     /**
      * Method called for handling animation and every other tick based mechanic
-     *
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
     @Override
@@ -200,7 +197,7 @@ public class Enemy extends PhysicsObject {
             }
         }
     }
-
+    
     /**
      * Resets all the jumps on ground touch
      */
@@ -210,12 +207,12 @@ public class Enemy extends PhysicsObject {
         hasJumpedRight = false;
         timesJumped = 0;
     }
-
+    
     @Override
     public int layer() {
         return Camera.LAYER_GAME;
     }
-
+    
     @Override
     public void draw(Graphics graphics) {
         super.draw(graphics);
@@ -230,7 +227,7 @@ public class Enemy extends PhysicsObject {
             }
         }
     }
-
+    
     private Point convertPositionToCamera(Point position) {
         double offsetX = Main.camera.getRealPosition().x();
         double offsetY = Main.camera.getRealPosition().y();
@@ -238,7 +235,7 @@ public class Enemy extends PhysicsObject {
         int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
         return new Point(posXDisplay, posYDisplay);
     }
-
+    
     public void dash() {
         if (dashCoolDown == 0 && direction != Direction.NONE) {
             recoil = switch (direction) {
@@ -250,4 +247,5 @@ public class Enemy extends PhysicsObject {
             dashCoolDown = DASH_COOLDOWN;
         }
     }
+    
 }

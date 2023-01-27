@@ -252,22 +252,14 @@ public class Player extends PhysicsObject {
         super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
             for (LineSegment line : hitbox.shift(getPosition()).edges()) {
-                Point positionA = convertPositionToCamera(line.a());
-                Point positionB = convertPositionToCamera(line.b());
+                Point positionA = Main.camera.getAbsolutePosition(line.a());
+                Point positionB = Main.camera.getAbsolutePosition(line.b());
                 Graphics2D g2 = (Graphics2D) graphics;
                 g2.setColor(Main.HITBOX_STROKE_COLOR);
                 g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
                 g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }
         }
-    }
-    
-    private Point convertPositionToCamera(Point position) {
-        double offsetX = Main.camera.getRealPosition().x();
-        double offsetY = Main.camera.getRealPosition().y();
-        int posXDisplay = (int) ((int) (position.x() - offsetX) * Main.scaledPixelSize() + (Main.screenWidth / 2));
-        int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
-        return new Point(posXDisplay, posYDisplay);
     }
     
     public void dash() {
