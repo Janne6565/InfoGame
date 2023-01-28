@@ -1,14 +1,9 @@
 package lethalhabit;
 
-import lethalhabit.game.Block;
-import lethalhabit.game.Enemy;
-import lethalhabit.game.Liquid;
-import lethalhabit.game.Tile;
+import lethalhabit.game.*;
 import lethalhabit.sound.Sound;
-import lethalhabit.technical.Hitbox;
-import lethalhabit.technical.Loadable;
+import lethalhabit.technical.*;
 import lethalhabit.technical.Point;
-import lethalhabit.technical.Vec2D;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
@@ -95,13 +90,13 @@ public final class Main {
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        //playSoundtrack();
+        playSoundtrack();
         GamePanel.generateMap();
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
-        // enemy = new Enemy(new Point(100, 700));
-        // enemy.setMovementSpeed(30);
+        //enemy = new Enemy(new Point(100, 700));
+        new AggressiveEnemy(new Point(100, 700));
     }
     
     public static void playSoundtrack() {

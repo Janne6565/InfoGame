@@ -264,4 +264,22 @@ public final class Util {
         graphics.drawLine((int) (relativeLineSegment.a().x() * Main.scaledPixelSize()), (int) (relativeLineSegment.a().y() * Main.scaledPixelSize()), (int) (relativeLineSegment.b().x() * Main.scaledPixelSize()), (int) (relativeLineSegment.b().y() * Main.scaledPixelSize()));
     }
     
+    public static boolean isLineObstructed(LineSegment line) {
+        Hitbox lineEnvironment = new Hitbox(new Point[] {
+                new Point(line.minX(), line.minY()),
+                new Point(line.maxX(), line.minY()),
+                new Point(line.maxX(), line.maxY()),
+                new Point(line.minX(), line.maxY())
+        });
+        List<Hitbox> possibleCollisions = getPossibleCollisions(lineEnvironment, new Vec2D(0, 0),0);
+        for (Hitbox hitbox : possibleCollisions) {
+            for (LineSegment line2 : hitbox.edges()) {
+                if (line.intersects(line2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
 }

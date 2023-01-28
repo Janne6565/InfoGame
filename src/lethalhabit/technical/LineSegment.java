@@ -27,11 +27,11 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
         return Math.min(a.y(), b.y());
     }
     
-    public LineSegment minus(Point other) {
+    public LineSegment minus(TwoDimensional other) {
         return new LineSegment(a.minus(other), b.minus(other));
     }
     
-    public LineSegment plus(Point other) {
+    public LineSegment plus(TwoDimensional other) {
         return new LineSegment(a.plus(other), b.plus(other));
     }
     
@@ -56,6 +56,16 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
     
     public LineSegment minus(double x, double y) {
         return minus(new Point(x, y));
+    }
+    
+    public boolean intersects(LineSegment other) {
+        double r = ((other.a.x() - a.x()) * (other.a.y() - other.b.y()) - (other.a.y() - a.y()) * (other.a.x() - other.b.x())) / ((b.x() - a.x()) * (other.a.y() - other.b.y()) - (b.y() - a.y()) * (other.a.x() - other.b.x()));
+        if (!Double.isFinite(r)) {
+            return false;
+        }
+        Vec2D solution = a.loc().plus(b.minus(a).scale(r));
+        return solution.x() >= minX() && solution.x() <= maxX() && solution.y() >= minY() && solution.y() <= maxY()
+               && solution.x() >= other.minX() && solution.x() <= other.maxX() && solution.y() >= other.minY() && solution.y() <= other.maxY();
     }
     
 }
