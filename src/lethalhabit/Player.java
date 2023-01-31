@@ -269,6 +269,7 @@ public class Player extends PhysicsObject {
                 case RIGHT -> new Vec2D(DASH_BOOST, 0);
                 default -> null;
             };
+            velocity = new Vec2D(velocity.x(), 0);
             resetRecoil = RECOIL_RESET_DASH;
             dashCoolDown = DASH_COOLDOWN;
         }
