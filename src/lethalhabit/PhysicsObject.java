@@ -24,7 +24,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     /**
      * Velocity gets impacted by Gravity
      */
-    public final boolean TAKES_GRAVITY = true;
+    public boolean TAKES_GRAVITY = true;
     
     public final Dimension size;
     public final Hitbox hitbox;
@@ -84,11 +84,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public void checkViscosity() {
         surroundingLiquids().stream()
                 .min(Comparator.comparing(liquid -> liquid.viscosity))
-                .ifPresentOrElse(liquid -> {
-                    viscosity = liquid.viscosity;
-                }, () -> {
-                    viscosity = 1;
-                });
+                .ifPresentOrElse(liquid -> viscosity = liquid.viscosity, () -> viscosity = 1);
     }
     
     public final boolean isSubmerged() {
@@ -123,9 +119,11 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      * @param timeDelta time between Frames
      */
     public void checkDirections(double timeDelta) {
-        if (!isWallDown() && TAKES_GRAVITY) {
+        if (!isWallDown()) {
             onGround = false;
-            velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosity), Main.MAX_VELOCITY_SPEED * viscosity));
+            if (TAKES_GRAVITY) {
+                velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosity), Main.MAX_VELOCITY_SPEED * viscosity));
+            }
         } else {
             onGroundReset();
         }
@@ -141,28 +139,20 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
         
-        Double timeWeTake = timeDelta;
-        Double safeDistance = Main.SAFE_DISTANCE;
+        double timeWeTake = timeDelta;
+        double safeDistance = Main.SAFE_DISTANCE;
         Double timeUntilReachedSafeDistance = safeDistance / Math.abs(vel.x());
         
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                if (minTime < timeUntilReachedSafeDistance) {
-                    timeWeTake = 0.0;
-                } else {
-                    timeWeTake = minTime - timeUntilReachedSafeDistance;
-                }
+                timeWeTake = minTime < timeUntilReachedSafeDistance ? 0.0 : minTime - timeUntilReachedSafeDistance;
             }
         }
         position = position.plus(vel.x() * timeWeTake, 0);
         
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                if (vel.x() > 0) {
-                    this.velocity = new Vec2D(Math.min(0, this.velocity.x()), this.velocity.y());
-                } else {
-                    this.velocity = new Vec2D(Math.max(0, this.velocity.x()), this.velocity.y());
-                }
+                this.velocity = vel.x() > 0 ? new Vec2D(Math.min(0, this.velocity.x()), this.velocity.y()) : new Vec2D(Math.max(0, this.velocity.x()), this.velocity.y());
             }
         }
     }
@@ -183,21 +173,13 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                if (minTime < timeWeNeed) {
-                    timeWeTake = 0.0;
-                } else {
-                    timeWeTake = minTime - timeWeNeed;
-                }
+                timeWeTake = minTime < timeWeNeed ? 0.0 : minTime - timeWeNeed;
             }
         }
         position = position.plus(new Point(0, vel.y() * timeWeTake));
         if (!Double.isNaN(minTime)) {
             if (minTime <= timeDelta) {
-                if (vel.y() > 0) {
-                    this.velocity = new Vec2D(this.velocity.x(), Math.min(0, this.velocity.y()));
-                } else {
-                    this.velocity = new Vec2D(this.velocity.x(), Math.max(0, this.velocity.y()));
-                }
+                this.velocity = vel.y() > 0 ? new Vec2D(this.velocity.x(), Math.min(0, this.velocity.y())) : new Vec2D(this.velocity.x(), Math.max(0, this.velocity.y()));
             }
         }
         
@@ -213,10 +195,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      */
     public boolean isWallDown() {
         Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, 1), 1), new Vec2D(0, 1));
-        if (Double.isNaN(td)) {
-            return false;
-        }
-        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
     /**
@@ -225,10 +204,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      */
     public boolean isWallRight() {
         Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(1, 0), 1), new Vec2D(1, 0));
-        if (Double.isNaN(td)) {
-            return false;
-        }
-        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
     /**
@@ -237,10 +213,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      */
     public boolean isWallLeft() {
         Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0));
-        if (Double.isNaN(td)) {
-            return false;
-        }
-        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
     /**
@@ -249,10 +222,7 @@ public abstract class PhysicsObject implements Tickable, Drawable {
      */
     public boolean isWallUp() {
         Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, -1), 1), new Vec2D(0, -1));
-        if (Double.isNaN(td)) {
-            return false;
-        }
-        return (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
     public Vec2D getTotalVelocity() {

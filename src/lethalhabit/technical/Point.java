@@ -50,6 +50,10 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     public Point scale(double factor) {
         return new Point(this.x * factor, this.y * factor);
     }
+
+    public Point divide(double divider) {
+        return new Point(this.x / divider, this.y / divider);
+    }
     
     public Vec2D loc() {
         return new Vec2D(x, y);

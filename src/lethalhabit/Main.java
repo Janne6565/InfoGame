@@ -4,6 +4,7 @@ import lethalhabit.game.*;
 import lethalhabit.sound.Sound;
 import lethalhabit.technical.*;
 import lethalhabit.technical.Point;
+import lethalhabit.testing.TestEventArea;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
@@ -15,9 +16,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import static java.awt.event.KeyEvent.*;
 
@@ -27,7 +27,7 @@ import static java.awt.event.KeyEvent.*;
 public final class Main {
     
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = true;
+    public static final boolean MINIMIZED = false;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
@@ -44,6 +44,7 @@ public final class Main {
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
     public static final List<Loadable> loadables = new ArrayList<>();
+    public static final Map<Integer, Map<Integer, List<EventArea>>> eventAreas = new HashMap<>();
     
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
@@ -69,11 +70,7 @@ public final class Main {
     
     public static Tile tileAt(int tileX, int tileY) {
         Map<Integer, Tile> column = Main.map.get(tileX);
-        if (column != null) {
-            return column.get(tileY);
-        } else {
-            return null;
-        }
+        return column != null ? column.get(tileY) : null;
     }
     
     /**
@@ -95,10 +92,10 @@ public final class Main {
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
-        //enemy = new Enemy(new Point(100, 700));
+        EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         new AggressiveEnemy(new Point(100, 700));
     }
-    
+
     public static void playSoundtrack() {
         try {
             Sound soundtrack = new Sound("/assets/music/soundtrack1.wav");
@@ -117,12 +114,41 @@ public final class Main {
             mainCharacter.velocity = new Vec2D(0, 0);
         }
     }
-    
+
+    public static void registerEventArea(EventArea eventArea) {
+        Point startPoint = eventArea.position;
+
+        Hitbox shiftedHitbox = eventArea.hitbox.shift(startPoint);
+
+        int minX = (int) (shiftedHitbox.minX() / TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / TILE_SIZE);
+
+        int maxX = (int) (shiftedHitbox.maxX() / TILE_SIZE);
+        int maxY = (int) (shiftedHitbox.maxY() / TILE_SIZE);
+
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<EventArea>> listX = eventAreas.get(x);
+            if (listX == null) {
+                listX = new HashMap<>();
+            }
+            for (int y = minY - 1; y < maxY + 1; y++) {
+                List<EventArea> listOnXY = listX.get(y);
+                if (listOnXY == null) {
+                    listOnXY = new ArrayList<>();
+                }
+                listOnXY.add(eventArea);
+                listX.put(y, listOnXY);
+            }
+            eventAreas.put(x, listX);
+        }
+    }
+
+
     /**
      * Loads the map (map.json).
      */
     public static void loadMap() {
-        map = Util.readWorldData(Main.class.getResourceAsStream("/map.json"));
+        map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream("/map.json")));
     }
     
     /**
@@ -156,15 +182,33 @@ public final class Main {
                     tickable.tick(timeDelta);
                 }
             }
+            checkEventAreas(timeDelta);
             if (DEMO_MODE) {
                 demoGameTick(timeDelta);
             }
             moveCamera(timeDelta);
         }
-        
-        
     }
-    
+
+
+    public static List<EventArea> areasPlayerInside = new ArrayList<>();
+    public static void checkEventAreas(double timeDelta) {
+        List<EventArea> eventAreasBefore = new ArrayList<>(areasPlayerInside);
+        areasPlayerInside = Util.getEventAreasPlayerIn(mainCharacter);
+        for (EventArea eventArea : areasPlayerInside) {
+            eventArea.whilePlayerIn(mainCharacter);
+            if (!eventAreasBefore.contains(eventArea)) {
+                eventArea.onPlayerEnterArea(mainCharacter);
+            }
+        }
+
+        for (EventArea eventArea : eventAreasBefore) {
+            if (!areasPlayerInside.contains(eventArea)) {
+                eventArea.onPlayerLeaveArea(mainCharacter);
+            }
+        }
+   }
+
     /**
      * Executes commands depending on the key input
      */
@@ -203,6 +247,14 @@ public final class Main {
     
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
+            for (Integer key : activeKeys) {
+                if (areasPlayerInside != null) {
+                    for (EventArea area : areasPlayerInside) {
+                        area.onPlayerKeyPressInArea(mainCharacter, key);
+                    }
+                }
+            }
+
             if (activeKeys.contains(VK_BACK_SPACE) && !listKeysHolding.contains(VK_BACK_SPACE)) {
                 IS_GAME_RUNNING = !IS_GAME_RUNNING;
                 listKeysHolding.add(VK_BACK_SPACE);
@@ -384,10 +436,7 @@ public final class Main {
             startFrame.dispose();
             createSettingsWindow();
         });
-        exitButton.addActionListener(e -> {
-            startFrame.dispose();
-            
-        });
+        exitButton.addActionListener(e -> startFrame.dispose());
         
         panel.add(gameLabel, BorderLayout.PAGE_START);
         panel.add(startButton, BorderLayout.CENTER);

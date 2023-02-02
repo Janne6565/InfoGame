@@ -2,7 +2,9 @@ package lethalhabit.util;
 
 import com.google.gson.Gson;
 import lethalhabit.Main;
+import lethalhabit.Player;
 import lethalhabit.game.Block;
+import lethalhabit.game.EventArea;
 import lethalhabit.game.Tile;
 import lethalhabit.technical.Hitbox;
 import lethalhabit.technical.LineSegment;
@@ -18,10 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public final class Util {
     
@@ -127,7 +127,7 @@ public final class Util {
     
     public static BufferedImage getImage(String path) {
         try {
-            return ImageIO.read(Util.class.getResourceAsStream(path));
+            return ImageIO.read(Objects.requireNonNull(Util.class.getResourceAsStream(path)));
         } catch (Exception ex) {
             return null;
         }
@@ -246,10 +246,7 @@ public final class Util {
         Vec2D a = lineSegment.a().loc();
         Vec2D b = lineSegment.b().loc();
         double answer = ((b.x() - a.x()) * (a.y() - point.y()) - (b.y() - a.y()) * (a.x() - point.x())) / (direction.y() * (b.x() - a.x()) - direction.x() * (b.y() - a.y()));
-        if (Double.isInfinite(answer)) {
-            return Double.NaN;
-        }
-        return answer;
+        return Double.isInfinite(answer) ? Double.NaN : answer;
     }
     
     public static void drawHitbox(Graphics graphics, Hitbox hitbox) {
@@ -280,6 +277,36 @@ public final class Util {
             }
         }
         return false;
+    }
+
+    public static List<EventArea> getEventAreasPlayerIn(Player player) {
+        Point positionPlayer = player.position;
+        Hitbox hitbox = player.hitbox.shift(positionPlayer);
+
+        int minX = (int) (hitbox.minX() / Main.TILE_SIZE);
+        int minY = (int) (hitbox.minY() / Main.TILE_SIZE);
+
+        int maxX = (int) (hitbox.maxX() / Main.TILE_SIZE);
+        int maxY = (int) (hitbox.maxY() / Main.TILE_SIZE);
+        List<EventArea> eventAreas = new ArrayList<>();
+
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<EventArea>> column = Main.eventAreas.get(x);
+            if (column != null) {
+                for (int y = minY - 1; y < maxY + 1; y++) {
+                    List<EventArea> row = column.get(y);
+                    if (row != null) {
+                        for (EventArea area : row) {
+                            if (!eventAreas.contains(area) && (area.hitbox.shift(area.position).intersects(hitbox) || hitbox.intersects(area.hitbox.shift(area.position)))) {
+                                eventAreas.add(area);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return eventAreas;
     }
     
 }

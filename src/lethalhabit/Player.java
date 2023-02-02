@@ -31,6 +31,9 @@ public class Player extends PhysicsObject {
     public static final double RECOIL_RESET_DASH = 1000;
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
     public static final double FIREBALL_COOLDOWN = 2;
+    public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
+
+
     
     private double resetRecoil = 0;
 
@@ -40,17 +43,19 @@ public class Player extends PhysicsObject {
     public Direction direction = Direction.NONE;
     public Direction lastDirection = Direction.NONE;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
-    
+
+    public double immuneToGravity = 0.0;
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
 
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
     private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
+
     private int timesJumped = 0;
-    
     public PlayerSkills skills;
-    
+
+
     public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
         this.skills = skills;
@@ -63,6 +68,7 @@ public class Player extends PhysicsObject {
         fireBallCooldown = Math.max(fireBallCooldown - timeDelta, 0);
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
+        immuneToGravity = Math.max(immuneToGravity - timeDelta, 0);
     }
     
     /**
@@ -131,10 +137,7 @@ public class Player extends PhysicsObject {
      * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
-        if (timesJumped <= 0) {
-            return true;
-        }
-        return isWallDown();
+        return timesJumped <= 0 || isWallDown();
     }
     
     public void jump() {
@@ -150,7 +153,7 @@ public class Player extends PhysicsObject {
             if (direction == Direction.LEFT && !hasJumpedLeft && isWallLeft()) {
                 hasJumpedLeft = true;
                 velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
-                recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+                recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
                 resetRecoil = RECOIL_RESET_WALL_JUMP;
                 return;
             } else if (direction == Direction.RIGHT && !hasJumpedRight && isWallRight()) {
@@ -208,6 +211,7 @@ public class Player extends PhysicsObject {
     @Override
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
+        TAKES_GRAVITY = immuneToGravity == 0;
         resetCooldowns(timeDelta);
         timeInGame += timeDelta;
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
@@ -218,11 +222,7 @@ public class Player extends PhysicsObject {
         }
         double timeBeforeSuperTick = System.nanoTime();
         if (recoil.x() != 0) {
-            if (recoil.x() < 0) {
-                recoil = new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y());
-            } else {
-                recoil = new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
-            }
+            recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
         }
     }
     
@@ -272,6 +272,7 @@ public class Player extends PhysicsObject {
             velocity = new Vec2D(velocity.x(), 0);
             resetRecoil = RECOIL_RESET_DASH;
             dashCoolDown = DASH_COOLDOWN;
+            immuneToGravity = TIME_NO_GRAVITY_AFTER_DASH;
         }
     }
     
