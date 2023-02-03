@@ -27,12 +27,12 @@ import static java.awt.event.KeyEvent.*;
 public final class Main {
     
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = false;
+    public static final boolean MINIMIZED = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
     
-    public static final boolean DEBUG_HITBOX = false;
+    public static final boolean DEBUG_HITBOX = true;
     public static final int STROKE_SIZE_HITBOXES = 2;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
@@ -43,7 +43,6 @@ public final class Main {
     public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
-    public static final List<Loadable> loadables = new ArrayList<>();
     public static final Map<Integer, Map<Integer, List<EventArea>>> eventAreas = new HashMap<>();
     
     private static final List<Integer> activeKeys = new ArrayList<>();
@@ -87,7 +86,7 @@ public final class Main {
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        playSoundtrack();
+        //playSoundtrack();
         GamePanel.generateMap();
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
@@ -95,7 +94,7 @@ public final class Main {
         EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         new AggressiveEnemy(new Point(100, 700));
     }
-
+    
     public static void playSoundtrack() {
         try {
             Sound soundtrack = new Sound("/assets/music/soundtrack1.wav");
@@ -114,36 +113,30 @@ public final class Main {
             mainCharacter.velocity = new Vec2D(0, 0);
         }
     }
-
+    
     public static void registerEventArea(EventArea eventArea) {
-        Point startPoint = eventArea.position;
-
-        Hitbox shiftedHitbox = eventArea.hitbox.shift(startPoint);
-
+        Hitbox shiftedHitbox = eventArea.hitbox.shift(eventArea.position);
         int minX = (int) (shiftedHitbox.minX() / TILE_SIZE);
-        int minY = (int) (shiftedHitbox.minY() / TILE_SIZE);
-
         int maxX = (int) (shiftedHitbox.maxX() / TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / TILE_SIZE);
         int maxY = (int) (shiftedHitbox.maxY() / TILE_SIZE);
-
         for (int x = minX - 1; x < maxX + 1; x++) {
-            Map<Integer, List<EventArea>> listX = eventAreas.get(x);
-            if (listX == null) {
-                listX = new HashMap<>();
+            Map<Integer, List<EventArea>> column = eventAreas.get(x);
+            if (column == null) {
+                column = new HashMap<>();
             }
             for (int y = minY - 1; y < maxY + 1; y++) {
-                List<EventArea> listOnXY = listX.get(y);
-                if (listOnXY == null) {
-                    listOnXY = new ArrayList<>();
+                List<EventArea> row = column.get(y);
+                if (row == null) {
+                    row = new ArrayList<>();
                 }
-                listOnXY.add(eventArea);
-                listX.put(y, listOnXY);
+                row.add(eventArea);
+                column.put(y, row);
             }
-            eventAreas.put(x, listX);
+            eventAreas.put(x, column);
         }
     }
-
-
+    
     /**
      * Loads the map (map.json).
      */
@@ -151,9 +144,6 @@ public final class Main {
         map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream("/map.json")));
     }
     
-    /**
-     *
-     */
     public static void loadSettings() {
         settings = new Settings();
         // TODO: Read settings from some settings.json file
@@ -164,7 +154,7 @@ public final class Main {
      * @return camera width in in-game unit
      */
     public static int getScreenWidthGame() {
-        return camera.WIDTH;
+        return camera.width;
     }
     
     /**
@@ -174,8 +164,6 @@ public final class Main {
         double timeDelta = (double) (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
-        
-        // enemyMovement(timeDelta);
         if (IS_GAME_RUNNING) {
             for (Tickable tickable : new ArrayList<>(tickables)) {
                 if (tickable != null) {
@@ -189,81 +177,35 @@ public final class Main {
             moveCamera(timeDelta);
         }
     }
-
-
-    public static List<EventArea> areasPlayerInside = new ArrayList<>();
+    
+    public static List<EventArea> enteredEventAreas = new ArrayList<>();
+    
     public static void checkEventAreas(double timeDelta) {
-        List<EventArea> eventAreasBefore = new ArrayList<>(areasPlayerInside);
-        areasPlayerInside = Util.getEventAreasPlayerIn(mainCharacter);
-        for (EventArea eventArea : areasPlayerInside) {
-            eventArea.whilePlayerIn(mainCharacter);
-            if (!eventAreasBefore.contains(eventArea)) {
-                eventArea.onPlayerEnterArea(mainCharacter);
+        List<EventArea> eventAreasBefore = new ArrayList<>(enteredEventAreas);
+        enteredEventAreas = Util.getEventAreasPlayerIn(mainCharacter);
+        for (EventArea area : enteredEventAreas) {
+            area.whilePlayerIn(mainCharacter);
+            if (!eventAreasBefore.contains(area)) {
+                area.onPlayerEnterArea(mainCharacter);
             }
         }
-
-        for (EventArea eventArea : eventAreasBefore) {
-            if (!areasPlayerInside.contains(eventArea)) {
-                eventArea.onPlayerLeaveArea(mainCharacter);
+        
+        for (EventArea area : eventAreasBefore) {
+            if (!enteredEventAreas.contains(area)) {
+                area.onPlayerLeaveArea(mainCharacter);
             }
-        }
-   }
-
-    /**
-     * Executes commands depending on the key input
-     */
-    private static boolean active = false;
-    
-    private static float count = 0;
-    
-    private static void enemyMovement(double timeDelta) {
-        if (enemy.isWallDown()) {
-            active = true;
-        }
-        if (active && count < 1) {
-            enemy.moveLeft();
-            if (enemy.isWallLeft() && count < 1) {
-                enemy.jump();
-            } else {
-                enemy.resetJump();
-            }
-            count += timeDelta;
-            if (count > 1) {
-                active = false;
-            }
-        }
-        if (count > 1) {
-            count = 0;
-            enemy.moveRight();
-            
-            if (enemy.isWallRight() && count < 1) {
-                enemy.jump();
-            } else {
-                enemy.resetJump();
-            }
-            count += timeDelta;
         }
     }
     
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
-            for (Integer key : activeKeys) {
-                if (areasPlayerInside != null) {
-                    for (EventArea area : areasPlayerInside) {
-                        area.onPlayerKeyPressInArea(mainCharacter, key);
-                    }
+            for (EventArea area : enteredEventAreas) {
+                for (Integer key : activeKeys) {
+                    area.onPlayerKeyPressInArea(mainCharacter, key);
                 }
-            }
-
-            if (activeKeys.contains(VK_BACK_SPACE) && !listKeysHolding.contains(VK_BACK_SPACE)) {
-                IS_GAME_RUNNING = !IS_GAME_RUNNING;
-                listKeysHolding.add(VK_BACK_SPACE);
-            } else {
-                listKeysHolding.remove(Integer.valueOf(VK_BACK_SPACE));
             }
             
             if (IS_GAME_RUNNING) {
-                
                 if (activeKeys.contains(VK_SPACE) && activeKeys.contains(VK_CONTROL) && mainCharacter.isSubmerged()) {
                     mainCharacter.stopMovementY();
                 } else if (activeKeys.contains(VK_SPACE)) {
@@ -338,7 +280,7 @@ public final class Main {
      * @return relative pixel/position ratio based on the screen width
      */
     public static double scaledPixelSize() {
-        return (double) screenWidth / (double) camera.WIDTH;
+        return (double) screenWidth / (double) camera.width;
     }
     
     /**
@@ -350,18 +292,18 @@ public final class Main {
             Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.getSize().width / 2.0, mainCharacter.getSize().height / 2.0));
             double moveX = 0;
             double moveY = 0;
-            if (relative.x() < -camera.THRESHOLD) {
-                moveX = -camera.THRESHOLD - relative.x();
+            if (relative.x() < -camera.threshold) {
+                moveX = -camera.threshold - relative.x();
             }
-            if (relative.x() > camera.THRESHOLD) {
-                moveX = camera.THRESHOLD - relative.x();
+            if (relative.x() > camera.threshold) {
+                moveX = camera.threshold - relative.x();
             }
             
-            if (relative.y() < -camera.THRESHOLD) {
-                moveY = -camera.THRESHOLD - relative.y();
+            if (relative.y() < -camera.threshold) {
+                moveY = -camera.threshold - relative.y();
             }
-            if (relative.y() > camera.THRESHOLD) {
-                moveY = camera.THRESHOLD - relative.y();
+            if (relative.y() > camera.threshold) {
+                moveY = camera.threshold - relative.y();
             }
             
             camera.position = camera.position.plus(moveX, moveY);

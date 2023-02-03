@@ -62,7 +62,6 @@ public abstract class PhysicsObject implements Tickable, Drawable {
         checkDirections(timeDelta);
     }
     
-    
     @Override
     public BufferedImage getGraphic() {
         return graphic;

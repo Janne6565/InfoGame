@@ -5,6 +5,7 @@ import lethalhabit.technical.*;
 import lethalhabit.technical.Point;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
+import lethalhabit.util.Util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -32,30 +33,28 @@ public class Player extends PhysicsObject {
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
     public static final double FIREBALL_COOLDOWN = 2;
     public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
-
-
     
     private double resetRecoil = 0;
-
+    
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
     
     public double timeInGame = 0; // Used to calculate the current frame of the animation
     public Direction direction = Direction.NONE;
     public Direction lastDirection = Direction.NONE;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
-
+    
     public double immuneToGravity = 0.0;
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
-
+    
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
     private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
-
+    
     private int timesJumped = 0;
     public PlayerSkills skills;
-
-
+    
+    
     public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
         this.skills = skills;
@@ -133,7 +132,6 @@ public class Player extends PhysicsObject {
     
     /**
      * Checks the player's ability to jump
-     *
      * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
@@ -205,7 +203,6 @@ public class Player extends PhysicsObject {
     
     /**
      * Method called for handling animation and every other tick based mechanic
-     *
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
     @Override
@@ -252,12 +249,13 @@ public class Player extends PhysicsObject {
         super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
             for (LineSegment line : hitbox.shift(getPosition()).edges()) {
-                Point positionA = Main.camera.getAbsolutePosition(line.a());
-                Point positionB = Main.camera.getAbsolutePosition(line.b());
-                Graphics2D g2 = (Graphics2D) graphics;
-                g2.setColor(Main.HITBOX_STROKE_COLOR);
-                g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
-                g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
+                graphics.setColor(Main.HITBOX_STROKE_COLOR);
+                Util.drawLineSegment(graphics, line);
+//                Point positionA = Main.camera.getAbsolutePosition(line.a());
+//                Point positionB = Main.camera.getAbsolutePosition(line.b());
+//                Graphics2D g2 = (Graphics2D) graphics;
+//                g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
+//                g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }
         }
     }

@@ -51,6 +51,10 @@ public final class Hitbox implements Iterable<Point> {
         return new Hitbox(newVertices);
     }
     
+    public Hitbox shift(double x, double y) {
+        return shift(new Point(x, y));
+    }
+    
     @Override
     public void forEach(Consumer<? super Point> action) {
         Arrays.stream(vertices).forEach(action);
@@ -130,10 +134,6 @@ public final class Hitbox implements Iterable<Point> {
             }
         }
         return false;
-    }
-    
-    public Hitbox shift(double x, double y) {
-        return shift(new Point(x, y));
     }
     
     public enum Type {

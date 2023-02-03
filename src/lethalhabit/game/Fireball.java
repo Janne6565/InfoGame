@@ -71,5 +71,5 @@ public class Fireball implements Tickable, Drawable {
     public int layer() {
         return Camera.LAYER_GAME;
     }
-
+    
 }

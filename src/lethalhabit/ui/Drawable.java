@@ -14,13 +14,10 @@ public interface Drawable {
     int layer();
     
     default void draw(Graphics graphics) {
-        double pixelPerPixel = (double) Main.screenWidth / (double) Main.getScreenWidthGame();
-        double offsetX = Main.camera.getRealPosition().x();
-        double offsetY = Main.camera.getRealPosition().y();
-        int posXDisplay = (int) ((int) (getPosition().x() - offsetX) * pixelPerPixel + (Main.screenWidth / 2));
-        int posYDisplay = (int) ((int) (getPosition().y() - offsetY) * pixelPerPixel + (Main.screenHeight / 2));
-        Image img = getGraphic().getScaledInstance((int) (getSize().width * pixelPerPixel), (int) (getSize().height * pixelPerPixel), Image.SCALE_DEFAULT);
-        graphics.drawImage(img, posXDisplay, posYDisplay, (int) (getSize().width * pixelPerPixel), (int) (getSize().height * pixelPerPixel), null);
+        int posXDisplay = (int) ((int) (getPosition().x() - Main.camera.getRealPosition().x()) * Main.scaledPixelSize() + (Main.screenWidth / 2));
+        int posYDisplay = (int) ((int) (getPosition().y() - Main.camera.getRealPosition().y()) * Main.scaledPixelSize() + (Main.screenHeight / 2));
+        Image img = getGraphic().getScaledInstance((int) (getSize().width * Main.scaledPixelSize()), (int) (getSize().height * Main.scaledPixelSize()), Image.SCALE_DEFAULT);
+        graphics.drawImage(img, posXDisplay, posYDisplay, (int) (getSize().width * Main.scaledPixelSize()), (int) (getSize().height * Main.scaledPixelSize()), null);
     }
     
 }

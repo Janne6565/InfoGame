@@ -3,6 +3,7 @@ package lethalhabit.ui;
 import lethalhabit.Main;
 import lethalhabit.technical.Point;
 import lethalhabit.technical.TwoDimensional;
+import lethalhabit.technical.Vec2D;
 
 /**
  * Structure class for information of the position, speed, threshold, shift and width of the game
@@ -16,26 +17,16 @@ public final class Camera {
     
     public static final double ANIMATION_SPEED = 5;
     
-    public final int WIDTH;
-    public final int THRESHOLD;
-    public final double SPEED;
-    public final double SHIFT_LIMIT;
+    public final int width;
+    public final int threshold;
+    public final double speed;
+    public final double shiftLimit;
     public final double COOLDOWN_CAMERA_SHIFT = 0.5;
     
     /**
      * How much of the screen should be filled with the Map
      */
-    public final TwoDimensional MAP_SCALE = new TwoDimensional() {
-        @Override
-        public double x() {
-            return 0.9;
-        }
-        
-        @Override
-        public double y() {
-            return 0.8;
-        }
-    };
+    public final TwoDimensional MAP_SCALE = new Vec2D(0.9, 0.8);
     
     /**
      * Select the Layer that you want to Render \n
@@ -51,11 +42,11 @@ public final class Camera {
     
     public Camera(Point position, int width, int threshold, double speed, double shiftLimit, int layerRendering) {
         this.position = position;
-        this.WIDTH = width;
-        this.THRESHOLD = threshold;
-        this.SPEED = speed;
+        this.width = width;
+        this.threshold = threshold;
+        this.speed = speed;
         this.shift = new Point(0, 0);
-        this.SHIFT_LIMIT = shiftLimit;
+        this.shiftLimit = shiftLimit;
         this.layerRendering = layerRendering;
     }
     
@@ -74,7 +65,7 @@ public final class Camera {
      * @return the calculated height of the screen
      */
     public double getHeight() {
-        return (double) WIDTH / Main.screenWidth * Main.screenHeight;
+        return (double) width / Main.screenWidth * Main.screenHeight;
     }
     
     /**
@@ -86,7 +77,7 @@ public final class Camera {
         if (moveCameraDownCooldown > 0) {
             moveCameraDownCooldown = Math.max(moveCameraDownCooldown - timeDelta, 0);
         } else {
-            shift = new Point(shift.x(), Math.max(shift.y() - Math.abs(-SHIFT_LIMIT - shift.y()) * ANIMATION_SPEED * timeDelta, -SHIFT_LIMIT));
+            shift = new Point(shift.x(), Math.max(shift.y() - Math.abs(-shiftLimit - shift.y()) * ANIMATION_SPEED * timeDelta, -shiftLimit));
         }
     }
     
@@ -106,7 +97,7 @@ public final class Camera {
         if (moveCameraUpCooldown > 0) {
             moveCameraUpCooldown = Math.max(moveCameraUpCooldown - timeDelta, 0);
         } else {
-            shift = new Point(shift.x(), Math.min(shift.y() + Math.abs(SHIFT_LIMIT - shift.y()) * ANIMATION_SPEED * timeDelta, SHIFT_LIMIT));
+            shift = new Point(shift.x(), Math.min(shift.y() + Math.abs(shiftLimit - shift.y()) * ANIMATION_SPEED * timeDelta, shiftLimit));
         }
     }
     

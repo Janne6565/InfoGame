@@ -25,7 +25,8 @@ import java.util.List;
 
 public final class Util {
     
-    private Util() { }
+    private Util() {
+    }
     
     /**
      * Reads the world data from an <code>InputStream</code>,
@@ -168,7 +169,6 @@ public final class Util {
     
     /**
      * Calculates the time until first intersection of the active hitbox with any of the passive hitboxes.
-     *
      * @param hitbox      active hitbox
      * @param collidables list of passive hitboxes to check
      * @param direction   the direction of the hitbox
@@ -256,19 +256,19 @@ public final class Util {
     }
     
     public static void drawLineSegment(Graphics graphics, LineSegment segment) {
-        LineSegment relativeLineSegment = segment.minus(Main.camera.getRealPosition()).plus((float) Main.camera.WIDTH / 2, Main.camera.getHeight() / 2);
+        LineSegment relativeLineSegment = segment.minus(Main.camera.getRealPosition()).plus((float) Main.camera.width / 2, Main.camera.getHeight() / 2);
         graphics.setColor(Color.RED);
         graphics.drawLine((int) (relativeLineSegment.a().x() * Main.scaledPixelSize()), (int) (relativeLineSegment.a().y() * Main.scaledPixelSize()), (int) (relativeLineSegment.b().x() * Main.scaledPixelSize()), (int) (relativeLineSegment.b().y() * Main.scaledPixelSize()));
     }
     
     public static boolean isLineObstructed(LineSegment line) {
-        Hitbox lineEnvironment = new Hitbox(new Point[] {
+        Hitbox lineEnvironment = new Hitbox(new Point[]{
                 new Point(line.minX(), line.minY()),
                 new Point(line.maxX(), line.minY()),
                 new Point(line.maxX(), line.maxY()),
                 new Point(line.minX(), line.maxY())
         });
-        List<Hitbox> possibleCollisions = getPossibleCollisions(lineEnvironment, new Vec2D(0, 0),0);
+        List<Hitbox> possibleCollisions = getPossibleCollisions(lineEnvironment, new Vec2D(0, 0), 0);
         for (Hitbox hitbox : possibleCollisions) {
             for (LineSegment line2 : hitbox.edges()) {
                 if (line.intersects(line2)) {
@@ -278,18 +278,14 @@ public final class Util {
         }
         return false;
     }
-
+    
     public static List<EventArea> getEventAreasPlayerIn(Player player) {
-        Point positionPlayer = player.position;
-        Hitbox hitbox = player.hitbox.shift(positionPlayer);
-
+        Hitbox hitbox = player.hitbox.shift(player.position);
         int minX = (int) (hitbox.minX() / Main.TILE_SIZE);
-        int minY = (int) (hitbox.minY() / Main.TILE_SIZE);
-
         int maxX = (int) (hitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (hitbox.minY() / Main.TILE_SIZE);
         int maxY = (int) (hitbox.maxY() / Main.TILE_SIZE);
         List<EventArea> eventAreas = new ArrayList<>();
-
         for (int x = minX - 1; x < maxX + 1; x++) {
             Map<Integer, List<EventArea>> column = Main.eventAreas.get(x);
             if (column != null) {
@@ -297,7 +293,7 @@ public final class Util {
                     List<EventArea> row = column.get(y);
                     if (row != null) {
                         for (EventArea area : row) {
-                            if (!eventAreas.contains(area) && (area.hitbox.shift(area.position).intersects(hitbox) || hitbox.intersects(area.hitbox.shift(area.position)))) {
+                            if (!eventAreas.contains(area) && hitbox.intersects(area.hitbox.shift(area.position))) {
                                 eventAreas.add(area);
                             }
                         }
@@ -305,7 +301,6 @@ public final class Util {
                 }
             }
         }
-
         return eventAreas;
     }
     

@@ -57,14 +57,6 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
     public LineSegment minus(double x, double y) {
         return minus(new Point(x, y));
     }
-
-    public LineSegment scale(double scale) {
-        return new LineSegment(a.scale(scale), b.scale(scale));
-    }
-
-    public LineSegment divide(double div) {
-        return new LineSegment(a.divide(div), b.divide(div));
-    }
     
     public boolean intersects(LineSegment other) {
         double r = ((other.a.x() - a.x()) * (other.a.y() - other.b.y()) - (other.a.y() - a.y()) * (other.a.x() - other.b.x())) / ((b.x() - a.x()) * (other.a.y() - other.b.y()) - (b.y() - a.y()) * (other.a.x() - other.b.x()));

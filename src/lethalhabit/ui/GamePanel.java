@@ -5,7 +5,6 @@ import lethalhabit.game.Block;
 import lethalhabit.game.Liquid;
 import lethalhabit.game.Tile;
 import lethalhabit.technical.Point;
-import lethalhabit.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,12 +55,12 @@ public final class GamePanel extends JPanel {
         switch (layer) {
             case Camera.LAYER_GAME -> {
                 drawMap(g);
-                Point maxPosition = new Point(Main.camera.getRealPosition().x() + (double) Main.camera.WIDTH / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
-                Point minPosition = new Point(Main.camera.getRealPosition().x() - (double) Main.camera.WIDTH / 2, Main.camera.getRealPosition().y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+                Point maxTotal = new Point(Main.camera.getRealPosition().x() + (double) Main.camera.width / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
+                Point minTotal = new Point(Main.camera.getRealPosition().x() - (double) Main.camera.width / 2, Main.camera.getRealPosition().y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
                 for (Drawable drawable : drawablesInLayer) {
-                    Point posLeftTop = drawable.getPosition().minus(drawable.getSize().width, drawable.getSize().height);
-                    Point posRightDown = drawable.getPosition().plus(drawable.getSize().width, drawable.getSize().height);
-                    if ((posRightDown.compareTo(minPosition) > 0 && posLeftTop.compareTo(maxPosition) < 0)) { // Check if element is inside our camera
+                    Point minDrawable = drawable.getPosition().minus(drawable.getSize().width, drawable.getSize().height);
+                    Point maxDrawable = drawable.getPosition().plus(drawable.getSize().width, drawable.getSize().height);
+                    if ((maxDrawable.compareTo(minTotal) > 0 && minDrawable.compareTo(maxTotal) < 0)) { // Check if element is inside our camera
                         drawable.draw(g);
                     }
                 }
@@ -70,11 +69,12 @@ public final class GamePanel extends JPanel {
                 g.drawString("Main Menu", Main.screenWidth / 2, Main.screenHeight / 2);
             }
             case Camera.LAYER_MAP -> {
-                Dimension mapShift = new Dimension((Main.screenWidth - mapImage.getWidth()) / 2, (Main.screenHeight - mapImage.getHeight()) / 2);
-                g.drawImage(mapImage, mapShift.width, mapShift.height, null);
+                int shiftX = (Main.screenWidth - mapImage.getWidth()) / 2;
+                int shiftY = (Main.screenHeight - mapImage.getHeight()) / 2;
+                g.drawImage(mapImage, shiftX, shiftY, null);
                 g.setColor(Color.RED);
-                int circleRadius = 10;
-                g.fillOval((int) (Main.mainCharacter.position.x() * minimapPixelScale) - circleRadius / 2 + mapShift.width, (int) (Main.mainCharacter.position.y() * minimapPixelScale) - circleRadius / 2 + mapShift.height, circleRadius, circleRadius);
+                int radius = 10;
+                g.fillOval((int) (Main.mainCharacter.position.x() * minimapPixelScale) - radius / 2 + shiftX, (int) (Main.mainCharacter.position.y() * minimapPixelScale) - radius / 2 + shiftY, radius, radius);
                 for (Drawable drawable : drawablesInLayer) {
                     drawable.draw(g);
                 }
@@ -86,10 +86,9 @@ public final class GamePanel extends JPanel {
      * Draws the physical map (blocks and liquids).
      */
     private void drawMap(Graphics g) {
-        int xRange = (int) (Main.camera.WIDTH / Main.TILE_SIZE) + 1;
+        int xRange = (int) (Main.camera.width / Main.TILE_SIZE) + 1;
         int yRange = (int) (Main.camera.getHeight() / Main.TILE_SIZE) + 1;
-        double scaledPixelSize = (float) Main.screenWidth / Main.camera.WIDTH;
-        Point cameraPositionTopLeft = Main.camera.getRealPosition().minus((double) Main.camera.WIDTH / 2, Main.camera.getHeight() / 2);
+        Point cameraPositionTopLeft = Main.camera.getRealPosition().minus((double) Main.camera.width / 2, Main.camera.getHeight() / 2);
         Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.TILE_SIZE).minus(1, 1);
         for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
             for (int j = (int) indexTopLeft.y() - 1; j <= yRange + indexTopLeft.y() + 1; j++) {
@@ -101,17 +100,11 @@ public final class GamePanel extends JPanel {
                     if (tile != null) {
                         Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
                         if (liquid != null) {
-                            g.drawImage(liquid.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
-                            if (Main.DEBUG_HITBOX) {
-                                Util.drawHitbox(g, liquid.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
-                            }
+                            g.drawImage(liquid.graphic, (int) (x * Main.scaledPixelSize()), (int) (y * Main.scaledPixelSize()), null);
                         }
                         Block block = Block.TILEMAP.get(tile.block);
                         if (block != null) {
-                            g.drawImage(block.graphic, (int) (x * scaledPixelSize), (int) (y * scaledPixelSize), null);
-                            if (Main.DEBUG_HITBOX) {
-                                Util.drawHitbox(g, block.hitbox.shift(i * Main.TILE_SIZE, j * Main.TILE_SIZE));
-                            }
+                            g.drawImage(block.graphic, (int) (x * Main.scaledPixelSize()), (int) (y * Main.scaledPixelSize()), null);
                         }
                     }
                 }
@@ -126,40 +119,39 @@ public final class GamePanel extends JPanel {
      * @return the rendered image
      */
     public static BufferedImage generateMinimap(int width, int height) {
-        Integer maxValueX = null;
-        Integer maxValueY = null;
-        
+        Integer maxX = null;
+        Integer maxY = null;
         for (Map.Entry<Integer, Map<Integer, Tile>> entry : Main.map.entrySet()) {
-            if (maxValueX == null) {
-                maxValueX = entry.getKey();
+            if (maxX == null) {
+                maxX = entry.getKey();
             } else {
-                maxValueX = Math.max(entry.getKey(), maxValueX);
+                maxX = Math.max(entry.getKey(), maxX);
             }
             for (Map.Entry<Integer, Tile> tileY : entry.getValue().entrySet()) {
-                if (maxValueY == null) {
-                    maxValueY = tileY.getKey();
+                if (maxY == null) {
+                    maxY = tileY.getKey();
                 } else {
-                    maxValueY = Math.max(tileY.getKey(), maxValueY);
+                    maxY = Math.max(tileY.getKey(), maxY);
                 }
             }
         }
         
-        if (maxValueX == null || maxValueY == null) {
+        if (maxX == null || maxY == null) {
             return null;
         }
         
-        int tilePixelSize = Math.min(width / maxValueX, height / maxValueY);
+        int tilePixelSize = Math.min(width / maxX, height / maxY);
         
-        BufferedImage map = new BufferedImage((maxValueX + 1) * tilePixelSize, (maxValueY + 1) * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage map = new BufferedImage((maxX + 1) * tilePixelSize, (maxY + 1) * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         minimapPixelScale = tilePixelSize / Main.TILE_SIZE;
         
-        for (Map.Entry<Integer, Map<Integer, Tile>> row : Main.map.entrySet()) {
-            for (Map.Entry<Integer, Tile> mapTile : row.getValue().entrySet()) {
-                Tile tile = mapTile.getValue();
+        for (Map.Entry<Integer, Map<Integer, Tile>> column : Main.map.entrySet()) {
+            for (Map.Entry<Integer, Tile> row : column.getValue().entrySet()) {
+                Tile tile = row.getValue();
                 Block block = Block.TILEMAP.get(tile.block);
                 Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
                 
-                Point position = new Point(row.getKey() * tilePixelSize, mapTile.getKey() * tilePixelSize);
+                Point position = new Point(column.getKey() * tilePixelSize, row.getKey() * tilePixelSize);
                 
                 if (liquid != null) {
                     map.getGraphics().drawImage(liquid.graphic, (int) position.x(), (int) position.y(), tilePixelSize, tilePixelSize, null);
