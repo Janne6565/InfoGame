@@ -14,7 +14,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
-public class TestEventArea extends EventArea implements Drawable {
+public class TestEventArea extends EventArea {
     
     public TestEventArea(Point position, Hitbox hitbox) {
         super(position, hitbox);
@@ -44,15 +44,6 @@ public class TestEventArea extends EventArea implements Drawable {
     @Override
     public void onPlayerLeaveArea(Player mainCharacter) {
         System.out.println("Player leaved Area");
-    }
-    
-    @Override
-    public void draw(Graphics g) {
-        if (Main.DEBUG_HITBOX) {
-            for (LineSegment line : hitbox.shift(position).edges()) {
-                Util.drawLineSegment(g, line);
-            }
-        }
     }
     
     @Override

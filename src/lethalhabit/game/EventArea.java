@@ -3,11 +3,15 @@ package lethalhabit.game;
 import lethalhabit.Main;
 import lethalhabit.Player;
 import lethalhabit.technical.Hitbox;
+import lethalhabit.technical.LineSegment;
 import lethalhabit.technical.Point;
+import lethalhabit.ui.Drawable;
+import lethalhabit.util.Util;
 
+import java.awt.*;
 import java.util.ArrayList;
 
-public abstract class EventArea {
+public abstract class EventArea implements Drawable {
     
     public Point position;
     public Hitbox hitbox;
@@ -19,6 +23,7 @@ public abstract class EventArea {
         this.position = position;
         this.hitbox = hitbox;
         Main.registerEventArea(this);
+        Main.drawables.add(this);
     }
     
     /**
@@ -47,5 +52,13 @@ public abstract class EventArea {
     public abstract void onPlayerDieInArea(Player player);
     
     public abstract void onPlayerLeaveArea(Player mainCharacter);
-    
+
+    @Override
+    public void draw(Graphics g) {
+        if (Main.DEBUG_HITBOX) {
+            for (LineSegment line : hitbox.shift(position).edges()) {
+                Util.drawLineSegment(g, line);
+            }
+        }
+    }
 }
