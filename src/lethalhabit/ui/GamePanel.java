@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 //TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 
@@ -20,6 +21,10 @@ import java.util.Map;
 public final class GamePanel extends JPanel {
     
     public static final double FRAME_RATE = 280;
+    public static final double TOOLTIP_FADE_TIME = 1;
+    public static final int TOOLTIP_FONT_SIZE = 10;
+
+
     public static BufferedImage mapImage;
     public static double minimapPixelScale;
     
@@ -37,20 +42,24 @@ public final class GamePanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Main.tick();
-        if (Main.IS_GAME_LOADING) {
+        if (!Main.IS_GAME_LOADING) {
+            g.drawString(String.valueOf(Main.mainCharacter.position), 100, 100);
+            renderLayer(g, Main.camera.layerRendering);
+        } else {
             int height = 40;
             int width = 200;
             g.setColor(Color.BLACK);
             g.drawRect((Main.screenWidth - width) / 2 - 1, (Main.screenHeight - height) / 2 - 1, width + 1, height + 1);
             g.setColor(Main.PROGRESS_BAR_COLOR);
             g.fillRect((Main.screenWidth - width) / 2, (Main.screenHeight - height) / 2, (int) (width * (Block.loadingProgress + Liquid.loadingProgress + Animation.loadingProgress) / 3.0), height);
-        } else {
-            g.drawString(String.valueOf(Main.mainCharacter.position), 100, 100);
-            renderLayer(g, Main.camera.layerRendering);
         }
     }
-    
+
+    private double timeBefore = System.currentTimeMillis();
     public void renderLayer(Graphics g, int layer) {
+        double timeDelta = (System.currentTimeMillis() - timeBefore) / 1000.0;
+        timeBefore = System.currentTimeMillis();
+
         List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == Main.camera.layerRendering).toList();
         switch (layer) {
             case Camera.LAYER_GAME -> {
@@ -64,6 +73,7 @@ public final class GamePanel extends JPanel {
                         drawable.draw(g);
                     }
                 }
+                drawToolTip(g, timeDelta);
             }
             case Camera.LAYER_MENU -> {
                 g.drawString("Main Menu", Main.screenWidth / 2, Main.screenHeight / 2);
@@ -81,7 +91,45 @@ public final class GamePanel extends JPanel {
             }
         }
     }
-    
+
+
+    private String toolTipString =  "";
+    private double tooltipTimeRemaining = 0.0;
+    private double opacity = 0.0;
+    private void drawToolTip(Graphics g, double timeDelta) {
+        tooltipTimeRemaining = Math.max(0.0, tooltipTimeRemaining - timeDelta);
+        if (opacity < 1.0 && tooltipTimeRemaining != 0.0) {
+            opacity = Math.min(1, opacity + timeDelta / TOOLTIP_FADE_TIME);
+        }
+
+        if (!Objects.equals(toolTipString, "") && opacity != 0.0) {
+            if (tooltipTimeRemaining == 0.0) {
+                opacity = Math.max(0.0, opacity - timeDelta / TOOLTIP_FADE_TIME);
+            }
+
+            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (TOOLTIP_FONT_SIZE * Main.scaledPixelSize() * 16/12)));
+            FontMetrics fontMetrics = g.getFontMetrics();
+            int width = fontMetrics.stringWidth(toolTipString);
+            int height = fontMetrics.getHeight();
+
+            BufferedImage text = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D graphics = (Graphics2D) text.getGraphics();
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacity));
+            graphics.setColor(Color.BLACK);
+            graphics.fillRect(0, 0, width, height);
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (TOOLTIP_FONT_SIZE * Main.scaledPixelSize() * 16/12 /* Constant for px to pt */)));
+            graphics.drawString(toolTipString, 0, (int) (height - TOOLTIP_FONT_SIZE * Main.scaledPixelSize() * 0.5));
+            g.drawImage(text, (Main.screenWidth - width) / 2, (int) (Main.screenHeight * 0.7 - height / 2), null);
+        }
+    }
+
+    public void summonToolTip(String toolTip, double timeUntilToolTipDisappears) {
+        toolTipString = toolTip;
+        tooltipTimeRemaining = timeUntilToolTipDisappears;
+    }
+
+
     /**
      * Draws the physical map (blocks and liquids).
      */
@@ -164,5 +212,4 @@ public final class GamePanel extends JPanel {
         map.getGraphics().dispose();
         return map;
     }
-    
 }

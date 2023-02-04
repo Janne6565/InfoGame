@@ -27,12 +27,12 @@ import static java.awt.event.KeyEvent.*;
 public final class Main {
     
     public static final boolean DEMO_MODE = false;
-    public static final boolean MINIMIZED = true;
+    public static final boolean MINIMIZED = false;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
     
-    public static final boolean DEBUG_HITBOX = true;
+    public static final boolean DEBUG_HITBOX = false;
     public static final int STROKE_SIZE_HITBOXES = 2;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
@@ -44,7 +44,7 @@ public final class Main {
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
     public static final Map<Integer, Map<Integer, List<EventArea>>> eventAreas = new HashMap<>();
-    
+
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
     
@@ -86,7 +86,6 @@ public final class Main {
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        //playSoundtrack();
         GamePanel.generateMap();
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
@@ -309,13 +308,15 @@ public final class Main {
             camera.position = camera.position.plus(moveX, moveY);
         }
     }
-    
+
+
+    public static GamePanel GAME_PANEL;
     /**
      * Initiates the screen
      */
     public static void setupCamera() {
         // TODO: start menu?
-        GamePanel panel = new GamePanel();
+        GAME_PANEL = new GamePanel();
         JFrame frame = new JFrame("Lethal Habit");
         
         // KeyListener 
@@ -330,7 +331,7 @@ public final class Main {
         });
         
         // Frame Settings
-        frame.setContentPane(panel);
+        frame.setContentPane(GAME_PANEL);
         frame.setUndecorated(true);
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen

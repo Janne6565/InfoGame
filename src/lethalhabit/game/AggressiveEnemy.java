@@ -98,10 +98,12 @@ public class AggressiveEnemy extends PhysicsObject {
     @Override
     public void draw(Graphics graphics) {
         super.draw(graphics);
-        Point absoluteEyes = position.plus(relativeEyes);
-        for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {
-            LineSegment ray = new LineSegment(absoluteEyes, playerVertex);
-            Util.drawLineSegment(graphics, ray);
+        if (Main.DEBUG_HITBOX) {
+            Point absoluteEyes = position.plus(relativeEyes);
+            for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {
+                LineSegment ray = new LineSegment(absoluteEyes, playerVertex);
+                Util.drawLineSegment(graphics, ray);
+            }
         }
     }
     

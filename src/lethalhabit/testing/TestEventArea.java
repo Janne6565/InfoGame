@@ -7,6 +7,7 @@ import lethalhabit.technical.Hitbox;
 import lethalhabit.technical.LineSegment;
 import lethalhabit.technical.Point;
 import lethalhabit.ui.Drawable;
+import lethalhabit.ui.GamePanel;
 import lethalhabit.util.Util;
 
 import java.awt.*;
@@ -27,13 +28,12 @@ public class TestEventArea extends EventArea implements Drawable {
     
     @Override
     public void whilePlayerIn(Player player) {
-        System.out.println("Player inside Area");
+        Main.GAME_PANEL.summonToolTip("Test tooltip", 1);
     }
     
     @Override
     public void onPlayerKeyPressInArea(Player player, int key) {
         System.out.println("Player pressed Key: " + KeyEvent.getKeyText(key));
-        
     }
     
     @Override
@@ -48,8 +48,10 @@ public class TestEventArea extends EventArea implements Drawable {
     
     @Override
     public void draw(Graphics g) {
-        for (LineSegment line : hitbox.shift(position).edges()) {
-            Util.drawLineSegment(g, line);
+        if (Main.DEBUG_HITBOX) {
+            for (LineSegment line : hitbox.shift(position).edges()) {
+                Util.drawLineSegment(g, line);
+            }
         }
     }
     
