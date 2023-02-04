@@ -241,11 +241,7 @@ public final class Main {
                 } else {
                     mainCharacter.stopMovementX();
                 }
-                
-                if (activeKeys.contains(VK_F)) {
-                    mainCharacter.makeFireball();
-                }
-                
+
                 if (activeKeys.contains(VK_W)) {
                     camera.moveCameraDown(timeDelta);
                 } else if (activeKeys.contains(VK_S)) {
