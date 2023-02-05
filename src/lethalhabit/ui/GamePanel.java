@@ -1,19 +1,15 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.game.Block;
-import lethalhabit.game.Liquid;
-import lethalhabit.game.Tile;
-import lethalhabit.technical.Point;
+import lethalhabit.world.Block;
+import lethalhabit.world.Liquid;
+import lethalhabit.world.Tile;
+import lethalhabit.math.Point;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-//TODO: #2 Maybe change to Layered Panes? Für das GUI um mehrere Ebenen zu haben
 
 /**
  * GamePanel used to draw game elements
@@ -21,12 +17,12 @@ import java.util.Objects;
 public final class GamePanel extends JPanel {
     
     public static final double FRAME_RATE = 280;
-    public static final double TOOLTIP_FADE_TIME = 1;
-    public static final int TOOLTIP_FONT_SIZE = 10;
-
-
-    public static BufferedImage mapImage;
-    public static double minimapPixelScale;
+    
+    public static Minimap minimap;
+    
+    private final Tooltip tooltip = new Tooltip("", 0.0);
+    
+    private long lastTick = System.currentTimeMillis();
     
     public GamePanel() {
         // Set up the update timer
@@ -34,8 +30,8 @@ public final class GamePanel extends JPanel {
         updateTimer.start();
     }
     
-    public static void generateMap() {
-        mapImage = generateMinimap((int) (Main.screenWidth * Main.camera.MAP_SCALE.x()), (int) (Main.screenHeight * Main.camera.MAP_SCALE.y()));
+    public static void generateMinimap() {
+        minimap = new Minimap();
     }
     
     @Override
@@ -54,12 +50,11 @@ public final class GamePanel extends JPanel {
             g.fillRect((Main.screenWidth - width) / 2, (Main.screenHeight - height) / 2, (int) (width * (Block.loadingProgress + Liquid.loadingProgress + Animation.loadingProgress) / 3.0), height);
         }
     }
-
-    private double timeBefore = System.currentTimeMillis();
+    
     public void renderLayer(Graphics g, int layer) {
-        double timeDelta = (System.currentTimeMillis() - timeBefore) / 1000.0;
-        timeBefore = System.currentTimeMillis();
-
+        double timeDelta = (System.currentTimeMillis() - lastTick) / 1000.0;
+        lastTick = System.currentTimeMillis();
+        
         List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == Main.camera.layerRendering).toList();
         switch (layer) {
             case Camera.LAYER_GAME -> {
@@ -73,63 +68,38 @@ public final class GamePanel extends JPanel {
                         drawable.draw(g);
                     }
                 }
-                drawToolTip(g, timeDelta);
+                drawTooltip(g, timeDelta);
             }
             case Camera.LAYER_MENU -> {
                 g.drawString("Main Menu", Main.screenWidth / 2, Main.screenHeight / 2);
             }
             case Camera.LAYER_MAP -> {
-                int shiftX = (Main.screenWidth - mapImage.getWidth()) / 2;
-                int shiftY = (Main.screenHeight - mapImage.getHeight()) / 2;
-                g.drawImage(mapImage, shiftX, shiftY, null);
-                g.setColor(Color.RED);
-                int radius = 10;
-                g.fillOval((int) (Main.mainCharacter.position.x() * minimapPixelScale) - radius / 2 + shiftX, (int) (Main.mainCharacter.position.y() * minimapPixelScale) - radius / 2 + shiftY, radius, radius);
+                minimap.draw(g);
                 for (Drawable drawable : drawablesInLayer) {
                     drawable.draw(g);
                 }
             }
         }
     }
-
-
-    private String toolTipString =  "";
-    private double tooltipTimeRemaining = 0.0;
-    private double opacity = 0.0;
-    private void drawToolTip(Graphics g, double timeDelta) {
-        tooltipTimeRemaining = Math.max(0.0, tooltipTimeRemaining - timeDelta);
-        if (opacity < 1.0 && tooltipTimeRemaining != 0.0) {
-            opacity = Math.min(1, opacity + timeDelta / TOOLTIP_FADE_TIME);
+    
+    private void drawTooltip(Graphics g, double timeDelta) {
+        tooltip.duration -= timeDelta;
+        if (tooltip.opacity <= 1.0 && tooltip.duration > 0.0) {
+            tooltip.opacity = Math.min(1, tooltip.opacity + timeDelta / Tooltip.FADE_DURATION);
         }
-
-        if (!Objects.equals(toolTipString, "") && opacity != 0.0) {
-            if (tooltipTimeRemaining == 0.0) {
-                opacity = Math.max(0.0, opacity - timeDelta / TOOLTIP_FADE_TIME);
+        if (tooltip.opacity != 0.0) {
+            if (tooltip.duration <= 0.0) {
+                tooltip.opacity = Math.max(0.0, tooltip.opacity - timeDelta / Tooltip.FADE_DURATION);
             }
-
-            g.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (TOOLTIP_FONT_SIZE * Main.scaledPixelSize() * 16/12)));
-            FontMetrics fontMetrics = g.getFontMetrics();
-            int width = fontMetrics.stringWidth(toolTipString);
-            int height = fontMetrics.getHeight();
-
-            BufferedImage text = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D graphics = (Graphics2D) text.getGraphics();
-            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacity));
-            graphics.setColor(Color.BLACK);
-            graphics.fillRect(0, 0, width, height);
-            graphics.setColor(Color.WHITE);
-            graphics.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (TOOLTIP_FONT_SIZE * Main.scaledPixelSize() * 16/12 /* Constant for px to pt */)));
-            graphics.drawString(toolTipString, 0, (int) (height - TOOLTIP_FONT_SIZE * Main.scaledPixelSize() * 0.5));
-            g.drawImage(text, (Main.screenWidth - width) / 2, (int) (Main.screenHeight * 0.7 - height / 2), null);
+            tooltip.draw(g);
         }
     }
-
-    public void summonToolTip(String toolTip, double timeUntilToolTipDisappears) {
-        toolTipString = toolTip;
-        tooltipTimeRemaining = timeUntilToolTipDisappears;
+    
+    public void showTooltip(String text, double duration) {
+        tooltip.text = text;
+        tooltip.duration = duration;
     }
-
-
+    
     /**
      * Draws the physical map (blocks and liquids).
      */
@@ -160,56 +130,4 @@ public final class GamePanel extends JPanel {
         }
     }
     
-    /**
-     * Creates an image of the Map
-     * @param width  the width of the returned image
-     * @param height the height of the returned image
-     * @return the rendered image
-     */
-    public static BufferedImage generateMinimap(int width, int height) {
-        Integer maxX = null;
-        Integer maxY = null;
-        for (Map.Entry<Integer, Map<Integer, Tile>> entry : Main.map.entrySet()) {
-            if (maxX == null) {
-                maxX = entry.getKey();
-            } else {
-                maxX = Math.max(entry.getKey(), maxX);
-            }
-            for (Map.Entry<Integer, Tile> tileY : entry.getValue().entrySet()) {
-                if (maxY == null) {
-                    maxY = tileY.getKey();
-                } else {
-                    maxY = Math.max(tileY.getKey(), maxY);
-                }
-            }
-        }
-        
-        if (maxX == null || maxY == null) {
-            return null;
-        }
-        
-        int tilePixelSize = Math.min(width / maxX, height / maxY);
-        
-        BufferedImage map = new BufferedImage((maxX + 1) * tilePixelSize, (maxY + 1) * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
-        minimapPixelScale = tilePixelSize / Main.TILE_SIZE;
-        
-        for (Map.Entry<Integer, Map<Integer, Tile>> column : Main.map.entrySet()) {
-            for (Map.Entry<Integer, Tile> row : column.getValue().entrySet()) {
-                Tile tile = row.getValue();
-                Block block = Block.TILEMAP.get(tile.block);
-                Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
-                
-                Point position = new Point(column.getKey() * tilePixelSize, row.getKey() * tilePixelSize);
-                
-                if (liquid != null) {
-                    map.getGraphics().drawImage(liquid.graphic, (int) position.x(), (int) position.y(), tilePixelSize, tilePixelSize, null);
-                }
-                if (block != null) {
-                    map.getGraphics().drawImage(block.graphic, (int) position.x(), (int) position.y(), tilePixelSize, tilePixelSize, null);
-                }
-            }
-        }
-        map.getGraphics().dispose();
-        return map;
-    }
 }

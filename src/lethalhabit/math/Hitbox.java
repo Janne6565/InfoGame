@@ -1,7 +1,8 @@
-package lethalhabit.technical;
+package lethalhabit.math;
 
 import lethalhabit.Main;
 
+import java.awt.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -134,6 +135,10 @@ public final class Hitbox implements Iterable<Point> {
             }
         }
         return false;
+    }
+    
+    public Dimension getSize() {
+        return new Dimension((int) (maxX() - minX()), (int) (maxY() - minY()));
     }
     
     public enum Type {

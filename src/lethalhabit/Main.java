@@ -2,16 +2,19 @@ package lethalhabit;
 
 import lethalhabit.game.*;
 import lethalhabit.sound.Sound;
-import lethalhabit.technical.*;
-import lethalhabit.technical.Point;
-import lethalhabit.testing.ItemOnGround;
-import lethalhabit.testing.TestEventArea;
+import lethalhabit.math.*;
+import lethalhabit.math.Point;
+import lethalhabit.testing.Item;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
+import lethalhabit.util.PlayerSkills;
 import lethalhabit.util.Settings;
 import lethalhabit.util.Util;
+import lethalhabit.world.Block;
+import lethalhabit.world.Liquid;
+import lethalhabit.world.Tile;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,12 +90,12 @@ public final class Main {
         Liquid.loadLiquids();
         Animation.loadAnimations();
         Block.loadBlocks();
-        GamePanel.generateMap();
+        GamePanel.generateMinimap();
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
         // EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
-        ItemOnGround item = new ItemOnGround(new Point(400, 800)){};
+        Item item = new Item(new Point(400, 800), null){};
         new AggressiveEnemy(new Point(100, 700));
     }
     
@@ -185,15 +188,15 @@ public final class Main {
         List<EventArea> eventAreasBefore = new ArrayList<>(enteredEventAreas);
         enteredEventAreas = Util.getEventAreasPlayerIn(mainCharacter);
         for (EventArea area : enteredEventAreas) {
-            area.whilePlayerIn(mainCharacter);
+            area.tick(mainCharacter);
             if (!eventAreasBefore.contains(area)) {
-                area.onPlayerEnterArea(mainCharacter);
+                area.onEnter(mainCharacter);
             }
         }
         
         for (EventArea area : eventAreasBefore) {
             if (!enteredEventAreas.contains(area)) {
-                area.onPlayerLeaveArea(mainCharacter);
+                area.onLeave(mainCharacter);
             }
         }
     }
@@ -202,7 +205,7 @@ public final class Main {
         if (mainCharacter != null) {
             for (EventArea area : enteredEventAreas) {
                 for (Integer key : activeKeys) {
-                    area.onPlayerKeyPressInArea(mainCharacter, key);
+                    area.onKeyInput(mainCharacter, key);
                 }
             }
             

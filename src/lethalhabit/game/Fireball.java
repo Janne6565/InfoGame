@@ -1,12 +1,11 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.Tickable;
-import lethalhabit.technical.Direction;
+import lethalhabit.math.Direction;
 import lethalhabit.ui.Camera;
 import lethalhabit.util.Util;
-import lethalhabit.technical.Point;
-import lethalhabit.technical.Vec2D;
+import lethalhabit.math.Point;
+import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Drawable;
 
 import java.awt.*;

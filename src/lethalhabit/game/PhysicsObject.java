@@ -1,12 +1,13 @@
-package lethalhabit;
+package lethalhabit.game;
 
-import lethalhabit.game.Liquid;
-import lethalhabit.game.Tile;
-import lethalhabit.technical.Hitbox;
-import lethalhabit.technical.Point;
-import lethalhabit.technical.Vec2D;
+import lethalhabit.Main;
+import lethalhabit.math.Hitbox;
+import lethalhabit.math.Point;
+import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Drawable;
 import lethalhabit.util.Util;
+import lethalhabit.world.Liquid;
+import lethalhabit.world.Tile;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

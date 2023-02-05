@@ -1,7 +1,7 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.technical.Point;
+import lethalhabit.math.Point;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -1,9 +1,8 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.PhysicsObject;
-import lethalhabit.technical.Point;
-import lethalhabit.technical.*;
+import lethalhabit.math.Point;
+import lethalhabit.math.*;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 

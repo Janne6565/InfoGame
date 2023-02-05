@@ -1,9 +1,9 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.technical.Point;
-import lethalhabit.technical.TwoDimensional;
-import lethalhabit.technical.Vec2D;
+import lethalhabit.math.Point;
+import lethalhabit.math.TwoDimensional;
+import lethalhabit.math.Vec2D;
 
 /**
  * Structure class for information of the position, speed, threshold, shift and width of the game

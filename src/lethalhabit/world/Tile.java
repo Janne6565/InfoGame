@@ -1,4 +1,4 @@
-package lethalhabit.game;
+package lethalhabit.world;
 
 public final class Tile {
     

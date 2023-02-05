@@ -1,4 +1,4 @@
-package lethalhabit.technical;
+package lethalhabit.math;
 
 public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
     

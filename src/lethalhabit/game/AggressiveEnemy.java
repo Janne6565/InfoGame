@@ -1,11 +1,9 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.PhysicsObject;
-import lethalhabit.Player;
-import lethalhabit.technical.LineSegment;
-import lethalhabit.technical.Point;
-import lethalhabit.technical.Vec2D;
+import lethalhabit.math.LineSegment;
+import lethalhabit.math.Point;
+import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.util.Util;

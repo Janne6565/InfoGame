@@ -1,8 +1,9 @@
-package lethalhabit;
+package lethalhabit.game;
 
-import lethalhabit.game.Fireball;
-import lethalhabit.technical.*;
-import lethalhabit.technical.Point;
+import lethalhabit.Main;
+import lethalhabit.util.PlayerSkills;
+import lethalhabit.math.*;
+import lethalhabit.math.Point;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.util.Util;

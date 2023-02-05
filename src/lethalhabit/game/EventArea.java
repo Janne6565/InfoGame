@@ -1,58 +1,40 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.Player;
-import lethalhabit.technical.Hitbox;
-import lethalhabit.technical.LineSegment;
-import lethalhabit.technical.Point;
+import lethalhabit.math.Hitbox;
+import lethalhabit.math.LineSegment;
+import lethalhabit.math.Point;
+import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.util.Util;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.image.BufferedImage;
 
 public abstract class EventArea implements Drawable {
     
-    public Point position;
-    public Hitbox hitbox;
+    public final Hitbox hitbox;
+    public final Point position;
+    public final BufferedImage graphic;
     
-    public ArrayList<Player> playersInArea = new ArrayList<>();
-    public ArrayList<Enemy> enemiesInArea = new ArrayList<>();
-    
-    public EventArea(Point position, Hitbox hitbox) {
+    public EventArea(Point position, Hitbox hitbox, BufferedImage graphic) {
         this.position = position;
         this.hitbox = hitbox;
+        this.graphic = graphic;
         Main.registerEventArea(this);
         Main.drawables.add(this);
     }
     
-    /**
-     * Player entered area
-     * @param player Player that entered the area
-     */
-    public abstract void onPlayerEnterArea(Player player);
+    public void onEnter(Player player) { }
     
-    /**
-     * Gets called every tick while a player is inside area
-     * @param player Player inside the area
-     */
-    public abstract void whilePlayerIn(Player player);
+    public void onLeave(Player player) { }
     
-    /**
-     * called on Player press key
-     * @param player Player that pressed the key
-     * @param key    Key pressed
-     */
-    public abstract void onPlayerKeyPressInArea(Player player, int key);
+    public void onDeath(Player player) { }
     
-    /**
-     * TODO: IMPLEMENT HP AND DEATH
-     * @param player Player died
-     */
-    public abstract void onPlayerDieInArea(Player player);
+    public void tick(Player player) { }
     
-    public abstract void onPlayerLeaveArea(Player mainCharacter);
-
+    public void onKeyInput(Player player, int key) { }
+    
     @Override
     public void draw(Graphics g) {
         if (Main.DEBUG_HITBOX) {
@@ -61,4 +43,25 @@ public abstract class EventArea implements Drawable {
             }
         }
     }
+    
+    @Override
+    public BufferedImage getGraphic() {
+        return graphic;
+    }
+    
+    @Override
+    public Dimension getSize() {
+        return hitbox.getSize();
+    }
+    
+    @Override
+    public Point getPosition() {
+        return position;
+    }
+    
+    @Override
+    public int layer() {
+        return Camera.LAYER_GAME;
+    }
+    
 }

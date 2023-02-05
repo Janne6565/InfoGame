@@ -2,14 +2,14 @@ package lethalhabit.util;
 
 import com.google.gson.Gson;
 import lethalhabit.Main;
-import lethalhabit.Player;
-import lethalhabit.game.Block;
+import lethalhabit.game.Player;
+import lethalhabit.world.Block;
 import lethalhabit.game.EventArea;
-import lethalhabit.game.Tile;
-import lethalhabit.technical.Hitbox;
-import lethalhabit.technical.LineSegment;
-import lethalhabit.technical.Point;
-import lethalhabit.technical.Vec2D;
+import lethalhabit.world.Tile;
+import lethalhabit.math.Hitbox;
+import lethalhabit.math.LineSegment;
+import lethalhabit.math.Point;
+import lethalhabit.math.Vec2D;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

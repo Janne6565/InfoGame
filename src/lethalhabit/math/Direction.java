@@ -1,4 +1,4 @@
-package lethalhabit.technical;
+package lethalhabit.math;
 
 public enum Direction {
     RIGHT,

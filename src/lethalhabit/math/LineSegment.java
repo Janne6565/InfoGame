@@ -1,4 +1,4 @@
-package lethalhabit.technical;
+package lethalhabit.math;
 
 import java.util.Iterator;
 import java.util.List;

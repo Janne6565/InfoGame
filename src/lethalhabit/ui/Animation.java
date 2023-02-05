@@ -1,7 +1,7 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.Player;
+import lethalhabit.game.Player;
 import lethalhabit.util.Util;
 
 import java.awt.*;
