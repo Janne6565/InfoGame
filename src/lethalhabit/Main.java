@@ -36,7 +36,7 @@ public final class Main {
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
     
-    public static final boolean DEBUG_HITBOX = true;
+    public static final boolean DEBUG_HITBOX = false;
     public static final int STROKE_SIZE_HITBOXES = 2;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
@@ -96,6 +96,12 @@ public final class Main {
         IS_GAME_RUNNING = true;
         // EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         Item item = new Item(new Point(400, 800), null){};
+        new Item(new Point(2070, 300), null) {
+            @Override
+            public void interact(Player player) {
+                mainCharacter.gravityCooldown = 100;
+            }
+        };
         new AggressiveEnemy(new Point(100, 700));
     }
     

@@ -9,7 +9,8 @@ import java.awt.image.BufferedImage;
 public class Tooltip {
     
     public static final double FADE_DURATION = 1;
-    public static final int FONT_SIZE = 10;
+    public static final int FONT_SIZE = 5;
+    public static final double Y_POSITION = 0.8; // Represented as by the distance from top of screen (no problem for the detailed explanation <3)
     
     public String text;
     public double duration;
@@ -32,7 +33,7 @@ public class Tooltip {
         graphics.setColor(Color.WHITE);
         graphics.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (FONT_SIZE * Main.scaledPixelSize() * 16 / 12 /* Constant for px to pt */)));
         graphics.drawString(text, 0, (int) (height - FONT_SIZE * Main.scaledPixelSize() * 0.5));
-        g.drawImage(img, (Main.screenWidth - width) / 2, (int) (Main.screenHeight * 0.7 - height / 2), null);
+        g.drawImage(img, (Main.screenWidth - width) / 2, (int) (Main.screenHeight * Y_POSITION - height / 2), null);
     }
     
 }

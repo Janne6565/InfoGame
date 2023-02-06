@@ -44,7 +44,10 @@ public class Player extends PhysicsObject {
     public Direction lastDirection = Direction.NONE;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
     
-    public double immuneToGravity = 0.0;
+    /**
+     * Until end of the cooldown you will remain in a state where gravity isn't affecting you at all <3
+     */
+    public double gravityCooldown = 0.0;
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
     
@@ -55,20 +58,20 @@ public class Player extends PhysicsObject {
     private int timesJumped = 0;
     public PlayerSkills skills;
     
+    public double dashCoolDown = 0;
+    public double doubleJumpCooldown = 0;
+    
     
     public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
         this.skills = skills;
     }
     
-    public double dashCoolDown = 0;
-    public double doubleJumpCooldown = 0;
-    
     private void resetCooldowns(double timeDelta) {
         fireBallCooldown = Math.max(fireBallCooldown - timeDelta, 0);
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
-        immuneToGravity = Math.max(immuneToGravity - timeDelta, 0);
+        gravityCooldown = Math.max(gravityCooldown - timeDelta, 0);
     }
     
     /**
@@ -209,7 +212,7 @@ public class Player extends PhysicsObject {
     @Override
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
-        TAKES_GRAVITY = immuneToGravity == 0;
+        TAKES_GRAVITY = gravityCooldown == 0;
         resetCooldowns(timeDelta);
         timeInGame += timeDelta;
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
@@ -271,7 +274,7 @@ public class Player extends PhysicsObject {
             velocity = new Vec2D(velocity.x(), 0);
             resetRecoil = RECOIL_RESET_DASH;
             dashCoolDown = DASH_COOLDOWN;
-            immuneToGravity = TIME_NO_GRAVITY_AFTER_DASH;
+            gravityCooldown = TIME_NO_GRAVITY_AFTER_DASH;
         }
     }
     
