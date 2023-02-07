@@ -11,7 +11,7 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.util.Random;
 
-public class AggressiveEnemy extends PhysicsObject {
+public class AggressiveEnemy extends Entity {
     
     public static final int WIDTH = 20;
     public static final int MOVEMENT_SPEED = 30;

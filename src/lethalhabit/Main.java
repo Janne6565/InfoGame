@@ -4,7 +4,8 @@ import lethalhabit.game.*;
 import lethalhabit.sound.Sound;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
-import lethalhabit.testing.Item;
+import lethalhabit.game.Item;
+import lethalhabit.testing.TestItem;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
@@ -30,6 +31,10 @@ import static java.awt.event.KeyEvent.*;
  */
 public final class Main {
     
+    public static final Map<Integer, Class<? extends EventArea>> EVENT_AREA_TYPES = Map.of(
+            0, TestItem.class
+    );
+    
     public static final boolean DEMO_MODE = false;
     public static final boolean MINIMIZED = false;
     
@@ -44,11 +49,10 @@ public final class Main {
     public static final double TILE_SIZE = 20;
     public static final double SAFE_DISTANCE = 0.05;
     
-    public static final List<PhysicsObject> physicsObjects = new ArrayList<>();
+    public static final List<Entity> entities = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
-    public static final Map<Integer, Map<Integer, List<EventArea>>> eventAreas = new HashMap<>();
-
+    
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
     
@@ -60,9 +64,10 @@ public final class Main {
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
     public static Player mainCharacter;
-    public static Enemy enemy;
     
     public static Map<Integer, Map<Integer, Tile>> map;
+    public static Map<Integer, Map<Integer, List<? extends EventArea>>> eventAreas;
+    
     public static Settings settings;
     
     private static long lastTick;
@@ -95,7 +100,8 @@ public final class Main {
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
         // EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
-        Item item = new Item(new Point(400, 800), null){};
+        Item item = new Item(new Point(400, 800), null) {
+        };
         new Item(new Point(2070, 300), null) {
             @Override
             public void interact(Player player) {
@@ -115,6 +121,7 @@ public final class Main {
     
     /**
      * Tick only used for demo mechanics
+     *
      * @param timeDelta time since the last tick happened
      */
     public static void demoGameTick(double timeDelta) {
@@ -124,34 +131,12 @@ public final class Main {
         }
     }
     
-    public static void registerEventArea(EventArea eventArea) {
-        Hitbox shiftedHitbox = eventArea.hitbox.shift(eventArea.position);
-        int minX = (int) (shiftedHitbox.minX() / TILE_SIZE);
-        int maxX = (int) (shiftedHitbox.maxX() / TILE_SIZE);
-        int minY = (int) (shiftedHitbox.minY() / TILE_SIZE);
-        int maxY = (int) (shiftedHitbox.maxY() / TILE_SIZE);
-        for (int x = minX - 1; x < maxX + 1; x++) {
-            Map<Integer, List<EventArea>> column = eventAreas.get(x);
-            if (column == null) {
-                column = new HashMap<>();
-            }
-            for (int y = minY - 1; y < maxY + 1; y++) {
-                List<EventArea> row = column.get(y);
-                if (row == null) {
-                    row = new ArrayList<>();
-                }
-                row.add(eventArea);
-                column.put(y, row);
-            }
-            eventAreas.put(x, column);
-        }
-    }
-    
     /**
      * Loads the map (map.json).
      */
     public static void loadMap() {
-        map = Util.readWorldData(Objects.requireNonNull(Main.class.getResourceAsStream("/map.json")));
+        map = Util.readWorldData(Main.class.getResourceAsStream("/map.json"));
+        eventAreas = Util.eventAreasFromMap(map);
     }
     
     public static void loadSettings() {
@@ -161,6 +146,7 @@ public final class Main {
     
     /**
      * Calculate camera width
+     *
      * @return camera width in in-game unit
      */
     public static int getScreenWidthGame() {
@@ -250,7 +236,7 @@ public final class Main {
                 } else {
                     mainCharacter.stopMovementX();
                 }
-
+                
                 if (activeKeys.contains(VK_W)) {
                     camera.moveCameraDown(timeDelta);
                 } else if (activeKeys.contains(VK_S)) {
@@ -283,6 +269,7 @@ public final class Main {
     
     /**
      * Calculates the pixel size based on screen width
+     *
      * @return relative pixel/position ratio based on the screen width
      */
     public static double scaledPixelSize() {
@@ -291,6 +278,7 @@ public final class Main {
     
     /**
      * Shifts the camera based on player position
+     *
      * @param timeDelta time since last tick
      */
     public static void moveCamera(double timeDelta) {
@@ -315,9 +303,10 @@ public final class Main {
             camera.position = camera.position.plus(moveX, moveY);
         }
     }
-
-
+    
+    
     public static GamePanel GAME_PANEL;
+    
     /**
      * Initiates the screen
      */

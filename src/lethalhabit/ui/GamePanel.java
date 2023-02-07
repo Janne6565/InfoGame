@@ -39,7 +39,8 @@ public final class GamePanel extends JPanel {
         super.paintComponent(g);
         Main.tick();
         if (!Main.IS_GAME_LOADING) {
-            g.drawString(String.valueOf(Main.mainCharacter.position), 100, 100);
+            g.drawString(Main.mainCharacter.position.toString(), 100, 100);
+            g.drawString("(" + (int) (Main.mainCharacter.position.x() / Main.TILE_SIZE) + "|" + (int) (Main.mainCharacter.position.y() / Main.TILE_SIZE) + ")", 100, 130);
             renderLayer(g, Main.camera.layerRendering);
         } else {
             int height = 40;

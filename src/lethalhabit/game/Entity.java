@@ -20,7 +20,7 @@ import static lethalhabit.util.Util.getFirstIntersection;
 /**
  * A movable object that interacts with the world.
  */
-public abstract class PhysicsObject implements Tickable, Drawable {
+public abstract class Entity implements Tickable, Drawable {
     
     /**
      * Velocity gets impacted by Gravity
@@ -34,17 +34,14 @@ public abstract class PhysicsObject implements Tickable, Drawable {
     public Point position;
     public Vec2D velocity = new Vec2D(0, 0);
     protected double viscosity = 1;
-    /**
-     * Velocity added onto the normal velocity, you cant change this
-     */
     public Vec2D recoil = new Vec2D(0, 0);
     
-    public PhysicsObject(double width, BufferedImage graphic, Point position, Hitbox hitbox) {
+    public Entity(double width, BufferedImage graphic, Point position, Hitbox hitbox) {
         this.size = new Dimension((int) width, (int) (graphic.getHeight() * width / graphic.getWidth()));
         this.graphic = graphic;
         this.position = position;
         this.hitbox = hitbox;
-        Main.physicsObjects.add(this);
+        Main.entities.add(this);
         Main.tickables.add(this);
         Main.drawables.add(this);
     }

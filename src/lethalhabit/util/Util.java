@@ -19,9 +19,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class Util {
     
@@ -40,16 +42,17 @@ public final class Util {
         try {
             String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             Gson gson = new Gson();
-            Map<String, Map<String, Map<String, Double>>> strings = gson.fromJson(json, Map.class);
-            for (Map.Entry<String, Map<String, Map<String, Double>>> entry : strings.entrySet()) {
+            Map<String, Map<String, Map<String, Object>>> strings = gson.fromJson(json, Map.class);
+            for (Map.Entry<String, Map<String, Map<String, Object>>> entry : strings.entrySet()) {
                 int key = Integer.parseInt(entry.getKey());
                 Map<Integer, Tile> value = new HashMap<>();
-                for (Map.Entry<String, Map<String, Double>> entryInner : entry.getValue().entrySet()) {
+                for (Map.Entry<String, Map<String, Object>> entryInner : entry.getValue().entrySet()) {
                     int keyInner = Integer.parseInt(entryInner.getKey());
                     Tile valueInner = new Tile(
-                            entryInner.getValue().getOrDefault("block", -1D).intValue(),
-                            entryInner.getValue().getOrDefault("liquid", -1D).intValue(),
-                            entryInner.getValue().getOrDefault("interactable", -1D).intValue()
+                            ((Double) entryInner.getValue().getOrDefault("block", -1D)).intValue(),
+                            ((Double) entryInner.getValue().getOrDefault("liquid", -1D)).intValue(),
+                            ((Double) entryInner.getValue().getOrDefault("entity", -1D)).intValue(),
+                            ((int[]) entryInner.getValue().getOrDefault("interactable", new int[0]))
                     );
                     value.put(keyInner, valueInner);
                 }
@@ -60,6 +63,45 @@ public final class Util {
             System.exit(1);
         }
         return worldData;
+    }
+    
+    public static Map<Integer, Map<Integer, List<? extends EventArea>>> eventAreasFromMap(Map<Integer, Map<Integer, Tile>> map) {
+        Map<Integer, Map<Integer, List<? extends EventArea>>> eventAreas = new HashMap<>();
+        for (Map.Entry<Integer, Map<Integer, Tile>> column : map.entrySet()) {
+            int x = column.getKey();
+            eventAreas.put(x, new HashMap<>());
+            for (Map.Entry<Integer, Tile> row : column.getValue().entrySet()) {
+                int y = row.getKey();
+                int[] interactables = row.getValue().interactables;
+                List<? extends EventArea> areas = Arrays.stream(interactables).mapToObj(id -> {
+                    try {
+                        return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x, y));
+                    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList();
+                if (row.getValue().entity >= 0) {
+                    // TODO: create event area for entity spawn event
+                }
+                eventAreas.get(x).put(y, areas);
+            }
+        }
+//        Map<Integer, Map<Integer, List<EventArea>>> eventAreasNew = map.entrySet().stream().map(column -> {
+//            int x = column.getKey();
+//            Map<Integer, List<EventArea>> areasRow = column.getValue().entrySet().stream().map(row -> {
+//                int y = row.getKey();
+//                List<? extends EventArea> areas = Arrays.stream(row.getValue().interactables).mapToObj(id -> {
+//                    try {
+//                        return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x, y));
+//                    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+//                        return null;
+//                    }
+//                }).filter(Objects::nonNull).toList();
+//                return new Map.Entry<>()
+//            }).collect(Collectors.toMap());
+//            new HashMap<>()
+//        });
+        return eventAreas;
     }
     
     /**
@@ -287,10 +329,10 @@ public final class Util {
         int maxY = (int) (hitbox.maxY() / Main.TILE_SIZE);
         List<EventArea> eventAreas = new ArrayList<>();
         for (int x = minX - 1; x < maxX + 1; x++) {
-            Map<Integer, List<EventArea>> column = Main.eventAreas.get(x);
+            Map<Integer, List<? extends EventArea>> column = Main.eventAreas.get(x);
             if (column != null) {
                 for (int y = minY - 1; y < maxY + 1; y++) {
-                    List<EventArea> row = column.get(y);
+                    List<? extends EventArea> row = column.get(y);
                     if (row != null) {
                         for (EventArea area : row) {
                             if (!eventAreas.contains(area) && hitbox.intersects(area.hitbox.shift(area.position))) {
