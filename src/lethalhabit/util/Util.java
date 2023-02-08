@@ -52,7 +52,7 @@ public final class Util {
                             ((Double) entryInner.getValue().getOrDefault("block", -1D)).intValue(),
                             ((Double) entryInner.getValue().getOrDefault("liquid", -1D)).intValue(),
                             ((Double) entryInner.getValue().getOrDefault("entity", -1D)).intValue(),
-                            ((int[]) entryInner.getValue().getOrDefault("interactable", new int[0]))
+                            ((List<Double>) entryInner.getValue().getOrDefault("interactables", new ArrayList<>())).stream().mapToInt(Double::intValue).toArray()
                     );
                     value.put(keyInner, valueInner);
                 }
@@ -75,7 +75,7 @@ public final class Util {
                 int[] interactables = row.getValue().interactables;
                 List<? extends EventArea> areas = Arrays.stream(interactables).mapToObj(id -> {
                     try {
-                        return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x, y));
+                        return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x * Main.TILE_SIZE, y * Main.TILE_SIZE));
                     } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
                         return null;
                     }
@@ -86,21 +86,6 @@ public final class Util {
                 eventAreas.get(x).put(y, areas);
             }
         }
-//        Map<Integer, Map<Integer, List<EventArea>>> eventAreasNew = map.entrySet().stream().map(column -> {
-//            int x = column.getKey();
-//            Map<Integer, List<EventArea>> areasRow = column.getValue().entrySet().stream().map(row -> {
-//                int y = row.getKey();
-//                List<? extends EventArea> areas = Arrays.stream(row.getValue().interactables).mapToObj(id -> {
-//                    try {
-//                        return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x, y));
-//                    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
-//                        return null;
-//                    }
-//                }).filter(Objects::nonNull).toList();
-//                return new Map.Entry<>()
-//            }).collect(Collectors.toMap());
-//            new HashMap<>()
-//        });
         return eventAreas;
     }
     

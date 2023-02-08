@@ -2316,6 +2316,11 @@
     }
   },
   "8": {
+    "31": {
+      "block": -1,
+      "liquid": -1,
+      "interactables": [0]
+    },
     "128": {
       "block": 9,
       "liquid": -1

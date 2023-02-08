@@ -41,7 +41,7 @@ public final class Main {
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
     
-    public static final boolean DEBUG_HITBOX = false;
+    public static final boolean DEBUG_HITBOX = true;
     public static final int STROKE_SIZE_HITBOXES = 2;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;

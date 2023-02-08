@@ -1,5 +1,8 @@
 package lethalhabit.world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class Tile {
     
     public static final Tile EMPTY = new Tile(-1, -1, -1, new int[0]);
