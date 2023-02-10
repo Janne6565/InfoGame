@@ -21,6 +21,7 @@ public abstract class EventArea implements Drawable {
         this.position = position;
         this.hitbox = hitbox;
         this.graphic = graphic;
+        Main.registerEventArea(this);
         Main.drawables.add(this);
     }
     

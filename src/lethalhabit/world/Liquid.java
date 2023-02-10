@@ -18,7 +18,7 @@ public final class Liquid {
     
     public static void loadLiquids() {
         try {
-            String json = new String(Liquid.class.getResourceAsStream("/liquids.json").readAllBytes(), StandardCharsets.UTF_8);
+            String json = new String(Tile.class.getResourceAsStream("/liquids.json").readAllBytes(), StandardCharsets.UTF_8);
             Gson gson = new Gson();
             Map<String, Map<String, Object>> raw = gson.fromJson(json, Map.class);
             for (Map.Entry<String, Map<String, Object>> entry : raw.entrySet()) {

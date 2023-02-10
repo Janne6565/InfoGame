@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 
 import static lethalhabit.util.Util.mirrorImage;
 
-public class Enemy extends Entity {
+public class Enemy extends PhysicsObject {
     
     public static final int WIDTH = 20;
     

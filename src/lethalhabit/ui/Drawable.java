@@ -14,8 +14,8 @@ public interface Drawable {
     int layer();
     
     default void draw(Graphics graphics) {
-        int posXDisplay = (int) ((getPosition().x() - Main.camera.getRealPosition().x()) * Main.scaledPixelSize() + (Main.screenWidth / 2));
-        int posYDisplay = (int) ((getPosition().y() - Main.camera.getRealPosition().y()) * Main.scaledPixelSize() + (Main.screenHeight / 2));
+        int posXDisplay = (int) ((int) (getPosition().x() - Main.camera.getRealPosition().x()) * Main.scaledPixelSize() + (Main.screenWidth / 2));
+        int posYDisplay = (int) ((int) (getPosition().y() - Main.camera.getRealPosition().y()) * Main.scaledPixelSize() + (Main.screenHeight / 2));
         Image img = getGraphic().getScaledInstance((int) (getSize().width * Main.scaledPixelSize()), (int) (getSize().height * Main.scaledPixelSize()), Image.SCALE_DEFAULT);
         graphics.drawImage(img, posXDisplay, posYDisplay, (int) (getSize().width * Main.scaledPixelSize()), (int) (getSize().height * Main.scaledPixelSize()), null);
     }
