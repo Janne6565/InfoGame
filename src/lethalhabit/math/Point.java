@@ -1,5 +1,11 @@
 package lethalhabit.math;
 
+/**
+ *
+ * @param x
+ * @param y
+ */
+
 public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
     
     /**
@@ -10,7 +16,13 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
      * Position of Lava Falls (hardcoded to fit onto start map)
      */
     public static Point LAVA_FALLS = new Point(500, 1700);
-    
+
+    /**
+     *
+     * @param other the object to be compared.
+     * @return true, if point x and y of instance point is bigger than param
+     */
+
     @Override
     public int compareTo(Point other) {
         if (this.x > other.x && this.y > other.y) {
@@ -21,16 +33,19 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
             return 0;
         }
     }
-    
+
+
     @Override
     public String toString() {
         return "(" + x + "|" + y + ")";
     }
-    
-    public Vec2D pos() {
-        return new Vec2D(x, y);
-    }
-    
+
+
+    /**
+     *  @desc utils for point, addition, subtraction and scai
+     *
+     */
+
     public Point plus(double x, double y) {
         return new Point(this.x + x, this.y + y);
     }
@@ -54,11 +69,21 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     public Point divide(double divider) {
         return new Point(this.x / divider, this.y / divider);
     }
-    
+
+    /**
+     *
+     * @return x and y of instance
+     */
     public Vec2D loc() {
         return new Vec2D(x, y);
     }
-    
+
+    /**
+     *
+     * @param point
+     * @return distance from instance point to param
+     */
+
     public double distance(Point point) {
         return minus(point).loc().length();
     }

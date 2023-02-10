@@ -1,16 +1,28 @@
 package lethalhabit.math;
 
+/**
+ * @desc create a vector from x and y
+ */
+
 public record Vec2D(double x, double y) implements TwoDimensional {
-    
+
+    /**
+     *
+     * @desc set this vector to another vector
+     */
     public Vec2D(TwoDimensional other) {
         this(other.x(), other.y());
     }
     
     @Override
+
     public String toString() {
         return "(" + x + "," + y + ")";
     }
-    
+
+    /**
+     * @desc tools for vector manipulation
+     */
     public double length() {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
