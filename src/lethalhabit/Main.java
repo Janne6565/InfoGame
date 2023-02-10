@@ -108,7 +108,9 @@ public final class Main {
                 mainCharacter.gravityCooldown = 100;
             }
         };
-        new AggressiveEnemy(new Point(100, 700));
+        //new AggressiveEnemy(new Point(100, 700));
+       
+        Creeper creeper1 = new Creeper(new Point(140,680));
     }
     
     public static void playSoundtrack() {
