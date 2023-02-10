@@ -111,8 +111,8 @@ public final class GamePanel extends JPanel {
         Point indexTopLeft = cameraPositionTopLeft.scale(1 / Main.TILE_SIZE).minus(1, 1);
         for (int i = (int) indexTopLeft.x() - 1; i <= xRange + indexTopLeft.x() + 1; i++) {
             for (int j = (int) indexTopLeft.y() - 1; j <= yRange + indexTopLeft.y() + 1; j++) {
-                int x = (int) (i * Main.TILE_SIZE - cameraPositionTopLeft.x());
-                int y = (int) (j * Main.TILE_SIZE - cameraPositionTopLeft.y());
+                double x = (i * Main.TILE_SIZE) - cameraPositionTopLeft.x();
+                double y = (j * Main.TILE_SIZE) - cameraPositionTopLeft.y();
                 Map<Integer, Tile> column = Main.map.get(i);
                 if (column != null) {
                     Tile tile = column.get(j);

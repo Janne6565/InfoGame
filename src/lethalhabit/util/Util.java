@@ -115,6 +115,9 @@ public final class Util {
     }
     
     public static void registerEventArea(EventArea eventArea) {
+        if (Main.eventAreas == null) {
+            Main.eventAreas = new HashMap<>();
+        }
         Hitbox shiftedHitbox = eventArea.hitbox.shift(eventArea.position);
         int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
         int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
