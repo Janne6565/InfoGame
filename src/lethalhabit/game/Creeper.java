@@ -11,7 +11,7 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.util.Random;
 
-public class Creeper extends PhysicsObject {
+public class Creeper extends Entity {
 
     public static final int WIDTH = 20;
     public static final int MOVEMENT_SPEED = 30;
@@ -74,7 +74,7 @@ public class Creeper extends PhysicsObject {
     }
 
     private void die() {
-        Main.physicsObjects.remove(this);
+        Main.entities.remove(this);
         Main.drawables.remove(this);
         Main.tickables.remove(this);
         Main.eventAreas.remove(this);
