@@ -22,6 +22,8 @@ import static lethalhabit.util.Util.getFirstIntersection;
  */
 public abstract class Entity implements Tickable, Drawable {
     
+    public static final Dimension SPAWN_RANGE = new Dimension((int) (30 * Main.TILE_SIZE), (int) (20 * Main.TILE_SIZE));
+    
     /**
      * Velocity gets impacted by Gravity
      */
@@ -35,18 +37,26 @@ public abstract class Entity implements Tickable, Drawable {
     public Vec2D velocity = new Vec2D(0, 0);
     protected double viscosity = 1;
     public Vec2D recoil = new Vec2D(0, 0);
+    private boolean onGround = false;
     
     public Entity(double width, BufferedImage graphic, Point position, Hitbox hitbox) {
         this.size = new Dimension((int) width, (int) (graphic.getHeight() * width / graphic.getWidth()));
         this.graphic = graphic;
         this.position = position;
         this.hitbox = hitbox;
+    }
+    
+    public void spawn() {
         Main.entities.add(this);
         Main.tickables.add(this);
         Main.drawables.add(this);
     }
     
-    private boolean onGround = false;
+    public void despawn() {
+        Main.entities.remove(this);
+        Main.tickables.remove(this);
+        Main.drawables.remove(this);
+    }
     
     @Override
     public void tick(Double timeDelta) {

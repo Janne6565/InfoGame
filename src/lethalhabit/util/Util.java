@@ -2,7 +2,9 @@ package lethalhabit.util;
 
 import com.google.gson.Gson;
 import lethalhabit.Main;
+import lethalhabit.game.Entity;
 import lethalhabit.game.Player;
+import lethalhabit.testing.TestEventArea;
 import lethalhabit.world.Block;
 import lethalhabit.game.EventArea;
 import lethalhabit.world.Tile;
@@ -34,6 +36,7 @@ public final class Util {
      * Reads the world data from an <code>InputStream</code>,
      * converting JSON to a <code>Map</code> where an <code>Integer</code> (column index) maps
      * to a Map, which in return maps <code>Integer</code>s (row indices) to <code>Tile</code>s
+     *
      * @param stream an <code>InputStream</code> of the map file (JSON)
      * @return The world, represented as a <code>Map</code> of columns and rows
      */
@@ -65,32 +68,78 @@ public final class Util {
         return worldData;
     }
     
-    public static Map<Integer, Map<Integer, List<? extends EventArea>>> eventAreasFromMap(Map<Integer, Map<Integer, Tile>> map) {
-        Map<Integer, Map<Integer, List<? extends EventArea>>> eventAreas = new HashMap<>();
+    public static Map<Integer, Map<Integer, List<EventArea>>> eventAreasFromMap(Map<Integer, Map<Integer, Tile>> map) {
+        Map<Integer, Map<Integer, List<EventArea>>> eventAreas = new HashMap<>();
         for (Map.Entry<Integer, Map<Integer, Tile>> column : map.entrySet()) {
             int x = column.getKey();
-            eventAreas.put(x, new HashMap<>());
             for (Map.Entry<Integer, Tile> row : column.getValue().entrySet()) {
                 int y = row.getKey();
-                int[] interactables = row.getValue().interactables;
-                List<? extends EventArea> areas = Arrays.stream(interactables).mapToObj(id -> {
+                Arrays.stream(row.getValue().interactables).mapToObj(id -> {
                     try {
                         return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x * Main.TILE_SIZE, y * Main.TILE_SIZE));
-                    } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                    } catch (Exception ex) {
                         return null;
                     }
-                }).filter(Objects::nonNull).toList();
+                }).filter(Objects::nonNull).forEach(Util::registerEventArea);
                 if (row.getValue().entity >= 0) {
-                    // TODO: create event area for entity spawn event
+                    Class<? extends Entity> entityClass = Main.ENTITY_TYPES.get(row.getValue().entity);
+                    Dimension spawnRange;
+                    try {
+                        spawnRange = (Dimension) entityClass.getField("SPAWN_RANGE").get(null);
+                    } catch (Exception ex) {
+                        spawnRange = Entity.SPAWN_RANGE;
+                    }
+                    int minX = (int) (x - (spawnRange.width / 2) / Main.TILE_SIZE);
+                    int minY = (int) (y - (spawnRange.height / 2) / Main.TILE_SIZE);
+                    try {
+                        Entity entity = entityClass.getDeclaredConstructor(Point.class).newInstance(new Point(x, y));
+                        EventArea spawnArea = new EventArea(new Point(minX, minY), new Hitbox(new Point[]{
+                                new Point(0, 0), new Point(spawnRange.width, 0), new Point(spawnRange.width, spawnRange.height), new Point(0, spawnRange.height)
+                        }), null) {
+                            @Override
+                            public void onEnter(Player player) {
+                                entity.spawn();
+                            }
+                            
+                            @Override
+                            public void onLeave(Player player) {
+                                entity.despawn();
+                            }
+                        };
+                    } catch (Exception ignored) {
+                    }
                 }
-                eventAreas.get(x).put(y, areas);
             }
         }
         return eventAreas;
     }
     
+    public static void registerEventArea(EventArea eventArea) {
+        Hitbox shiftedHitbox = eventArea.hitbox.shift(eventArea.position);
+        int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
+        int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / Main.TILE_SIZE);
+        int maxY = (int) (shiftedHitbox.maxY() / Main.TILE_SIZE);
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<EventArea>> column = Main.eventAreas.get(x);
+            if (column == null) {
+                column = new HashMap<>();
+            }
+            for (int y = minY - 1; y < maxY + 1; y++) {
+                List<EventArea> row = column.get(y);
+                if (row == null) {
+                    row = new ArrayList<>();
+                }
+                row.add(eventArea);
+                column.put(y, row);
+            }
+            Main.eventAreas.put(x, column);
+        }
+    }
+    
     /**
      * Mirrors an <code>Image</code> horizontally.
+     *
      * @param image <code>Image</code> to be mirrored
      * @return <code>BufferedImage</code> of the mirrored image
      */
@@ -103,6 +152,7 @@ public final class Util {
     
     /**
      * Transforms an <code>Image</code> according to an <code>AffineTransform</code>
+     *
      * @param image     <code>Image</code> to be transformed
      * @param transform <code>AffineTransform</code> to be applied
      * @return <code>BufferedImage</code> of the transformed image
@@ -121,6 +171,7 @@ public final class Util {
     
     /**
      * Loads the image and returns scaled version (based on TILE_SIZE and scaledPixelSize())
+     *
      * @param path path of the image
      * @return scaled instance of the image, or <code>null</code> if it can't be loaded
      */
@@ -135,6 +186,7 @@ public final class Util {
     
     /**
      * Converts an <code>Image</code> to a <code>BufferedImage</code>
+     *
      * @param image the image to be buffered
      * @return the <code>image</code> as a <code>BufferedImage</code>
      */
@@ -196,6 +248,7 @@ public final class Util {
     
     /**
      * Calculates the time until first intersection of the active hitbox with any of the passive hitboxes.
+     *
      * @param hitbox      active hitbox
      * @param collidables list of passive hitboxes to check
      * @param direction   the direction of the hitbox
@@ -233,6 +286,7 @@ public final class Util {
     
     /**
      * Calculates the time until first intersection of two line segments
+     *
      * @param s1        active line
      * @param direction direction of s1
      * @param s2        passive line
@@ -264,6 +318,7 @@ public final class Util {
     
     /**
      * Calculates the time until first intersection of a point with a line segment.
+     *
      * @param point       active point
      * @param direction   direction of the point
      * @param lineSegment passive line segment
@@ -314,10 +369,10 @@ public final class Util {
         int maxY = (int) (hitbox.maxY() / Main.TILE_SIZE);
         List<EventArea> eventAreas = new ArrayList<>();
         for (int x = minX - 1; x < maxX + 1; x++) {
-            Map<Integer, List<? extends EventArea>> column = Main.eventAreas.get(x);
+            Map<Integer, List<EventArea>> column = Main.eventAreas.get(x);
             if (column != null) {
                 for (int y = minY - 1; y < maxY + 1; y++) {
-                    List<? extends EventArea> row = column.get(y);
+                    List<EventArea> row = column.get(y);
                     if (row != null) {
                         for (EventArea area : row) {
                             if (!eventAreas.contains(area) && hitbox.intersects(area.hitbox.shift(area.position))) {

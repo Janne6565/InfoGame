@@ -35,6 +35,10 @@ public final class Main {
             0, TestItem.class
     );
     
+    public static final Map<Integer, Class<? extends Entity>> ENTITY_TYPES = Map.of(
+            0, AggressiveEnemy.class
+    );
+    
     public static final boolean DEMO_MODE = false;
     public static final boolean MINIMIZED = false;
     
@@ -66,7 +70,7 @@ public final class Main {
     public static Player mainCharacter;
     
     public static Map<Integer, Map<Integer, Tile>> map;
-    public static Map<Integer, Map<Integer, List<? extends EventArea>>> eventAreas;
+    public static Map<Integer, Map<Integer, List<EventArea>>> eventAreas;
     
     public static Settings settings;
     
@@ -97,6 +101,7 @@ public final class Main {
         Block.loadBlocks();
         GamePanel.generateMinimap();
         mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
+        mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
         // EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
@@ -108,7 +113,8 @@ public final class Main {
                 mainCharacter.gravityCooldown = 100;
             }
         };
-        new AggressiveEnemy(new Point(100, 700));
+        AggressiveEnemy enemy = new AggressiveEnemy(new Point(100, 700));
+        enemy.spawn();
     }
     
     public static void playSoundtrack() {
