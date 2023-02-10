@@ -1,21 +1,26 @@
 package lethalhabit.world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class Tile {
     
-    public static final Tile EMPTY = new Tile(-1, -1, -1);
+    public static final Tile EMPTY = new Tile(-1, -1, -1, new int[0]);
     
     public final int block;
     public final int liquid;
-    public final int interactable;
+    public final int entity;
+    public final int[] interactables;
     
-    public Tile(int block, int liquid, int interactable) {
+    public Tile(int block, int liquid, int entity, int[] interactables) {
         this.block = block;
         this.liquid = liquid;
-        this.interactable = interactable;
+        this.entity = entity;
+        this.interactables = interactables;
     }
     
     public Tile(Tile other) {
-        this(other.block, other.liquid, other.interactable);
+        this(other.block, other.liquid, other.entity, other.interactables);
     }
     
 }

@@ -1,4 +1,4 @@
-package lethalhabit.testing;
+package lethalhabit.game;
 
 import lethalhabit.game.Player;
 import lethalhabit.game.Interactable;
