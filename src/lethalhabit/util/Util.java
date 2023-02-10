@@ -76,6 +76,7 @@ public final class Util {
                 int y = row.getKey();
                 Arrays.stream(row.getValue().interactables).mapToObj(id -> {
                     try {
+                        Class<? extends EventArea> eventAreaClass = Main.EVENT_AREA_TYPES.get(id);
                         return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x * Main.TILE_SIZE, y * Main.TILE_SIZE));
                     } catch (Exception ex) {
                         return null;

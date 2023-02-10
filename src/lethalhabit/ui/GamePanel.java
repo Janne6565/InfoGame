@@ -65,7 +65,7 @@ public final class GamePanel extends JPanel {
                 for (Drawable drawable : drawablesInLayer) {
                     Point minDrawable = drawable.getPosition().minus(drawable.getSize().width, drawable.getSize().height);
                     Point maxDrawable = drawable.getPosition().plus(drawable.getSize().width, drawable.getSize().height);
-                    if ((maxDrawable.compareTo(minTotal) > 0 && minDrawable.compareTo(maxTotal) < 0)) { // Check if element is inside our camera
+                    if ((maxDrawable.compareTo(minTotal) > 0 && minDrawable.compareTo(maxTotal) < 0)) {
                         drawable.draw(g);
                     }
                 }

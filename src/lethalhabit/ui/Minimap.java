@@ -14,11 +14,15 @@ public class Minimap {
     
     public final BufferedImage image;
     public final double scale;
-    
+    public final Dimension size;
+
+    public Point positionDrawen;
+
     public Minimap() {
         Integer maxX = Main.map.keySet().stream().max(Integer::compareTo).orElse(null);
         Integer maxY = Main.map.values().stream().flatMap(column -> column.keySet().stream()).max(Integer::compareTo).orElse(null);
-        
+        size = new Dimension((int) (maxX * Main.TILE_SIZE), (int) (maxY * Main.TILE_SIZE));
+
         if (maxX == null || maxY == null) {
             scale = 0;
             image = null;
@@ -49,6 +53,9 @@ public class Minimap {
     public void draw(Graphics graphics) {
         int shiftX = (Main.screenWidth - image.getWidth()) / 2;
         int shiftY = (Main.screenHeight - image.getHeight()) / 2;
+
+        positionDrawen = new Point(shiftX, shiftY);
+
         graphics.drawImage(image, shiftX, shiftY, null);
         graphics.setColor(Color.RED);
         int radius = 10;

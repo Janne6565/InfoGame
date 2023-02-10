@@ -1,5 +1,7 @@
 package lethalhabit.math;
 
+import java.awt.*;
+
 /**
  *
  * @param x
@@ -11,7 +13,7 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     /**
      * Position of Spawn (hardcoded to fit onto start map)
      */
-    public static Point SPAWN = new Point(100, 816);
+    public static Point SPAWN = new Point(10000, 0);
     /**
      * Position of Lava Falls (hardcoded to fit onto start map)
      */
@@ -69,6 +71,15 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     public Point divide(double divider) {
         return new Point(this.x / divider, this.y / divider);
     }
+
+    public Point divide(double dividerX, double dividerY) {
+        return new Point(this.x / dividerX, this.y / dividerY);
+    }
+
+    public Point divide(TwoDimensional twoDimensional) {
+        return new Point(this.x / twoDimensional.x(), this.y / twoDimensional.y());
+    }
+
 
     /**
      *

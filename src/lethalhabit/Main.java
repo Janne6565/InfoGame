@@ -41,11 +41,11 @@ public final class Main {
     
     public static final boolean DEMO_MODE = false;
     public static final boolean MINIMIZED = false;
-    
+    public static final boolean DEBUG_HITBOX = false;
+
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
-    
-    public static final boolean DEBUG_HITBOX = true;
+
     public static final int STROKE_SIZE_HITBOXES = 2;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
@@ -201,59 +201,6 @@ public final class Main {
     
     public static void handleKeyInput(double timeDelta) {
         if (mainCharacter != null) {
-            for (EventArea area : enteredEventAreas) {
-                for (Integer key : activeKeys) {
-                    area.onKeyInput(mainCharacter, key);
-                }
-            }
-            
-            if (IS_GAME_RUNNING) {
-                if (activeKeys.contains(VK_SPACE) && activeKeys.contains(VK_CONTROL) && mainCharacter.isSubmerged()) {
-                    mainCharacter.stopMovementY();
-                } else if (activeKeys.contains(VK_SPACE)) {
-                    if (mainCharacter.isSubmerged()) {
-                        mainCharacter.moveUp();
-                    } else {
-                        mainCharacter.jump();
-                    }
-                } else if (activeKeys.contains(VK_CONTROL)) {
-                    if (mainCharacter.isSubmerged() && mainCharacter.skills.swim > 0) {
-                        mainCharacter.moveDown();
-                    }
-                } else {
-                    if (mainCharacter.isSubmerged()) {
-                        mainCharacter.moveDown();
-                    }
-                    mainCharacter.resetJump();
-                }
-                
-                if (activeKeys.contains(VK_SHIFT) && mainCharacter.skills.dash > 0) {
-                    mainCharacter.dash();
-                }
-                
-                if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
-                    if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
-                        mainCharacter.moveLeft();
-                    }
-                } else if (activeKeys.contains(VK_D) && !activeKeys.contains(VK_A)) {
-                    if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
-                        mainCharacter.moveRight();
-                    }
-                } else {
-                    mainCharacter.stopMovementX();
-                }
-                
-                if (activeKeys.contains(VK_W)) {
-                    camera.moveCameraDown(timeDelta);
-                } else if (activeKeys.contains(VK_S)) {
-                    camera.moveCameraUp(timeDelta);
-                } else {
-                    camera.resetCameraShift(timeDelta);
-                    camera.resetCameraUp();
-                    camera.resetCameraDown();
-                }
-            }
-            
             if (activeKeys.contains(VK_0)) {
                 camera.layerRendering = 0;
                 IS_GAME_RUNNING = true;
@@ -269,6 +216,74 @@ public final class Main {
             if (activeKeys.contains(VK_3)) {
                 camera.layerRendering = 3;
                 IS_GAME_RUNNING = false;
+            }
+
+            switch (camera.layerRendering) {
+                case Camera.LAYER_MAP -> {
+                    if (activeKeys.contains(VK_T)) {
+                        Point mouseCoordinates = new Point(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
+                        Point relativePointToMap = mouseCoordinates.minus(GamePanel.minimap.positionDrawen);
+                        Point positionOfMouse = relativePointToMap.divide(GamePanel.minimap.scale);
+                        if (positionOfMouse.compareTo(new Point(0, 0)) > 0 && positionOfMouse.compareTo(new Point(GamePanel.minimap.size.width, GamePanel.minimap.size.height)) < 0) {
+                            mainCharacter.position = positionOfMouse;
+                        }
+                    }
+                }
+
+                case Camera.LAYER_GAME -> {
+                    for (EventArea area : enteredEventAreas) {
+                        for (Integer key : activeKeys) {
+                            area.onKeyInput(mainCharacter, key);
+                        }
+                    }
+
+                    if (IS_GAME_RUNNING) {
+                        if (activeKeys.contains(VK_SPACE) && activeKeys.contains(VK_CONTROL) && mainCharacter.isSubmerged()) {
+                            mainCharacter.stopMovementY();
+                        } else if (activeKeys.contains(VK_SPACE)) {
+                            if (mainCharacter.isSubmerged()) {
+                                mainCharacter.moveUp();
+                            } else {
+                                mainCharacter.jump();
+                            }
+                        } else if (activeKeys.contains(VK_CONTROL)) {
+                            if (mainCharacter.isSubmerged() && mainCharacter.skills.swim > 0) {
+                                mainCharacter.moveDown();
+                            }
+                        } else {
+                            if (mainCharacter.isSubmerged()) {
+                                mainCharacter.moveDown();
+                            }
+                            mainCharacter.resetJump();
+                        }
+
+                        if (activeKeys.contains(VK_SHIFT) && mainCharacter.skills.dash > 0) {
+                            mainCharacter.dash();
+                        }
+
+                        if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
+                            if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
+                                mainCharacter.moveLeft();
+                            }
+                        } else if (activeKeys.contains(VK_D) && !activeKeys.contains(VK_A)) {
+                            if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
+                                mainCharacter.moveRight();
+                            }
+                        } else {
+                            mainCharacter.stopMovementX();
+                        }
+
+                        if (activeKeys.contains(VK_W)) {
+                            camera.moveCameraDown(timeDelta);
+                        } else if (activeKeys.contains(VK_S)) {
+                            camera.moveCameraUp(timeDelta);
+                        } else {
+                            camera.resetCameraShift(timeDelta);
+                            camera.resetCameraUp();
+                            camera.resetCameraDown();
+                        }
+                    }
+                }
             }
         }
     }
@@ -320,7 +335,7 @@ public final class Main {
         // TODO: start menu?
         GAME_PANEL = new GamePanel();
         JFrame frame = new JFrame("Lethal Habit");
-        
+
         // KeyListener 
         frame.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
