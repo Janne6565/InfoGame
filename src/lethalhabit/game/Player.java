@@ -15,12 +15,12 @@ import static lethalhabit.util.Util.mirrorImage;
 
 public class Player extends Entity {
     
-    public static final int WIDTH = 20;
+    public static final int WIDTH = 33;
     
     public static final Hitbox HITBOX = new Hitbox(new Point[]{
             new Point(10, 10).scale(WIDTH / 50.0),
-            new Point(10, 57).scale(WIDTH / 50.0),
-            new Point(40, 57).scale(WIDTH / 50.0),
+            new Point(10, 40).scale(WIDTH / 50.0),
+            new Point(40, 40).scale(WIDTH / 50.0),
             new Point(40, 10).scale(WIDTH / 50.0)
     });
     
@@ -43,7 +43,7 @@ public class Player extends Entity {
     public Direction direction = Direction.NONE;
     public Direction lastDirection = Direction.NONE;
     public Animation currentAnimation = Animation.PLAYER_IDLE;
-    
+
     /**
      * Until end of the cooldown you will remain in a state where gravity isn't affecting you at all <3
      */
@@ -60,7 +60,6 @@ public class Player extends Entity {
     
     public double dashCoolDown = 0;
     public double doubleJumpCooldown = 0;
-    
     
     public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
@@ -105,9 +104,6 @@ public class Player extends Entity {
      */
     public void stopMovementX() {
         this.velocity = new Vec2D(0, this.velocity.y());
-        if (this.velocity.y() == 0) {
-            this.currentAnimation = Animation.PLAYER_IDLE;
-        }
         this.direction = Direction.NONE;
     }
     
@@ -116,9 +112,6 @@ public class Player extends Entity {
      */
     public void stopMovementY() {
         this.velocity = new Vec2D(this.velocity.x(), 0);
-        if (this.velocity.x() == 0) {
-            this.currentAnimation = Animation.PLAYER_IDLE;
-        }
     }
     
     
@@ -215,9 +208,16 @@ public class Player extends Entity {
         TAKES_GRAVITY = gravityCooldown == 0;
         resetCooldowns(timeDelta);
         timeInGame += timeDelta;
+
+        currentAnimation = switch (direction) {
+            case NONE -> Animation.PLAYER_IDLE;
+            case LEFT -> Animation.PLAYER_WALK_LEFT;
+            case RIGHT -> Animation.PLAYER_WALK_RIGHT;
+        };
+
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
         BufferedImage currentImage = currentAnimation.frames.get(currentFrameIndex);
-        switch (direction) {
+        switch (lastDirection) {
             case RIGHT -> this.graphic = currentImage;
             case LEFT -> this.graphic = mirrorImage(currentImage);
         }

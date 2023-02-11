@@ -1,146 +1,114 @@
 {
-  "0": {
-    "hitbox": "FULL"
-  },
-  "1": {
-    "hitbox": "FULL"
-  },
-  "2": {
-    "hitbox": "FULL"
-  },
-  "3": {
-    "hitbox": "FULL"
-  },
-  "4": {
-    "hitbox": "FULL"
-  },
-  "5": {
-    "hitbox": "FULL"
-  },
-  "6": {
-    "hitbox": "FULL"
-  },
-  "7": {
-    "hitbox": "FULL"
-  },
-  "8": {
-    "hitbox": "FULL"
-  },
-  "9": {
-    "hitbox": "FULL"
-  },
-  "10": {
-    "hitbox": "FULL"
-  },
-  "11": {
-    "hitbox": "FULL"
-  },
-  "12": {
-    "hitbox": "FULL"
-  },
-  "13": {
-    "hitbox": "FULL"
-  },
-  "14": {
-    "hitbox": "FULL"
-  },
-  "15": {
-    "hitbox": "FULL"
-  },
-  "16": {
-    "hitbox": "FULL"
-  },
-  "17": {
-    "hitbox": "FULL"
-  },
-  "18": {
-    "hitbox": "FULL"
-  },
-  "19": {
-    "hitbox": "FULL"
-  },
-  "20": {
-    "hitbox": "FULL"
-  },
-  "21": {
-    "hitbox": "FULL"
-  },
-  "22": {
-    "hitbox": "FULL"
-  },
-  "23": {
-    "hitbox": "FULL"
-  },
-  "24": {
-    "hitbox": "FULL"
-  },
-  "25": {
-    "hitbox": "FULL"
-  },
-  "26": {
-    "hitbox": "FULL"
-  },
-  "27": {
-    "hitbox": "FULL"
-  },
-  "28": {
-    "hitbox": "FULL"
-  },
-  "29": {
-    "hitbox": "FULL"
-  },
-  "30": {
-    "hitbox": "FULL"
-  },
-  "31": {
-    "hitbox": "FULL"
-  },
-  "32": {
-    "hitbox": "FULL"
-  },
-  "33": {
-    "hitbox": "FULL"
-  },
-  "34": {
-    "hitbox": "FULL"
-  },
-  "35": {
-    "hitbox": "FULL"
-  },
-  "36": {
-    "hitbox": "FULL"
-  },
-  "37": {
-    "hitbox": "FULL"
-  },
-  "38": {
-    "hitbox": "FULL"
-  },
-  "39": {
-    "hitbox": "FULL"
-  },
-  "40": {
-    "hitbox": "FULL"
-  },
-  "41": {
-    "hitbox": "FULL"
-  },
-  "42": {
-    "hitbox": "FULL"
-  },
-  "43": {
-    "hitbox": "FULL"
-  },
-  "44": {
-    "hitbox": "FULL"
-  },
-  "45": {
-    "hitbox": "FULL"
-  },
-  "46": {
-    "hitbox": "FULL"
-  },
-  "47": {
-    "hitbox": "FULL"
-  }
+  "0": {"hitbox": "FULL"},
+  "1": {"hitbox": "FULL"},
+  "2": {"hitbox": "FULL"},
+  "3": {"hitbox": "FULL"},
+  "4": {"hitbox": "FULL"},
+  "5": {"hitbox": "FULL"},
+  "6": {"hitbox": "FULL"},
+  "7": {"hitbox": "FULL"},
+  "8": {"hitbox": "FULL"},
+  "9": {"hitbox": "FULL"},
+  "10": {"hitbox": "FULL"},
+  "11": {"hitbox": "FULL"},
+  "12": {"hitbox": "FULL"},
+  "13": {"hitbox": "FULL"},
+  "14": {"hitbox": "FULL"},
+  "15": {"hitbox": "FULL"},
+  "16": {"hitbox": "FULL"},
+  "17": {"hitbox": "FULL"},
+  "18": {"hitbox": "FULL"},
+  "19": {"hitbox": "FULL"},
+  "20": {"hitbox": "FULL"},
+  "21": {"hitbox": "FULL"},
+  "22": {"hitbox": "FULL"},
+  "23": {"hitbox": "FULL"},
+  "24": {"hitbox": "FULL"},
+  "25": {"hitbox": "FULL"},
+  "26": {"hitbox": "FULL"},
+  "27": {"hitbox": "FULL"},
+  "28": {"hitbox": "FULL"},
+  "29": {"hitbox": "FULL"},
+  "30": {"hitbox": "FULL"},
+  "31": {"hitbox": "FULL"},
+  "32": {"hitbox": "FULL"},
+  "33": {"hitbox": "FULL"},
+  "34": {"hitbox": "FULL"},
+  "35": {"hitbox": "FULL"},
+  "36": {"hitbox": "FULL"},
+  "37": {"hitbox": "FULL"},
+  "38": {"hitbox": "FULL"},
+  "39": {"hitbox": "FULL"},
+  "40": {"hitbox": "FULL"},
+  "41": {"hitbox": "FULL"},
+  "42": {"hitbox": "FULL"},
+  "43": {"hitbox": "FULL"},
+  "44": {"hitbox": "FULL"},
+  "45": {"hitbox": "FULL"},
+  "46": {"hitbox": "FULL"},
+  "47": {"hitbox": "FULL"},
+  "48": {"hitbox": "FULL"},
+  "49": {"hitbox": "FULL"},
+  "50": {"hitbox": "FULL"},
+  "51": {"hitbox": "FULL"},
+  "52": {"hitbox": "FULL"},
+  "53": {"hitbox": "FULL"},
+  "54": {"hitbox": "FULL"},
+  "55": {"hitbox": "FULL"},
+  "56": {"hitbox": "FULL"},
+  "57": {"hitbox": "FULL"},
+  "58": {"hitbox": "FULL"},
+  "59": {"hitbox": "FULL"},
+  "60": {"hitbox": "FULL"},
+  "61": {"hitbox": "FULL"},
+  "62": {"hitbox": "FULL"},
+  "63": {"hitbox": "FULL"},
+  "64": {"hitbox": "FULL"},
+  "65": {"hitbox": "FULL"},
+  "66": {"hitbox": "FULL"},
+  "67": {"hitbox": "FULL"},
+  "68": {"hitbox": "FULL"},
+  "69": {"hitbox": "FULL"},
+  "70": {"hitbox": "FULL"},
+  "71": {"hitbox": "FULL"},
+  "72": {"hitbox": "FULL"},
+  "73": {"hitbox": "FULL"},
+  "74": {"hitbox": "FULL"},
+  "75": {"hitbox": "FULL"},
+  "76": {"hitbox": "FULL"},
+  "77": {"hitbox": "FULL"},
+  "78": {"hitbox": "FULL"},
+  "79": {"hitbox": "FULL"},
+  "80": {"hitbox": "FULL"},
+  "81": {"hitbox": "FULL"},
+  "82": {"hitbox": "FULL"},
+  "83": {"hitbox": "FULL"},
+  "84": {"hitbox": "FULL"},
+  "85": {"hitbox": "FULL"},
+  "86": {"hitbox": "FULL"},
+  "87": {"hitbox": "FULL"},
+  "88": {"hitbox": "FULL"},
+  "89": {"hitbox": "FULL"},
+  "90": {"hitbox": "FULL"},
+  "91": {"hitbox": "FULL"},
+  "92": {"hitbox": "FULL"},
+  "93": {"hitbox": "FULL"},
+  "94": {"hitbox": "FULL"},
+  "95": {"hitbox": "FULL"},
+  "96": {"hitbox": "FULL"},
+  "97": {"hitbox": "FULL"},
+  "98": {"hitbox": "FULL"},
+  "99": {"hitbox": "FULL"},
+  "100": {"hitbox": "FULL"},
+  "101": {"hitbox": "FULL"},
+  "102": {"hitbox": "FULL"},
+  "103": {"hitbox": "FULL"},
+  "104": {"hitbox": "FULL"},
+  "105": {"hitbox": "FULL"},
+  "106": {"hitbox": "FULL"},
+  "107": {"hitbox": "FULL"},
+  "108": {"hitbox": "FULL"},
+  "109": {"hitbox": "FULL"},
+  "110": {"hitbox": "FULL"},
+  "111": {"hitbox": "FULL"}
 }

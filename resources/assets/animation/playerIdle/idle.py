@@ -1,6 +1,6 @@
 import os
 
-for i in range(1, 48):
+for i in range(1, 25):
     command = 'ren " (' + str(i) + ').png" "(' + str(i) + ').png"'
     print(command)
-    os.system(command)m
+    os.system(command)

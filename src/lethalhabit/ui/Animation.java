@@ -14,8 +14,8 @@ import java.util.function.Consumer;
 public class Animation implements Iterable<BufferedImage> {
     
     public static Animation PLAYER_IDLE;
-    public static Animation PLAYER_WALK;
-    public static Animation PLAYER_MID_AIR;
+    public static Animation PLAYER_WALK_LEFT;
+    public static Animation PLAYER_WALK_RIGHT;
     
     public static double loadingProgress = 0;
     
@@ -25,8 +25,8 @@ public class Animation implements Iterable<BufferedImage> {
     
     public static void loadAnimations() {
         PLAYER_IDLE = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize());
-        PLAYER_WALK = new Animation(1, "playerWalk", Player.WIDTH * Main.scaledPixelSize());
-        PLAYER_MID_AIR = new Animation(1, "playerMidAir", Player.WIDTH * Main.scaledPixelSize());
+        PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize());
+        PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize());
     }
     
     /**
