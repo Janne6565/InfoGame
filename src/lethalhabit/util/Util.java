@@ -55,7 +55,9 @@ public final class Util {
                             ((Double) entryInner.getValue().getOrDefault("block", -1D)).intValue(),
                             ((Double) entryInner.getValue().getOrDefault("liquid", -1D)).intValue(),
                             ((Double) entryInner.getValue().getOrDefault("entity", -1D)).intValue(),
-                            ((List<Double>) entryInner.getValue().getOrDefault("interactables", new ArrayList<>())).stream().mapToInt(Double::intValue).toArray()
+                            ((List<Double>) entryInner.getValue().getOrDefault("interactables", new ArrayList<>())).stream().mapToInt(Double::intValue).toArray(),
+                            ((List<Double>) entryInner.getValue().getOrDefault("interactableXPosition", new ArrayList<>())).stream().mapToDouble(Double::valueOf).toArray(),
+                            ((List<Double>) entryInner.getValue().getOrDefault("interactableYPosition", new ArrayList<>())).stream().mapToDouble(Double::valueOf).toArray()
                     );
                     value.put(keyInner, valueInner);
                 }
@@ -76,7 +78,7 @@ public final class Util {
                 int y = row.getKey();
                 Arrays.stream(row.getValue().interactables).mapToObj(id -> {
                     try {
-                        Class<? extends EventArea> eventAreaClass = Main.EVENT_AREA_TYPES.get(id);
+                        Class<? extends EventArea> eventAreaClass = EventArea.EVENT_AREAS.get(id);
                         return Main.EVENT_AREA_TYPES.get(id).getDeclaredConstructor(Point.class).newInstance(new Point(x * Main.TILE_SIZE, y * Main.TILE_SIZE));
                     } catch (Exception ex) {
                         return null;
@@ -119,6 +121,7 @@ public final class Util {
         if (Main.eventAreas == null) {
             Main.eventAreas = new HashMap<>();
         }
+
         Hitbox shiftedHitbox = eventArea.hitbox.shift(eventArea.position);
         int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
         int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
@@ -140,7 +143,35 @@ public final class Util {
             Main.eventAreas.put(x, column);
         }
     }
-    
+
+    public static void removeEventArea(EventArea eventAreaToRemove) {
+        if (Main.eventAreas == null) {
+            Main.eventAreas = new HashMap<>();
+        }
+
+        Hitbox shiftedHitbox = eventAreaToRemove.hitbox.shift(eventAreaToRemove.position);
+        int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
+        int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / Main.TILE_SIZE);
+        int maxY = (int) (shiftedHitbox.maxY() / Main.TILE_SIZE);
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<EventArea>> column = Main.eventAreas.get(x);
+            if (column == null) {
+                column = new HashMap<>();
+            }
+            for (int y = minY - 1; y < maxY + 1; y++) {
+                List<EventArea> row = column.get(y);
+                if (row == null) {
+                    row = new ArrayList<>();
+                }
+                row.removeIf(el -> el == eventAreaToRemove);
+                column.put(y, row);
+            }
+            Main.eventAreas.put(x, column);
+        }
+
+    }
+
     /**
      * Mirrors an <code>Image</code> horizontally.
      *
