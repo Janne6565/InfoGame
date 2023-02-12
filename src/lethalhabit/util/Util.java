@@ -56,8 +56,8 @@ public final class Util {
                             ((Double) entryInner.getValue().getOrDefault("liquid", -1D)).intValue(),
                             ((Double) entryInner.getValue().getOrDefault("entity", -1D)).intValue(),
                             ((List<Double>) entryInner.getValue().getOrDefault("interactables", new ArrayList<>())).stream().mapToInt(Double::intValue).toArray(),
-                            ((List<Double>) entryInner.getValue().getOrDefault("interactableXPosition", new ArrayList<>())).stream().mapToDouble(Double::valueOf).toArray(),
-                            ((List<Double>) entryInner.getValue().getOrDefault("interactableYPosition", new ArrayList<>())).stream().mapToDouble(Double::valueOf).toArray()
+                            ((List<Double>) entryInner.getValue().getOrDefault("interactablesXPosition", new ArrayList<>())).stream().mapToDouble(Double::valueOf).toArray(),
+                            ((List<Double>) entryInner.getValue().getOrDefault("interactablesYPosition", new ArrayList<>())).stream().mapToDouble(Double::valueOf).toArray()
                     );
                     value.put(keyInner, valueInner);
                 }
