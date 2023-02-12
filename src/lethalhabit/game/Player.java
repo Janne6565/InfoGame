@@ -18,10 +18,10 @@ public class Player extends Entity {
     public static final int WIDTH = 33;
     
     public static final Hitbox HITBOX = new Hitbox(new Point[]{
-            new Point(10, 10).scale(WIDTH / 50.0),
-            new Point(10, 40).scale(WIDTH / 50.0),
-            new Point(40, 40).scale(WIDTH / 50.0),
-            new Point(40, 10).scale(WIDTH / 50.0)
+            new Point(18, 14).scale(WIDTH / 50.0),
+            new Point(18, 42).scale(WIDTH / 50.0),
+            new Point(36, 42).scale(WIDTH / 50.0),
+            new Point(36, 14).scale(WIDTH / 50.0)
     });
     
     public static final double MOVEMENT_SPEED = 80;
