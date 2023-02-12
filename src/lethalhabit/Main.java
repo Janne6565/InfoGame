@@ -5,6 +5,7 @@ import lethalhabit.sound.Sound;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.game.Item;
+import lethalhabit.testing.TestEventArea;
 import lethalhabit.testing.TestItem;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
@@ -104,7 +105,8 @@ public final class Main {
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
-        // EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
+        EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
+        Util.registerEventArea(eventArea);
         Item item = new Item(new Point(400, 800), null) {
         };
         new Item(new Point(2070, 300), null) {

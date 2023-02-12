@@ -209,11 +209,7 @@ public class Player extends Entity {
         resetCooldowns(timeDelta);
         timeInGame += timeDelta;
 
-        currentAnimation = switch (direction) {
-            case NONE -> Animation.PLAYER_IDLE;
-            case LEFT -> Animation.PLAYER_WALK_LEFT;
-            case RIGHT -> Animation.PLAYER_WALK_RIGHT;
-        };
+        currentAnimation = getCurrentAnimation();
 
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
         BufferedImage currentImage = currentAnimation.frames.get(currentFrameIndex);
@@ -226,7 +222,15 @@ public class Player extends Entity {
             recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
         }
     }
-    
+
+    private Animation getCurrentAnimation() {
+        return switch (direction) {
+            case NONE -> Animation.PLAYER_IDLE;
+            case LEFT -> Animation.PLAYER_WALK_LEFT;
+            case RIGHT -> Animation.PLAYER_WALK_RIGHT;
+        };
+    }
+
     /**
      * Resets all the jumps on ground touch
      */
