@@ -52,6 +52,8 @@ public abstract class EventArea implements Drawable {
             Util.removeEventArea(this);
             position = position.plus(offset);
             Util.registerEventArea(this);
+        } else {
+            position = position.plus(offset);
         }
     }
 

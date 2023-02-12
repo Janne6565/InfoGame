@@ -76,7 +76,9 @@ public final class Main {
     public static Settings settings;
     
     private static long lastTick;
-    
+
+    // For test purposes
+    private static EventArea testEventArea;
     public static void main(String[] args) {
         gameInit();
     }
@@ -101,20 +103,12 @@ public final class Main {
         Animation.loadAnimations();
         Block.loadBlocks();
         GamePanel.generateMinimap();
-        mainCharacter = new Player(Point.SPAWN, new PlayerSkills()); // TODO: load skills from file
+        mainCharacter = new Player(new Point(3816, 500), new PlayerSkills()); // TODO: load skills from file
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
-        EventArea eventArea = new TestEventArea(new Point(136, 737), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
-        Util.registerEventArea(eventArea);
-        Item item = new Item(new Point(400, 800), null) {
-        };
-        new Item(new Point(2070, 300), null) {
-            @Override
-            public void interact(Player player) {
-                mainCharacter.gravityCooldown = 100;
-            }
-        };
+        testEventArea = new TestEventArea(new Point(3816, 500), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
+        Util.registerEventArea(testEventArea);
         AggressiveEnemy enemy = new AggressiveEnemy(new Point(100, 700));
         enemy.spawn();
     }
@@ -169,6 +163,8 @@ public final class Main {
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
         if (IS_GAME_RUNNING) {
+            testEventArea.moveAndRegister(new Point(10 * timeDelta, 0));
+
             for (Tickable tickable : new ArrayList<>(tickables)) {
                 if (tickable != null) {
                     tickable.tick(timeDelta);
