@@ -22,7 +22,7 @@ public abstract class Item extends Interactable {
     }
     
     @Override
-    public void interact(Player player) {
+    public void interact(Player player, float timeDelta) {
         System.out.println("Player took Item");
     }
     

@@ -26,7 +26,7 @@ public class TestEventArea extends EventArea {
     }
     
     @Override
-    public void onKeyInput(Player player, int key) {
+    public void onKeyInput(Player player, int key, float timeDelta) {
         System.out.println("Player pressed key (" + KeyEvent.getKeyText(key) + ")");
     }
     

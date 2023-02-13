@@ -23,12 +23,12 @@ public abstract class Interactable extends EventArea {
     }
     
     @Override
-    public void onKeyInput(Player player, int key) {
+    public void onKeyInput(Player player, int key, float timeDelta) {
         if (key == INTERACTION_KEY) {
-            interact(player);
+            interact(player, timeDelta);
         }
     }
     
-    public abstract void interact(Player player);
+    public abstract void interact(Player player, float timeDelta);
     
 }

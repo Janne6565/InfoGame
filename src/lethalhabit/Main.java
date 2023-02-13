@@ -5,6 +5,7 @@ import lethalhabit.sound.Sound;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.game.Item;
+import lethalhabit.testing.GrowShroom;
 import lethalhabit.testing.TestEventArea;
 import lethalhabit.testing.TestItem;
 import lethalhabit.ui.Animation;
@@ -22,6 +23,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
@@ -57,6 +59,7 @@ public final class Main {
     public static final List<Entity> entities = new ArrayList<>();
     public static final List<Drawable> drawables = new ArrayList<>();
     public static final List<Tickable> tickables = new ArrayList<>();
+    public static final float SCALING_SPEED_GROWSHROOM = 100;
     
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
@@ -111,6 +114,9 @@ public final class Main {
         Util.registerEventArea(testEventArea);
         AggressiveEnemy enemy = new AggressiveEnemy(new Point(100, 700));
         enemy.spawn();
+        
+        EventArea growShroom = new GrowShroom(new Point(3718, 500));
+        Util.registerEventArea(growShroom);
     }
     
     public static void playSoundtrack() {
@@ -231,7 +237,7 @@ public final class Main {
                 case Camera.LAYER_GAME -> {
                     for (EventArea area : enteredEventAreas) {
                         for (Integer key : activeKeys) {
-                            area.onKeyInput(mainCharacter, key);
+                            area.onKeyInput(mainCharacter, key, (float) timeDelta);
                         }
                     }
 

@@ -29,7 +29,7 @@ public abstract class Entity implements Tickable, Drawable {
      */
     public boolean TAKES_GRAVITY = true;
     
-    public final Dimension size;
+    public Dimension size;
     public final Hitbox hitbox;
     
     public BufferedImage graphic;

@@ -25,7 +25,7 @@ public abstract class EventArea implements Drawable {
     public final Hitbox hitbox;
     public Point position;
     public final BufferedImage graphic;
-
+    
     
     public EventArea(Point position, Hitbox hitbox, BufferedImage graphic) {
         this.position = position;
@@ -33,7 +33,7 @@ public abstract class EventArea implements Drawable {
         this.graphic = graphic;
         Main.drawables.add(this);
     }
-
+    
     public void moveAndRegister(Point offset) {
         Hitbox hitboxBefore = hitbox.shift(position);
         Hitbox hitboxAfter = hitboxBefore.shift(offset);
@@ -56,7 +56,7 @@ public abstract class EventArea implements Drawable {
             position = position.plus(offset);
         }
     }
-
+    
     public void onEnter(Player player) { }
 
     public void onLeave(Player player) { }
@@ -65,7 +65,7 @@ public abstract class EventArea implements Drawable {
 
     public void tick(Player player) { }
 
-    public void onKeyInput(Player player, int key) { }
+    public void onKeyInput(Player player, int key, float timeDelta) { }
 
     @Override
     public void draw(Graphics g) {
