@@ -63,7 +63,6 @@ public final class Main {
     
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
-    
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
     
@@ -113,6 +112,7 @@ public final class Main {
         testEventArea = new TestEventArea(new Point(3816, 500), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         Util.registerEventArea(testEventArea);
         AggressiveEnemy enemy = new AggressiveEnemy(new Point(100, 700));
+        Creeper creeper = new Creeper(new Point(1000,70));
         enemy.spawn();
         
         EventArea growShroom = new GrowShroom(new Point(3718, 500));
