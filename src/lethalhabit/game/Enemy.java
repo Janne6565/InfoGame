@@ -65,18 +65,18 @@ public class Enemy extends Entity {
 
     public double dashCoolDown = 0;
     public double doubleJumpCooldown = 0;
-
+    
     public Enemy(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
     }
-
+    
     private void resetCooldowns(double timeDelta) {
         fireBallCooldown = Math.max(fireBallCooldown - timeDelta, 0);
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
         gravityCooldown = Math.max(gravityCooldown - timeDelta, 0);
     }
-
+    
     /**
      * Changes the move velocity of the player based on moveSpeed
      */

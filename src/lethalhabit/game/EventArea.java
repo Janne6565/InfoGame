@@ -15,13 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class EventArea implements Drawable {
-
-    public static final Map<Integer, Class<? extends EventArea>> EVENT_AREAS = Map.of(
-            0, TestEventArea.class
-    );
-
-
-
+    
     public final Hitbox hitbox;
     public Point position;
     public final BufferedImage graphic;

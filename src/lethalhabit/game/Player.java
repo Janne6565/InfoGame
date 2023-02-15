@@ -80,6 +80,7 @@ public class Player extends Entity {
         this.velocity = new Vec2D(-MOVEMENT_SPEED * speedBoost, this.velocity.y());
         this.direction = Direction.LEFT;
         this.lastDirection = Direction.LEFT;
+        onMove();
     }
     
     /**
@@ -89,14 +90,22 @@ public class Player extends Entity {
         this.velocity = new Vec2D(MOVEMENT_SPEED * speedBoost, this.velocity.y());
         this.direction = Direction.RIGHT;
         this.lastDirection = Direction.RIGHT;
+        onMove();
     }
     
     public void moveUp() {
         this.velocity = new Vec2D(this.velocity.x(), -MOVEMENT_SPEED * speedBoost);
+        onMove();
     }
     
     public void moveDown() {
         this.velocity = new Vec2D(this.velocity.x(), MOVEMENT_SPEED * speedBoost);
+        onMove();
+    }
+    
+    public void onMove() {
+        Main.camera.resetCameraDown();
+        Main.camera.resetCameraUp();
     }
     
     /**

@@ -111,9 +111,9 @@ public final class Main {
         IS_GAME_RUNNING = true;
         testEventArea = new TestEventArea(new Point(3816, 500), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         Util.registerEventArea(testEventArea);
-        AggressiveEnemy enemy = new AggressiveEnemy(new Point(100, 700));
-        Creeper creeper = new Creeper(new Point(1000,70));
+        Enemy enemy = new Enemy(new Point(3916, 500));
         enemy.spawn();
+        playSoundtrack();
         
         EventArea growShroom = new GrowShroom(new Point(3718, 500));
         Util.registerEventArea(growShroom);
@@ -276,15 +276,20 @@ public final class Main {
                         } else {
                             mainCharacter.stopMovementX();
                         }
-
-                        if (activeKeys.contains(VK_W)) {
-                            camera.moveCameraDown(timeDelta);
-                        } else if (activeKeys.contains(VK_S)) {
-                            camera.moveCameraUp(timeDelta);
-                        } else {
-                            camera.resetCameraShift(timeDelta);
-                            camera.resetCameraUp();
-                            camera.resetCameraDown();
+                        
+                        if (!(activeKeys.contains(VK_W) && activeKeys.contains(VK_S))) {
+                            if (activeKeys.contains(VK_W)) {
+                                camera.moveCameraDown(timeDelta);
+                            } else {
+                                camera.resetCameraShift(timeDelta);
+                                camera.resetCameraDown();
+                            }
+                            if (activeKeys.contains(VK_S)) {
+                                camera.moveCameraUp(timeDelta);
+                            } else {
+                                camera.resetCameraShift(timeDelta);
+                                camera.resetCameraUp();
+                            }
                         }
                     }
                 }
