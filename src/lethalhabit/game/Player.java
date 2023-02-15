@@ -277,6 +277,12 @@ public class Player extends Entity {
         }
     }
     
+    @Override
+    public void midAir(double timeDelta) {
+        Main.camera.resetCameraUp();
+        Main.camera.resetCameraDown();
+    }
+    
     public void dash() {
         if (dashCoolDown <= 0 && direction != Direction.NONE) {
             recoil = switch (direction) {

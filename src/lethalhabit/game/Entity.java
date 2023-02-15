@@ -128,6 +128,7 @@ public abstract class Entity implements Tickable, Drawable {
     public void checkDirections(double timeDelta) {
         if (!isWallDown()) {
             onGround = false;
+            midAir(timeDelta);
             if (TAKES_GRAVITY) {
                 velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosity), Main.MAX_VELOCITY_SPEED * viscosity));
             }
@@ -236,4 +237,5 @@ public abstract class Entity implements Tickable, Drawable {
         return velocity.plus(recoil).scale(viscosity);
     }
     
+    public void midAir(double timeDelta) { }
 }

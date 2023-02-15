@@ -15,7 +15,7 @@ public final class Camera {
     public static final int LAYER_MAP = 2;
     public static final int LAYER_SKILL_TREE = 3;
     
-    public static final double ANIMATION_SPEED = 5;
+    public static final double ANIMATION_SPEED = 3;
     
     public final int width;
     public final int threshold;
@@ -114,7 +114,7 @@ public final class Camera {
      * @param timeDelta time since last tick (used to calculate the speed of the camera)
      */
     public void resetCameraShift(double timeDelta) {
-        if (shift.y() <= 0.5 && shift.y() >= -0.5) {
+        if (shift.y() <= 0.3 && shift.y() >= -0.3) {
             shift = new Point(shift.x(), 0);
         } else {
             shift = new Point(shift.x(), shift.y() - shift.y() * ANIMATION_SPEED * timeDelta);
