@@ -43,13 +43,13 @@ public class Animation implements Iterable<BufferedImage> {
         frames = new ArrayList<>();
         int frameCount;
         for (frameCount = 0; ; frameCount++) {
-            if (getClass().getResourceAsStream("/assets/animation/" + animationPath + "/(" + (frameCount + 1) + ").png") == null) {
+            if (getClass().getResourceAsStream("/assets/animation/" + animationPath + "/" + (frameCount + 1) + ".png") == null) {
                 break;
             }
         }
         this.animationTime = frameTime * frameCount;
         for (int i = 0; i <= frameCount; i++) {
-            BufferedImage baseImage = Util.getImage("/assets/animation/" + animationPath + "/(" + (i + 1) + ").png");
+            BufferedImage baseImage = Util.getImage("/assets/animation/" + animationPath + "/" + (i + 1) + ".png");
             if (baseImage != null) {
                 int width = (int) (maxWidth * Main.scaledPixelSize());
                 int height = (int) (maxWidth / baseImage.getWidth() * baseImage.getHeight() * Main.scaledPixelSize());

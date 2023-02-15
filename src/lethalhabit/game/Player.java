@@ -289,8 +289,8 @@ public class Player extends Entity {
                 case RIGHT -> new Vec2D(DASH_BOOST, 0);
                 default -> null;
             };
-            velocity = new Vec2D(velocity.x(), 0);
             resetRecoil = RECOIL_RESET_DASH;
+            velocity = new Vec2D(velocity.x(), 0);
             dashCoolDown = DASH_COOLDOWN;
             gravityCooldown = TIME_NO_GRAVITY_AFTER_DASH;
         }

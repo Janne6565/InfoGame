@@ -4,7 +4,6 @@ import lethalhabit.game.*;
 import lethalhabit.sound.Sound;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
-import lethalhabit.game.Item;
 import lethalhabit.testing.GrowShroom;
 import lethalhabit.testing.TestEventArea;
 import lethalhabit.testing.TestItem;
@@ -23,7 +22,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
@@ -66,7 +64,9 @@ public final class Main {
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
     
-    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 100, 0);
+    public static final Camera PLAYER_FOLLOWING_CAMERA = new Camera(new Point(0, 0), 400, 40, 80, 100, 0);
+    
+    public static final Camera camera = PLAYER_FOLLOWING_CAMERA;
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size
@@ -190,7 +190,7 @@ public final class Main {
         List<EventArea> eventAreasBefore = new ArrayList<>(enteredEventAreas);
         enteredEventAreas = Util.getEventAreasPlayerIn(mainCharacter);
         for (EventArea area : enteredEventAreas) {
-            area.tick(mainCharacter);
+            area.playerInsideTick(mainCharacter);
             if (!eventAreasBefore.contains(area)) {
                 area.onEnter(mainCharacter);
             }
@@ -313,24 +313,24 @@ public final class Main {
      */
     public static void moveCamera(double timeDelta) {
         if (mainCharacter != null) {
-            Point relative = camera.position.minus(mainCharacter.position.plus(mainCharacter.getSize().width / 2.0, mainCharacter.getSize().height / 2.0));
+            Point relative = PLAYER_FOLLOWING_CAMERA.position.minus(mainCharacter.position.plus(mainCharacter.getSize().width / 2.0, mainCharacter.getSize().height / 2.0));
             double moveX = 0;
             double moveY = 0;
-            if (relative.x() < -camera.threshold) {
-                moveX = -camera.threshold - relative.x();
+            if (relative.x() < -PLAYER_FOLLOWING_CAMERA.threshold) {
+                moveX = -PLAYER_FOLLOWING_CAMERA.threshold - relative.x();
             }
-            if (relative.x() > camera.threshold) {
-                moveX = camera.threshold - relative.x();
-            }
-            
-            if (relative.y() < -camera.threshold) {
-                moveY = -camera.threshold - relative.y();
-            }
-            if (relative.y() > camera.threshold) {
-                moveY = camera.threshold - relative.y();
+            if (relative.x() > PLAYER_FOLLOWING_CAMERA.threshold) {
+                moveX = PLAYER_FOLLOWING_CAMERA.threshold - relative.x();
             }
             
-            camera.position = camera.position.plus(moveX, moveY);
+            if (relative.y() < -PLAYER_FOLLOWING_CAMERA.threshold) {
+                moveY = -PLAYER_FOLLOWING_CAMERA.threshold - relative.y();
+            }
+            if (relative.y() > PLAYER_FOLLOWING_CAMERA.threshold) {
+                moveY = PLAYER_FOLLOWING_CAMERA.threshold - relative.y();
+            }
+            
+            PLAYER_FOLLOWING_CAMERA.position = PLAYER_FOLLOWING_CAMERA.position.plus(moveX, moveY);
         }
     }
     
@@ -345,7 +345,7 @@ public final class Main {
         GAME_PANEL = new GamePanel();
         JFrame frame = new JFrame("Lethal Habit");
 
-        // KeyListener 
+        // KeyListener
         frame.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 activeKeys.add(e.getKeyCode());

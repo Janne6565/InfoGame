@@ -57,7 +57,7 @@ public abstract class EventArea implements Drawable {
 
     public void onDeath(Player player) { }
 
-    public void tick(Player player) { }
+    public void playerInsideTick(Player player) { }
 
     public void onKeyInput(Player player, int key, float timeDelta) { }
 
