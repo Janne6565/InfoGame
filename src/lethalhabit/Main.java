@@ -44,7 +44,7 @@ public final class Main {
     
     public static final boolean DEMO_MODE = false;
     public static final boolean MINIMIZED = false;
-    public static final boolean DEBUG_HITBOX = true;
+    public static final boolean DEBUG_HITBOX = false;
 
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
@@ -66,7 +66,7 @@ public final class Main {
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
     
-    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 60, 0);
+    public static final Camera camera = new Camera(new Point(0, 0), 400, 40, 80, 100, 0);
     
     public static int screenWidth; // In Pixels based on the screen size
     public static int screenHeight; // In Pixels based on the screen size

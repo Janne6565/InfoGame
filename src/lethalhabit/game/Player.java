@@ -220,8 +220,7 @@ public class Player extends Entity {
 
         currentAnimation = getCurrentAnimation();
 
-        int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
-        BufferedImage currentImage = currentAnimation.frames.get(currentFrameIndex);
+        BufferedImage currentImage = currentAnimation.getCurrentFrame(timeInGame);
         switch (lastDirection) {
             case RIGHT -> this.graphic = currentImage;
             case LEFT -> this.graphic = mirrorImage(currentImage);

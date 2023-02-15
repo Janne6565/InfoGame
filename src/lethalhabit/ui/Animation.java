@@ -22,21 +22,24 @@ public class Animation implements Iterable<BufferedImage> {
     public final ArrayList<BufferedImage> frames;
     public final double frameTime;
     public final double animationTime; // Time needed to run the animation
+    public final double animationOffset;
     
     public static void loadAnimations() {
-        PLAYER_IDLE = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize());
-        PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize());
-        PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize());
+        PLAYER_IDLE = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
     }
     
     /**
      * Structure class for all information needed to compute animations (loads the images)
-     * @param frameTime     time between each frame (1/fps)
-     * @param animationPath path where the images of the animation are saved in
-     * @param maxWidth      max width the images are being displayed at
+     * @param frameTime       time between each frame (1/fps)
+     * @param animationPath   path where the images of the animation are saved in
+     * @param maxWidth        max width the images are being displayed at
+     * @param animationOffset offset of the frames in seconds
      */
-    public Animation(double frameTime, String animationPath, double maxWidth) {
+    public Animation(double frameTime, String animationPath, double maxWidth, double animationOffset) {
         this.frameTime = frameTime;
+        this.animationOffset = animationOffset;
         frames = new ArrayList<>();
         int frameCount;
         for (frameCount = 0; ; frameCount++) {
@@ -55,6 +58,11 @@ public class Animation implements Iterable<BufferedImage> {
                 loadingProgress += (1.0 / frameCount) / 3.0;
             }
         }
+    }
+    
+    public BufferedImage getCurrentFrame(double time) {
+        int currentFrameIndex = (int) (((time + animationOffset) % animationTime) / frameTime);
+        return frames.get(currentFrameIndex);
     }
     
     @Override
