@@ -7,6 +7,7 @@ import lethalhabit.math.Point;
 import lethalhabit.math.*;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
+import lethalhabit.ui.GamePanel;
 import lethalhabit.util.Util;
 
 import java.awt.*;
@@ -158,14 +159,16 @@ public class Goomba extends Entity {
     
     @Override
     public void tick(Double timeDelta) {
-
         super.tick(timeDelta);
-        TAKES_GRAVITY = gravityCooldown == 0;
+        
         resetCooldowns(timeDelta);
+        TAKES_GRAVITY = gravityCooldown == 0;
         timeInGame += timeDelta;
         boolean until = false;
         
-        
+        if (!isWallDown()) {
+            direction = Direction.NONE;
+        }
         
         if (direction != Direction.NONE) {
             velocity = switch (direction) {
@@ -174,17 +177,21 @@ public class Goomba extends Entity {
                 default -> throw new IllegalStateException("Unexpected Value: " + direction);
             };
     
+            float shiftage = 0.5f;
             Point pointToCheck = switch (direction) {
-                case LEFT -> new Point(-Main.TILE_SIZE, Main.TILE_SIZE);
-                case RIGHT -> new Point(Main.TILE_SIZE, Main.TILE_SIZE);
+                case LEFT -> new Point(-Main.TILE_SIZE * shiftage, 0);
+                case RIGHT -> new Point(Main.TILE_SIZE * shiftage, 0);
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
             };
     
             boolean isWallInDirection = switch(direction) {
-                case RIGHT -> isWallRight();
-                case LEFT -> isWallLeft();
+                case RIGHT -> isWallRight(pointToCheck) || isWallRight();
+                case LEFT -> isWallLeft(pointToCheck) || isWallLeft();
                 default -> false;
             };
+    
+            GamePanel.drawenHitboxesForDebugs.clear();
+            GamePanel.drawenHitboxesForDebugs.add(hitbox.shift(position).shift(pointToCheck));
             
             if (!isWallDown(pointToCheck) || isWallInDirection) {
                 direction = switch (direction) {

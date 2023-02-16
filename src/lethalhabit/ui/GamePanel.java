@@ -1,6 +1,8 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
+import lethalhabit.math.Hitbox;
+import lethalhabit.util.Util;
 import lethalhabit.world.Block;
 import lethalhabit.world.Liquid;
 import lethalhabit.world.Tile;
@@ -8,6 +10,7 @@ import lethalhabit.math.Point;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,10 +37,17 @@ public final class GamePanel extends JPanel {
         minimap = new Minimap();
     }
     
+    public static ArrayList<Hitbox> drawenHitboxesForDebugs = new ArrayList<>();
+    
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Main.tick();
+        
+        for (Hitbox hitbox : drawenHitboxesForDebugs) {
+            Util.drawHitbox(g, hitbox);
+        }
+        
         if (!Main.IS_GAME_LOADING) {
             if (Main.DEBUG_HITBOX) {
                 g.drawString(Main.mainCharacter.position.toString(), 100, 100);

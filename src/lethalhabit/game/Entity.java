@@ -222,6 +222,12 @@ public abstract class Entity implements Tickable, Drawable {
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
+    public boolean isWallRight(Point offset) {
+        Hitbox hitboxToCheck = hitbox.shift(position).shift(offset);
+        Double td = getFirstIntersection(hitboxToCheck, Util.getPossibleCollisions(hitboxToCheck, new Vec2D(1, 0), 1), new Vec2D(1, 0));
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+    }
+    
     /**
      * Checks wall collision to the left
      * @return true in case of collision with a left wall, false otherwise
@@ -231,12 +237,25 @@ public abstract class Entity implements Tickable, Drawable {
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
+    
+    public boolean isWallLeft(Point offset) {
+        Hitbox hitboxToCheck = hitbox.shift(position).shift(offset);
+        Double td = getFirstIntersection(hitboxToCheck, Util.getPossibleCollisions(hitboxToCheck, new Vec2D(-1, 0), 1), new Vec2D(-1, 0));
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+    }
+    
     /**
      * Checks upward ceiling collision
      * @return true in case of collision with a ceiling, false otherwise
      */
     public boolean isWallUp() {
         Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(0, -1), 1), new Vec2D(0, -1));
+        return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
+    }
+    
+    public boolean isWallUp(Point offset) {
+        Hitbox hitboxToCheck = hitbox.shift(position).shift(offset);
+        Double td = getFirstIntersection(hitboxToCheck, Util.getPossibleCollisions(hitboxToCheck, new Vec2D(0, -1), 1), new Vec2D(0, -1));
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
