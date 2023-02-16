@@ -206,7 +206,7 @@ public abstract class Entity implements Tickable, Drawable {
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
-    public boolean isWallDown(Vec2D offset) {
+    public boolean isWallDown(Point offset) {
         Hitbox hitboxToCheck = hitbox.shift(position).shift(offset);
         Double td = getFirstIntersection(hitboxToCheck, Util.getPossibleCollisions(hitboxToCheck, new Vec2D(0, 1), 1), new Vec2D(0, 1));
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);

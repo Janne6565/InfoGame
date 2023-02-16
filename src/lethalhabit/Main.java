@@ -1,6 +1,7 @@
 package lethalhabit;
 
 import lethalhabit.game.*;
+import lethalhabit.game.enemy.Goomba;
 import lethalhabit.sound.Sound;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
@@ -111,7 +112,7 @@ public final class Main {
         IS_GAME_RUNNING = true;
         testEventArea = new TestEventArea(new Point(3816, 500), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         Util.registerEventArea(testEventArea);
-        Enemy enemy = new Enemy(new Point(3916, 500));
+        Goomba enemy = new Goomba(new Point(3916, 500));
         enemy.spawn();
         playSoundtrack();
         

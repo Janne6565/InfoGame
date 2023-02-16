@@ -155,28 +155,49 @@ public class Goomba extends Entity {
      * Method called for handling animation and every other tick based mechanic
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
+    
     @Override
-
     public void tick(Double timeDelta) {
 
         super.tick(timeDelta);
         TAKES_GRAVITY = gravityCooldown == 0;
         resetCooldowns(timeDelta);
         timeInGame += timeDelta;
-
         boolean until = false;
-
-
-        if(isWallDown(new Vec2D(1*Main.TILE_SIZE,1*Main.TILE_SIZE))) {
-            velocity = new Vec2D(MOVEMENT_SPEED, velocity.y());
-            this.direction = Direction.RIGHT;
-            this.lastDirection = Direction.RIGHT;
-        }else{
-            velocity = new Vec2D(-MOVEMENT_SPEED, velocity.y());
-            this.direction = Direction.LEFT;
-            this.lastDirection = Direction.LEFT;
+        
+        
+        
+        if (direction != Direction.NONE) {
+            velocity = switch (direction) {
+                case LEFT -> new Vec2D(-MOVEMENT_SPEED, velocity.y());
+                case RIGHT -> new Vec2D(MOVEMENT_SPEED, velocity.y());
+                default -> throw new IllegalStateException("Unexpected Value: " + direction);
+            };
+    
+            Point pointToCheck = switch (direction) {
+                case LEFT -> new Point(-Main.TILE_SIZE, Main.TILE_SIZE);
+                case RIGHT -> new Point(Main.TILE_SIZE, Main.TILE_SIZE);
+                default -> throw new IllegalStateException("Unexpected value: " + direction);
+            };
+    
+            boolean isWallInDirection = switch(direction) {
+                case RIGHT -> isWallRight();
+                case LEFT -> isWallLeft();
+                default -> false;
+            };
+            
+            if (!isWallDown(pointToCheck) || isWallInDirection) {
+                direction = switch (direction) {
+                    case LEFT -> Direction.RIGHT;
+                    case RIGHT -> Direction.LEFT;
+                    default -> throw new IllegalStateException("Unexpected value: " + direction);
+                };
+                this.lastDirection = direction;
+            }
+        } else {
+            direction = Direction.LEFT;
         }
-
+        
 
         /*
         if (canSeePlayer()) {
