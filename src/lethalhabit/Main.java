@@ -75,6 +75,7 @@ public final class Main {
     
     public static Map<Integer, Map<Integer, Tile>> map;
     public static Map<Integer, Map<Integer, List<EventArea>>> eventAreas;
+    public static Map<Integer, Map<Integer, List<Hittable>>> hittables;
     
     public static Settings settings;
     
@@ -110,8 +111,10 @@ public final class Main {
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
+        /*
         testEventArea = new TestEventArea(new Point(3816, 500), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         Util.registerEventArea(testEventArea);
+         */
         Goomba enemy = new Goomba(new Point(3916, 500));
         enemy.spawn();
         playSoundtrack();
@@ -170,7 +173,7 @@ public final class Main {
         lastTick = System.currentTimeMillis();
         handleKeyInput(timeDelta);
         if (IS_GAME_RUNNING) {
-            testEventArea.moveAndRegister(new Point(10 * timeDelta, 0));
+            // testEventArea.moveAndRegister(new Point(10 * timeDelta, 0));
 
             for (Tickable tickable : new ArrayList<>(tickables)) {
                 if (tickable != null) {
@@ -241,8 +244,11 @@ public final class Main {
                             area.onKeyInput(mainCharacter, key, (float) timeDelta);
                         }
                     }
-
+                    
                     if (IS_GAME_RUNNING) {
+                        if (activeKeys.contains(VK_B)) {
+                            mainCharacter.hit();
+                        }
                         if (activeKeys.contains(VK_SPACE) && activeKeys.contains(VK_CONTROL) && mainCharacter.isSubmerged()) {
                             mainCharacter.stopMovementY();
                         } else if (activeKeys.contains(VK_SPACE)) {

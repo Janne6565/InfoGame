@@ -65,10 +65,34 @@ public abstract class Entity implements Tickable, Drawable {
             onGround = true;
         }
         checkViscosity();
+        onMove(getTotalVelocity(), timeDelta);
+    
+        Hitbox hitboxBefore = hitbox.shift(position);
+    
+        int beforeMinX = (int) (hitboxBefore.minX() / Main.TILE_SIZE);
+        int beforeMaxX = (int) (hitboxBefore.maxX() / Main.TILE_SIZE);
+        int beforeMinY = (int) (hitboxBefore.minY() / Main.TILE_SIZE);
+        int beforeMaxY = (int) (hitboxBefore.maxY() / Main.TILE_SIZE);
         moveX(timeDelta);
         moveY(timeDelta);
+        
+        Hitbox hitboxAfter = hitbox.shift(position);
+        int afterMinX = (int) (hitboxAfter.minX() / Main.TILE_SIZE);
+        int afterMaxX = (int) (hitboxAfter.maxX() / Main.TILE_SIZE);
+        int afterMinY = (int) (hitboxAfter.minY() / Main.TILE_SIZE);
+        int afterMaxY = (int) (hitboxAfter.maxY() / Main.TILE_SIZE);
+    
+        if (!(beforeMinX == afterMinX && beforeMaxX == afterMaxX && beforeMinY == afterMinY && beforeMaxY == afterMaxY)) {
+            onChangeTiles(hitboxBefore, hitboxAfter);
+        }
         checkDirections(timeDelta);
     }
+    
+    public void onChangeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) {
+    
+    }
+    
+    public void onMove(Vec2D velocity, double timeDelta){}
     
     @Override
     public BufferedImage getGraphic() {

@@ -31,23 +31,21 @@ public abstract class EventArea implements Drawable {
     public void moveAndRegister(Point offset) {
         Hitbox hitboxBefore = hitbox.shift(position);
         Hitbox hitboxAfter = hitboxBefore.shift(offset);
-
+    
         int beforeMinX = (int) (hitboxBefore.minX() / Main.TILE_SIZE);
         int beforeMaxX = (int) (hitboxBefore.maxX() / Main.TILE_SIZE);
         int beforeMinY = (int) (hitboxBefore.minY() / Main.TILE_SIZE);
         int beforeMaxY = (int) (hitboxBefore.maxY() / Main.TILE_SIZE);
-
+    
         int afterMinX = (int) (hitboxAfter.minX() / Main.TILE_SIZE);
         int afterMaxX = (int) (hitboxAfter.maxX() / Main.TILE_SIZE);
         int afterMinY = (int) (hitboxAfter.minY() / Main.TILE_SIZE);
         int afterMaxY = (int) (hitboxAfter.maxY() / Main.TILE_SIZE);
-
+    
         if (!(beforeMinX == afterMinX && beforeMaxX == afterMaxX && beforeMinY == afterMinY && beforeMaxY == afterMaxY)) {
             Util.removeEventArea(this);
             position = position.plus(offset);
             Util.registerEventArea(this);
-        } else {
-            position = position.plus(offset);
         }
     }
     

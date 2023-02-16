@@ -1,6 +1,7 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
+import lethalhabit.ui.GamePanel;
 import lethalhabit.util.PlayerSkills;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
@@ -10,6 +11,7 @@ import lethalhabit.util.Util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import static lethalhabit.util.Util.mirrorImage;
 
@@ -22,6 +24,13 @@ public class Player extends Entity {
             new Point(18, 42).scale(WIDTH / 50.0),
             new Point(36, 42).scale(WIDTH / 50.0),
             new Point(36, 14).scale(WIDTH / 50.0)
+    });
+    
+    public static final Hitbox HIT_HITBOX = new Hitbox(new Point[] {
+            new Point(0, 10),
+            new Point(10, 10),
+            new Point(10, 20),
+            new Point(0, 20)
     });
     
     public static final double MOVEMENT_SPEED = 80;
@@ -239,6 +248,23 @@ public class Player extends Entity {
         };
     }
 
+    public void hit() {
+        if (lastDirection != Direction.NONE) {
+            Point pointBasedOnMotion = switch (lastDirection) {
+                case LEFT -> new Point(-5, 0);
+                case RIGHT -> new Point(20, 0);
+                default -> throw new IllegalStateException("Unexpected value: " + direction);
+            };
+            Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
+    
+    
+            List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
+            for (Hittable hittable : hitted) {
+                hittable.onHit();
+            }
+        }
+    }
+    
     /**
      * Resets all the jumps on ground touch
      */

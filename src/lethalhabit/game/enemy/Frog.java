@@ -1,6 +1,7 @@
-package lethalhabit.game;
+package lethalhabit.game.enemy;
 
 import lethalhabit.Main;
+import lethalhabit.game.Entity;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
@@ -12,7 +13,7 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.util.Random;
 
-public class Frog extends Entity{
+public class Frog extends Entity {
     public static final int WIDTH = 33;
     public static final Hitbox HITBOX = new Hitbox(new Point[]{
             new Point(18, 14).scale(WIDTH / 50.0),
@@ -70,7 +71,7 @@ public class Frog extends Entity{
             this.attack(timeDelta);
         }
     }
-
+    
     private void setRandomJUMP_COOLDOWN(){
         this.JUMP_COOLDOWN = new Random().nextInt(100)/10;
     }

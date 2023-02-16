@@ -1,6 +1,7 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
+import lethalhabit.math.Hitbox;
 import lethalhabit.math.Point;
 
 import java.awt.*;

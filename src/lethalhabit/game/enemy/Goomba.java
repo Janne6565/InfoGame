@@ -1,6 +1,7 @@
 package lethalhabit.game.enemy;
 
 import lethalhabit.Main;
+import lethalhabit.game.Enemy;
 import lethalhabit.game.Entity;
 import lethalhabit.game.Fireball;
 import lethalhabit.math.Point;
@@ -16,7 +17,7 @@ import java.util.Random;
 
 import static lethalhabit.util.Util.mirrorImage;
 
-public class Goomba extends Entity {
+public class Goomba extends Enemy {
 
     public static final int WIDTH = 33;
 
@@ -71,7 +72,7 @@ public class Goomba extends Entity {
     public double doubleJumpCooldown = 0;
 
     public Goomba(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
+        super(position);
     }
     
     private void resetCooldowns(double timeDelta) {
@@ -190,9 +191,6 @@ public class Goomba extends Entity {
                 default -> false;
             };
     
-            GamePanel.drawenHitboxesForDebugs.clear();
-            GamePanel.drawenHitboxesForDebugs.add(hitbox.shift(position).shift(pointToCheck));
-            
             if (!isWallDown(pointToCheck) || isWallInDirection) {
                 direction = switch (direction) {
                     case LEFT -> Direction.RIGHT;
@@ -265,6 +263,11 @@ public class Goomba extends Entity {
         return false;
     }
 
+    @Override
+    public void onHit() {
+        die();
+    }
+    
     private void attack(double timeDelta) {
         if (attackCooldown <= 0) {
             System.out.println("ATTACKING PLAYER");

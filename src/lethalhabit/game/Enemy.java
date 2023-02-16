@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 
 import static lethalhabit.util.Util.mirrorImage;
 
-public class Enemy extends Entity {
+public class Enemy extends Entity implements Hittable{
 
     public static final int WIDTH = 33;
 
@@ -68,6 +68,12 @@ public class Enemy extends Entity {
     
     public Enemy(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
+    }
+    
+    @Override
+    public void spawn() {
+        Util.registerHittable(this);
+        super.spawn();
     }
     
     private void resetCooldowns(double timeDelta) {
@@ -174,36 +180,6 @@ public class Enemy extends Entity {
         resetCooldowns(timeDelta);
         timeInGame += timeDelta;
 
-        if (canSeePlayer()) {
-            if (Main.mainCharacter.position.distance(position) < ATTACK_RANGE) {
-                this.velocity = new Vec2D(0, this.velocity.y());
-                attack(timeDelta);
-                return;
-            }
-            if (Main.mainCharacter.position.x() < position.x()) {
-                velocity = new Vec2D(-MOVEMENT_SPEED, velocity.y());
-                this.direction = Direction.LEFT;
-                this.lastDirection = Direction.LEFT;
-                if (isWallLeft() && isWallDown() && !isSubmerged()) {
-                    velocity = new Vec2D(velocity.x(), -JUMP_BOOST);
-                }
-            } else if (Main.mainCharacter.position.x() > position.x()) {
-                velocity = new Vec2D(MOVEMENT_SPEED, velocity.y());
-                this.direction = Direction.RIGHT;
-                this.lastDirection = Direction.RIGHT;
-                if (isWallRight() && isWallDown() && !isSubmerged()) {
-                    velocity = new Vec2D(velocity.x(), -JUMP_BOOST);
-                }
-            } else {
-                velocity = new Vec2D(0, velocity.y());
-                this.direction = Direction.NONE;
-                this.lastDirection = Direction.NONE;
-            }
-        }else{
-            stopMovementX();
-        }
-
-
         currentAnimation = getCurrentAnimation();
 
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
@@ -221,6 +197,13 @@ public class Enemy extends Entity {
             recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
         }
     }
+    
+    @Override
+    public void onChangeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) {
+        Util.removeHittable(this, hitboxBefore);
+        Util.registerHittable(this);
+    }
+    
     private boolean canSeePlayer() {
         Point absoluteEyes = position.plus(relativeEyes);
         for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {
@@ -233,13 +216,7 @@ public class Enemy extends Entity {
     }
 
     private void attack(double timeDelta) {
-        if (attackCooldown <= 0) {
-            System.out.println("ATTACKING PLAYER");
-            Main.mainCharacter.hp -= 1;
-            System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
-            this.die();
-        }
-        attackCooldown -= timeDelta;
+    
     }
 
     private void die() {
@@ -307,5 +284,19 @@ public class Enemy extends Entity {
             gravityCooldown = TIME_NO_GRAVITY_AFTER_DASH;
         }
     }
-
+    
+    @Override
+    public Hitbox getHitbox() {
+        return hitbox;
+    }
+    
+    @Override
+    public Point getPosition() {
+        return position;
+    }
+    
+    @Override
+    public void onHit() {
+        Hittable.super.onHit();
+    }
 }

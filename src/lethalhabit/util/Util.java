@@ -3,8 +3,10 @@ package lethalhabit.util;
 import com.google.gson.Gson;
 import lethalhabit.Main;
 import lethalhabit.game.Entity;
+import lethalhabit.game.Hittable;
 import lethalhabit.game.Player;
 import lethalhabit.testing.TestEventArea;
+import lethalhabit.ui.GamePanel;
 import lethalhabit.world.Block;
 import lethalhabit.game.EventArea;
 import lethalhabit.world.Tile;
@@ -171,7 +173,103 @@ public final class Util {
         }
 
     }
-
+    
+    
+    /**
+     * Registers hittable to Map
+     * @param hittable hittable to add
+     */
+    public static void registerHittable(Hittable hittable) {
+        if (Main.hittables == null) {
+            Main.hittables = new HashMap<>();
+        }
+        
+        Hitbox shiftedHitbox = hittable.getHitbox().shift(hittable.getPosition());
+        int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
+        int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / Main.TILE_SIZE);
+        int maxY = (int) (shiftedHitbox.maxY() / Main.TILE_SIZE);
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<Hittable>> column = Main.hittables.get(x);
+            if (column == null) {
+                column = new HashMap<>();
+            }
+            for (int y = minY - 1; y < maxY + 1; y++) {
+                List<Hittable> row = column.get(y);
+                if (row == null) {
+                    row = new ArrayList<>();
+                }
+                row.add(hittable);
+                column.put(y, row);
+            }
+            Main.hittables.put(x, column);
+        }
+    }
+    
+    /**
+     * Removes Hittable from Map
+     * @param hittable hittable to remove
+     */
+    public static void removeHittable(Hittable hittable) {
+        if (Main.hittables == null) {
+            Main.hittables = new HashMap<>();
+        }
+        
+        Hitbox shiftedHitbox = hittable.getHitbox().shift(hittable.getPosition());
+        int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
+        int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / Main.TILE_SIZE);
+        int maxY = (int) (shiftedHitbox.maxY() / Main.TILE_SIZE);
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<Hittable>> column = Main.hittables.get(x);
+            if (column == null) {
+                column = new HashMap<>();
+            }
+            for (int y = minY - 1; y < maxY + 1; y++) {
+                List<Hittable> row = column.get(y);
+                if (row == null) {
+                    row = new ArrayList<>();
+                }
+                row.removeIf(el -> el ==  hittable);
+                column.put(y, row);
+            }
+            Main.hittables.put(x, column);
+        }
+        
+    }
+    
+    /**
+     * Removes Hittable from Map
+     * @param hittable hittable to remove
+     */
+    public static void removeHittable(Hittable hittable, Hitbox hitboxBefore) {
+        if (Main.hittables == null) {
+            Main.hittables = new HashMap<>();
+        }
+        
+        Hitbox shiftedHitbox = hitboxBefore;
+        int minX = (int) (shiftedHitbox.minX() / Main.TILE_SIZE);
+        int maxX = (int) (shiftedHitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (shiftedHitbox.minY() / Main.TILE_SIZE);
+        int maxY = (int) (shiftedHitbox.maxY() / Main.TILE_SIZE);
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            Map<Integer, List<Hittable>> column = Main.hittables.get(x);
+            if (column == null) {
+                column = new HashMap<>();
+            }
+            for (int y = minY - 1; y < maxY + 1; y++) {
+                List<Hittable> row = column.get(y);
+                if (row == null) {
+                    row = new ArrayList<>();
+                }
+                row.removeIf(el -> el ==  hittable);
+                column.put(y, row);
+            }
+            Main.hittables.put(x, column);
+        }
+        
+    }
+    
     /**
      * Mirrors an <code>Image</code> horizontally.
      *
@@ -421,4 +519,32 @@ public final class Util {
         return eventAreas;
     }
     
+    public static List<Hittable> getHittablesInHitbox(Hitbox hitbox) {
+        if (Main.hittables == null) {
+            Main.hittables = new HashMap<>();
+        }
+        int minX = (int) (hitbox.minX() / Main.TILE_SIZE);
+        int maxX = (int) (hitbox.maxX() / Main.TILE_SIZE);
+        int minY = (int) (hitbox.minY() / Main.TILE_SIZE);
+        int maxY = (int) (hitbox.maxY() / Main.TILE_SIZE);
+        List<Hittable> hittables = new ArrayList<>();
+        for (int x = minX - 1; x < maxX + 1; x++) {
+            System.out.println("");
+            Map<Integer, List<Hittable>> column = Main.hittables.get(x);
+            if (column != null) {
+                for (int y = minY - 1; y < maxY + 1; y++) {
+                    List<Hittable> row = column.get(y);
+                    if (row != null) {
+                        for (Hittable hittable : row) {
+                            if (!hittables.contains(hittable) && hitbox.intersects(hittable.getHitbox().shift(hittable.getPosition()))) {
+                                hittables.add(hittable);
+                                System.out.println(hittable);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return hittables;
+    }
 }
