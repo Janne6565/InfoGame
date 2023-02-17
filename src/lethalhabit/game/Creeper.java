@@ -1,6 +1,7 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
+import lethalhabit.game.enemy.Enemy;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
 import lethalhabit.math.Vec2D;
@@ -11,22 +12,18 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.util.Random;
 
-public class Creeper extends Entity {
-
+public class Creeper extends Enemy {
+    
     public static final int WIDTH = 20;
-    public static final int MOVEMENT_SPEED = 30;
     public static final int JUMP_BOOST = 150;
     public static final int ATTACK_RANGE = 10;
-    public static final int SIGHT_RANGE = 160;
-
-    public static final Point relativeEyes = new Point(9, 6);
-
+    
     private double attackCooldown = 0;
-
+    
     public Creeper(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE.get(0), position, Player.HITBOX);
+        super(WIDTH, Animation.PLAYER_IDLE, position, Player.HITBOX, new Point(9, 6), 160, 30);
     }
-
+    
     @Override
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
@@ -37,12 +34,12 @@ public class Creeper extends Entity {
                 return;
             }
             if (Main.mainCharacter.position.x() < position.x()) {
-                velocity = new Vec2D(-MOVEMENT_SPEED, velocity.y());
+                velocity = new Vec2D(-speed, velocity.y());
                 if (isWallLeft() && isWallDown() && !isSubmerged()) {
                     velocity = new Vec2D(velocity.x(), -JUMP_BOOST);
                 }
             } else if (Main.mainCharacter.position.x() > position.x()) {
-                velocity = new Vec2D(MOVEMENT_SPEED, velocity.y());
+                velocity = new Vec2D(speed, velocity.y());
                 if (isWallRight() && isWallDown() && !isSubmerged()) {
                     velocity = new Vec2D(velocity.x(), -JUMP_BOOST);
                 }
@@ -51,50 +48,32 @@ public class Creeper extends Entity {
             }
         }
     }
-
-    private boolean canSeePlayer() {
-        Point absoluteEyes = position.plus(relativeEyes);
-        for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {
-            LineSegment ray = new LineSegment(absoluteEyes, playerVertex);
-            if (ray.length() <= SIGHT_RANGE && !Util.isLineObstructed(ray)) {
-                return true;
-            }
-        }
-        return false;
+    
+    @Override
+    public Animation getAnimation() {
+        return Animation.PLAYER_IDLE;
     }
-
+    
     private void attack(double timeDelta) {
         if (attackCooldown <= 0) {
             System.out.println("ATTACKING PLAYER");
             Main.mainCharacter.hp -= 1;
             System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
-            this.die();
+            despawn();
         }
         attackCooldown -= timeDelta;
     }
-
-    private void die() {
-        Main.entities.remove(this);
-        Main.drawables.remove(this);
-        Main.tickables.remove(this);
-        Main.eventAreas.remove(this);
-    }
-
-    @Override
-    public int layer() {
-        return Camera.LAYER_GAME;
-    }
-
+    
     @Override
     public void draw(Graphics graphics) {
         super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
-            Point absoluteEyes = position.plus(relativeEyes);
+            Point absoluteEyes = position.plus(eyePosition);
             for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {
                 LineSegment ray = new LineSegment(absoluteEyes, playerVertex);
                 Util.drawLineSegment(graphics, ray);
             }
         }
     }
-
+    
 }

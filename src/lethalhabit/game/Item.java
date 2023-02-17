@@ -10,12 +10,12 @@ import java.awt.image.BufferedImage;
 
 public abstract class Item extends Interactable {
     
-    public static Hitbox HITBOX = new Hitbox(new Point[]{
+    public static Hitbox HITBOX = new Hitbox(
             new Point(0, 0),
             new Point(20, 0),
             new Point(20, 20),
-            new Point(0, 20),
-    });
+            new Point(0, 20)
+    );
     
     public Item(Point position, BufferedImage graphic) {
         super(position, HITBOX, graphic);

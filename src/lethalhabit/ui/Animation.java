@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 
 public class Animation implements Iterable<BufferedImage> {
     
+    public static final Animation EMPTY = new Animation(1, "", 0, 0);
+    
     public static Animation PLAYER_IDLE;
     public static Animation PLAYER_WALK_LEFT;
     public static Animation PLAYER_WALK_RIGHT;
@@ -21,7 +23,7 @@ public class Animation implements Iterable<BufferedImage> {
     
     public final ArrayList<BufferedImage> frames;
     public final double frameTime;
-    public final double animationTime; // Time needed to run the animation
+    public final double length; // Time needed to run the animation
     public final double animationOffset;
     
     public static void loadAnimations() {
@@ -47,7 +49,7 @@ public class Animation implements Iterable<BufferedImage> {
                 break;
             }
         }
-        this.animationTime = frameTime * frameCount;
+        this.length = frameTime * frameCount;
         for (int i = 0; i <= frameCount; i++) {
             BufferedImage baseImage = Util.getImage("/assets/animation/" + animationPath + "/" + (i + 1) + ".png");
             if (baseImage != null) {
@@ -61,7 +63,7 @@ public class Animation implements Iterable<BufferedImage> {
     }
     
     public BufferedImage getCurrentFrame(double time) {
-        int currentFrameIndex = (int) (((time + animationOffset) % animationTime) / frameTime);
+        int currentFrameIndex = (int) (((time + animationOffset) % length) / frameTime);
         return frames.get(currentFrameIndex);
     }
     

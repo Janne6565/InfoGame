@@ -1,12 +1,11 @@
 package lethalhabit;
 
 import lethalhabit.game.*;
+import lethalhabit.game.enemy.Frog;
 import lethalhabit.game.enemy.Goomba;
 import lethalhabit.sound.Sound;
-import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.testing.GrowShroom;
-import lethalhabit.testing.TestEventArea;
 import lethalhabit.testing.TestItem;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
@@ -38,16 +37,15 @@ public final class Main {
     );
     
     public static final Map<Integer, Class<? extends Entity>> ENTITY_TYPES = Map.of(
-            0, AggressiveEnemy.class
+            0, Frog.class
     );
     
-    public static final boolean DEMO_MODE = false;
     public static final boolean MINIMIZED = false;
     public static final boolean DEBUG_HITBOX = false;
-
+    
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
-
+    
     public static final int STROKE_SIZE_HITBOXES = 2;
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
@@ -55,9 +53,9 @@ public final class Main {
     public static final double TILE_SIZE = 20;
     public static final double SAFE_DISTANCE = 0.05;
     
-    public static final List<Entity> entities = new ArrayList<>();
-    public static final List<Drawable> drawables = new ArrayList<>();
-    public static final List<Tickable> tickables = new ArrayList<>();
+    public static final Set<Entity> entities = new HashSet<>();
+    public static final Set<Drawable> drawables = new HashSet<>();
+    public static final Set<Tickable> tickables = new HashSet<>();
     public static final float SCALING_SPEED_GROWSHROOM = 100;
     
     private static final List<Integer> activeKeys = new ArrayList<>();
@@ -67,10 +65,10 @@ public final class Main {
     
     public static final Camera PLAYER_FOLLOWING_CAMERA = new Camera(new Point(0, 0), 400, 40, 80, 100, 0);
     
-    public static final Camera camera = PLAYER_FOLLOWING_CAMERA;
+    public static Camera camera = PLAYER_FOLLOWING_CAMERA;
     
-    public static int screenWidth; // In Pixels based on the screen size
-    public static int screenHeight; // In Pixels based on the screen size
+    public static int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width; // In Pixels based on the screen size
+    public static int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height; // In Pixels based on the screen size
     public static Player mainCharacter;
     
     public static Map<Integer, Map<Integer, Tile>> map;
@@ -80,9 +78,10 @@ public final class Main {
     public static Settings settings;
     
     private static long lastTick;
-
+    
     // For test purposes
     private static EventArea testEventArea;
+    
     public static void main(String[] args) {
         gameInit();
     }
@@ -132,18 +131,6 @@ public final class Main {
     }
     
     /**
-     * Tick only used for demo mechanics
-     *
-     * @param timeDelta time since the last tick happened
-     */
-    public static void demoGameTick(double timeDelta) {
-        if (mainCharacter.position.y() >= 500) {
-            mainCharacter.position = new Point(0, 300);
-            mainCharacter.velocity = new Vec2D(0, 0);
-        }
-    }
-    
-    /**
      * Loads the map (map.json).
      */
     public static void loadMap() {
@@ -174,16 +161,13 @@ public final class Main {
         handleKeyInput(timeDelta);
         if (IS_GAME_RUNNING) {
             // testEventArea.moveAndRegister(new Point(10 * timeDelta, 0));
-
+            
             for (Tickable tickable : new ArrayList<>(tickables)) {
                 if (tickable != null) {
                     tickable.tick(timeDelta);
                 }
             }
             checkEventAreas(timeDelta);
-            if (DEMO_MODE) {
-                demoGameTick(timeDelta);
-            }
             moveCamera(timeDelta);
         }
     }
@@ -194,7 +178,7 @@ public final class Main {
         List<EventArea> eventAreasBefore = new ArrayList<>(enteredEventAreas);
         enteredEventAreas = Util.getEventAreasPlayerIn(mainCharacter);
         for (EventArea area : enteredEventAreas) {
-            area.playerInsideTick(mainCharacter);
+            area.tick(mainCharacter);
             if (!eventAreasBefore.contains(area)) {
                 area.onEnter(mainCharacter);
             }
@@ -225,7 +209,7 @@ public final class Main {
                 camera.layerRendering = 3;
                 IS_GAME_RUNNING = false;
             }
-
+            
             switch (camera.layerRendering) {
                 case Camera.LAYER_MAP -> {
                     if (activeKeys.contains(VK_T)) {
@@ -237,7 +221,7 @@ public final class Main {
                         }
                     }
                 }
-
+                
                 case Camera.LAYER_GAME -> {
                     for (EventArea area : enteredEventAreas) {
                         for (Integer key : activeKeys) {
@@ -267,11 +251,11 @@ public final class Main {
                             }
                             mainCharacter.resetJump();
                         }
-
+                        
                         if (activeKeys.contains(VK_SHIFT) && mainCharacter.skills.dash > 0) {
                             mainCharacter.dash();
                         }
-
+                        
                         if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
                             if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
                                 mainCharacter.moveLeft();
@@ -351,7 +335,7 @@ public final class Main {
         // TODO: start menu?
         GAME_PANEL = new GamePanel();
         JFrame frame = new JFrame("Lethal Habit");
-
+        
         // KeyListener
         frame.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -369,16 +353,15 @@ public final class Main {
         
         // Set the frame to full-screen mode and automatically resize the window to fit the screen
         if (MINIMIZED) {
-            frame.setSize(500, 500);
+            screenWidth = 500;
+            screenHeight = 500;
+            frame.setSize(screenWidth, screenHeight);
         } else {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
         
         frame.setResizable(false);
         frame.setVisible(true);
-        
-        screenWidth = frame.getWidth();
-        screenHeight = frame.getHeight();
     }
     
     public static void createStartWindow() {

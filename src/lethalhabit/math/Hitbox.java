@@ -8,31 +8,31 @@ import java.util.function.Consumer;
 
 
 public final class Hitbox implements Iterable<Point> {
-
+    
     /**
-     * @desc array of points to describe a vertex
+     * array of points to describe a vertex
      */
     public final Point[] vertices;
     
     public final Point maxPosition;
     public final Point minPosition;
-
+    
     /**
+     * create a hitbox, with vertices and set max and min Points
      *
      * @param vertices vertex made of Point arrays
-     * @desc create a hitbox, with vertices and set max and min Points
      */
-    public Hitbox(Point[] vertices) {
+    public Hitbox(Point... vertices) {
         this.vertices = vertices;
         maxPosition = new Point(maxX(), maxY());
         minPosition = new Point(minX(), minY());
     }
-
+    
     /**
-     * @desc get the edges of hitbox
+     * get the edges of hitbox
+     *
      * @return the edges of hitbox as a LineSegment[] type
      */
-    
     public LineSegment[] edges() {
         LineSegment[] edges = new LineSegment[vertices.length];
         for (int i = 0; i < vertices.length; i++) {
@@ -57,9 +57,8 @@ public final class Hitbox implements Iterable<Point> {
     public double minY() {
         return Arrays.stream(vertices).mapToDouble(Point::y).min().orElse(0);
     }
-
+    
     /**
-     *
      * @param offset type TwoDimensional
      * @return a new hitbox shifted by the TwoDimensional
      */
@@ -70,7 +69,7 @@ public final class Hitbox implements Iterable<Point> {
         }
         return new Hitbox(newVertices);
     }
-
+    
     public Hitbox shift(double x, double y) {
         return shift(new Point(x, y));
     }
@@ -125,11 +124,10 @@ public final class Hitbox implements Iterable<Point> {
                 || hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y();
         
     }
+    
     /**
-     *
-     *
      * @param other Hitbox to check
-     * @return true if other hitbox 
+     * @return true if other hitbox
      */
     public boolean intersects(Hitbox other) {
         for (Point point : this) {
