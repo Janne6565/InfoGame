@@ -43,6 +43,7 @@ public class Player extends Entity {
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
     public static final double FIREBALL_COOLDOWN = 2;
     public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
+    public static final double ATTACK_COOLDOWN = 1;
     
     private double resetRecoil = 0;
     
@@ -69,6 +70,8 @@ public class Player extends Entity {
     
     public double dashCoolDown = 0;
     public double doubleJumpCooldown = 0;
+    
+    public double attackCooldown = 0;
     
     public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
@@ -249,7 +252,7 @@ public class Player extends Entity {
     }
 
     public void hit() {
-        if (lastDirection != Direction.NONE) {
+        if (attackCooldown <= 0 && lastDirection != Direction.NONE) {
             Point pointBasedOnMotion = switch (lastDirection) {
                 case LEFT -> new Point(-5, 0);
                 case RIGHT -> new Point(20, 0);
@@ -261,7 +264,10 @@ public class Player extends Entity {
             List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
             for (Hittable hittable : hitted) {
                 hittable.onHit();
+                attackCooldown = ATTACK_COOLDOWN;
+                System.out.println(attackCooldown);
             }
+
         }
     }
     
