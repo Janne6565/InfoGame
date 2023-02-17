@@ -21,7 +21,7 @@ public abstract class Enemy extends Entity implements Hittable {
     protected final double sightRange;
     protected final double speed;
     
-    public int hp;
+    public int hp = 10;
     
     protected Enemy(double width, Animation animation, Point position, Hitbox hitbox, Point eyePosition, double sightRange, double speed) {
         super(width, animation.get(0), position, hitbox);
@@ -30,7 +30,13 @@ public abstract class Enemy extends Entity implements Hittable {
         this.sightRange = sightRange;
         this.speed = speed;
     }
-    
+
+    @Override
+    public void despawn() {
+        super.despawn();
+        Util.removeHittable(this);
+    }
+
     @Override
     public Hitbox getHitbox() {
         return hitbox;
@@ -43,7 +49,7 @@ public abstract class Enemy extends Entity implements Hittable {
     
     @Override
     public void onHit(DamageSource source) {
-    
+
     }
     
     @Override
@@ -57,7 +63,13 @@ public abstract class Enemy extends Entity implements Hittable {
             }
         }
     }
-    
+
+    @Override
+    public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) {
+        Util.removeHittable(this, hitboxBefore);
+        Util.registerHittable(this);
+    }
+
     protected boolean canSeePlayer() {
         Point absoluteEyes = position.plus(eyePosition);
         for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {

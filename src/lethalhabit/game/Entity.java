@@ -39,6 +39,7 @@ public abstract class Entity implements Tickable, Drawable {
     protected BufferedImage graphic;
     protected Animation animation;
     protected Vec2D recoil = new Vec2D(0, 0);
+    protected double resetRecoil = 0;
     protected double viscosity = 1;
     protected double age = 0;
     protected boolean onGround = false;
@@ -72,8 +73,12 @@ public abstract class Entity implements Tickable, Drawable {
             onGround = true;
         }
         checkViscosity();
-        move(getTotalVelocity(), timeDelta);
-        
+        onMove(getTotalVelocity(), timeDelta);
+
+        if (recoil.x() != 0) {
+            recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
+        }
+
         Hitbox hitboxBefore = hitbox.shift(position);
         
         int beforeMinX = (int) (hitboxBefore.minX() / Main.TILE_SIZE);
@@ -104,7 +109,7 @@ public abstract class Entity implements Tickable, Drawable {
     
     public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) { }
     
-    public void move(Vec2D velocity, double timeDelta) { }
+    public void onMove(Vec2D velocity, double timeDelta) { }
     
     public void onGroundReset() { }
     

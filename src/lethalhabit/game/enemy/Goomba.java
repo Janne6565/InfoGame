@@ -121,30 +121,29 @@ public class Goomba extends Enemy {
     @Override
     public void onHit(DamageSource source) {
         this.hp -= 1;
-        direction = switch (direction) {
-            case LEFT -> Direction.RIGHT;
-            case RIGHT -> Direction.LEFT;
-            default -> throw new IllegalStateException("Unexpected value: " + direction);
-        };
-        this.lastDirection = direction;
+
+        if (source.source.position.x() > position.x()) {
+            knockback(100);
+        } else {
+            knockback(-100);
+        }
 
         if (hp <= 0) {
             despawn();
         }
         System.out.println("Enemy hp: " + this.hp);
     }
-    
+
+    public void knockback(float value) {
+        recoil = new Vec2D(100, 0);
+        resetRecoil = 300;
+    }
+
     private void attack(double timeDelta) {
         if (attackCooldown <= 0) {
             System.out.println("ATTACKING PLAYER");
             Main.mainCharacter.hp -= 1;
             System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
-            direction = switch (direction) {
-                case LEFT -> Direction.RIGHT;
-                case RIGHT -> Direction.LEFT;
-                default -> throw new IllegalStateException("Unexpected value: " + direction);
-            };
-            this.lastDirection = direction;
             attackCooldown = 2;
         }
         attackCooldown -= timeDelta;

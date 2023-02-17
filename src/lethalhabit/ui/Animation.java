@@ -18,7 +18,9 @@ public class Animation implements Iterable<BufferedImage> {
     public static Animation PLAYER_IDLE;
     public static Animation PLAYER_WALK_LEFT;
     public static Animation PLAYER_WALK_RIGHT;
-    
+    public static Animation PLAYER_SLASH_LEFT;
+    public static Animation PLAYER_SLASH_RIGHT;
+
     public static double loadingProgress = 0;
     
     public final ArrayList<BufferedImage> frames;
@@ -30,6 +32,8 @@ public class Animation implements Iterable<BufferedImage> {
         PLAYER_IDLE = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_LEFT = new Animation(0.0416, "slash", Player.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_RIGHT = new Animation(0.0416, PLAYER_SLASH_LEFT.getMirroredAnimation(), Player.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
     }
     
     /**
@@ -60,6 +64,22 @@ public class Animation implements Iterable<BufferedImage> {
                 loadingProgress += (1.0 / frameCount) / 3.0;
             }
         }
+    }
+
+    public Animation(double frameTime, ArrayList<BufferedImage> frames, double maxWidth, double animationOffset) {
+        this.frameTime = frameTime;
+        this.animationOffset = animationOffset;
+        int frameCount = frames.size();
+        this.length = frameTime * frameCount;
+        this.frames = frames;
+    }
+
+    public ArrayList<BufferedImage> getMirroredAnimation() {
+        ArrayList<BufferedImage> newFrames = new ArrayList<>();
+        for (BufferedImage image : frames) {
+            newFrames.add(Util.mirrorImage(image));
+        }
+        return newFrames;
     }
     
     public BufferedImage getCurrentFrame(double time) {

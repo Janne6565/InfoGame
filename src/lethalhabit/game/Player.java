@@ -1,19 +1,14 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.ui.GamePanel;
+import lethalhabit.ui.*;
 import lethalhabit.util.PlayerSkills;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
-import lethalhabit.ui.Animation;
-import lethalhabit.ui.Camera;
 import lethalhabit.util.Util;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
-
-import static lethalhabit.util.Util.mirrorImage;
 
 public class Player extends Entity {
     
@@ -43,10 +38,8 @@ public class Player extends Entity {
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
     public static final double FIREBALL_COOLDOWN = 2;
     public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
-    public static final double ATTACK_COOLDOWN = 1;
-    
-    private double resetRecoil = 0;
-    
+    public static final double ATTACK_COOLDOWN = 0.5;
+
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
 
     /**
@@ -65,19 +58,24 @@ public class Player extends Entity {
     
     public double dashCoolDown = 0;
     public double doubleJumpCooldown = 0;
-    
+
     public double attackCooldown = 0;
-    
+
     public Player(Point position, PlayerSkills skills) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
         this.skills = skills;
     }
-    
+
+    public static Dimension getHitDimensions() {
+        return new Dimension((int) (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (int) (HIT_HITBOX.maxY() - HIT_HITBOX.minY()));
+    }
+
     private void resetCooldowns(double timeDelta) {
         fireBallCooldown = Math.max(fireBallCooldown - timeDelta, 0);
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
         gravityCooldown = Math.max(gravityCooldown - timeDelta, 0);
+        attackCooldown = Math.max(attackCooldown - timeDelta, 0);
     }
     
     /**
@@ -225,9 +223,6 @@ public class Player extends Entity {
         super.tick(timeDelta);
         TAKES_GRAVITY = gravityCooldown == 0;
         resetCooldowns(timeDelta);
-        if (recoil.x() != 0) {
-            recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
-        }
     }
 
     @Override
@@ -240,21 +235,23 @@ public class Player extends Entity {
     }
 
     public void hit() {
-        if (attackCooldown <= 0 && lastDirection != Direction.NONE) {
-            Point pointBasedOnMotion = switch (lastDirection) {
-                case LEFT -> new Point(-5, 0);
-                case RIGHT -> new Point(20, 0);
-                default -> throw new IllegalStateException("Unexpected value: " + direction);
-            };
-            Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
-
+        Point pointBasedOnMotion = switch (lastDirection) {
+            case LEFT -> new Point(hitbox.minX() - (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (hitbox.minY() - (HIT_HITBOX.maxY() - HIT_HITBOX.minY()) / 2));
+            case RIGHT -> new Point(hitbox.maxX(), (hitbox.minY() - (HIT_HITBOX.maxY() - HIT_HITBOX.minY()) / 2));
+            default -> throw new IllegalStateException("Unexpected value: " + direction);
+        };
+        Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
+        GamePanel.drawenHitboxesForDebugs.clear();
+        GamePanel.drawenHitboxesForDebugs.add(hitbox);
+        if (attackCooldown == 0) {
+            System.out.println("HIT");
             List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
+            attackCooldown = ATTACK_COOLDOWN;
             for (Hittable hittable : hitted) {
                 hittable.onHit(DamageSource.standard(this, 1));
-                attackCooldown = ATTACK_COOLDOWN;
-                System.out.println(attackCooldown);
             }
-
+            SlashAnimation slashAnimation = new SlashAnimation(lastDirection, pointBasedOnMotion.plus(position));
+            slashAnimation.register();
         }
     }
     
@@ -282,15 +279,11 @@ public class Player extends Entity {
     @Override
     public void draw(Graphics graphics) {
         super.draw(graphics);
+
         if (Main.DEBUG_HITBOX) {
             for (LineSegment line : hitbox.shift(getPosition()).edges()) {
                 graphics.setColor(Main.HITBOX_STROKE_COLOR);
                 Util.drawLineSegment(graphics, line);
-//                Point positionA = Main.camera.getAbsolutePosition(line.a());
-//                Point positionB = Main.camera.getAbsolutePosition(line.b());
-//                Graphics2D g2 = (Graphics2D) graphics;
-//                g2.setStroke(new BasicStroke(Main.STROKE_SIZE_HITBOXES));
-//                g2.drawLine((int) positionA.x(), (int) positionA.y(), (int) positionB.x(), (int) positionB.y());
             }
         }
     }
