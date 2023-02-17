@@ -1,9 +1,9 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.math.Hitbox;
+import lethalhabit.math.*;
 import lethalhabit.math.Point;
-import lethalhabit.math.Vec2D;
+import lethalhabit.ui.Animation;
 import lethalhabit.ui.Drawable;
 import lethalhabit.util.Util;
 import lethalhabit.world.Liquid;
@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static lethalhabit.util.Util.getFirstIntersection;
+import static lethalhabit.util.Util.mirrorImage;
 
 /**
  * A movable object that interacts with the world.
@@ -29,15 +30,21 @@ public abstract class Entity implements Tickable, Drawable {
      */
     public boolean TAKES_GRAVITY = true;
     
-    public Dimension size;
     public final Hitbox hitbox;
     
-    public BufferedImage graphic;
     public Point position;
     public Vec2D velocity = new Vec2D(0, 0);
+    public Dimension size;
+    
+    protected BufferedImage graphic;
+    protected Animation animation;
+    protected Vec2D recoil = new Vec2D(0, 0);
     protected double viscosity = 1;
-    public Vec2D recoil = new Vec2D(0, 0);
-    private boolean onGround = false;
+    protected double age = 0;
+    protected boolean onGround = false;
+    
+    public Direction direction = Direction.NONE;
+    protected Direction lastDirection = Direction.NONE;
     
     public Entity(double width, BufferedImage graphic, Point position, Hitbox hitbox) {
         this.size = new Dimension((int) width, (int) (graphic.getHeight() * width / graphic.getWidth()));
@@ -61,14 +68,14 @@ public abstract class Entity implements Tickable, Drawable {
     @Override
     public void tick(Double timeDelta) {
         if (isWallDown() && !onGround) {
-            onLand(getTotalVelocity());
+            land(getTotalVelocity());
             onGround = true;
         }
         checkViscosity();
-        onMove(getTotalVelocity(), timeDelta);
-    
+        move(getTotalVelocity(), timeDelta);
+        
         Hitbox hitboxBefore = hitbox.shift(position);
-    
+        
         int beforeMinX = (int) (hitboxBefore.minX() / Main.TILE_SIZE);
         int beforeMaxX = (int) (hitboxBefore.maxX() / Main.TILE_SIZE);
         int beforeMinY = (int) (hitboxBefore.minY() / Main.TILE_SIZE);
@@ -81,18 +88,31 @@ public abstract class Entity implements Tickable, Drawable {
         int afterMaxX = (int) (hitboxAfter.maxX() / Main.TILE_SIZE);
         int afterMinY = (int) (hitboxAfter.minY() / Main.TILE_SIZE);
         int afterMaxY = (int) (hitboxAfter.maxY() / Main.TILE_SIZE);
-    
-        if (!(beforeMinX == afterMinX && beforeMaxX == afterMaxX && beforeMinY == afterMinY && beforeMaxY == afterMaxY)) {
-            onChangeTiles(hitboxBefore, hitboxAfter);
+        
+        if (beforeMinX != afterMinX || beforeMaxX != afterMaxX || beforeMinY != afterMinY || beforeMaxY != afterMaxY) {
+            changeTiles(hitboxBefore, hitboxAfter);
         }
         checkDirections(timeDelta);
+        age += timeDelta;
+        animation = getAnimation();
+        int frameIndex = (int) ((age % animation.length) / animation.frameTime);
+        graphic = animation.frames.get(frameIndex);
+        if (lastDirection == Direction.LEFT) {
+            graphic = mirrorImage(graphic);
+        }
     }
     
-    public void onChangeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) {
+    public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) { }
     
-    }
+    public void move(Vec2D velocity, double timeDelta) { }
     
-    public void onMove(Vec2D velocity, double timeDelta){}
+    public void onGroundReset() { }
+    
+    public void land(Vec2D velocity) { }
+    
+    public void midAir(double timeDelta) { }
+    
+    public abstract Animation getAnimation();
     
     @Override
     public BufferedImage getGraphic() {
@@ -124,6 +144,7 @@ public abstract class Entity implements Tickable, Drawable {
     
     /**
      * Checks the environment for liquids the object is submerged in.
+     *
      * @return A complete list of liquids that surround the player (may be empty)
      */
     public List<Liquid> surroundingLiquids() {
@@ -147,6 +168,7 @@ public abstract class Entity implements Tickable, Drawable {
     
     /**
      * Stops movement if a collidable is hit.
+     *
      * @param timeDelta time between Frames
      */
     public void checkDirections(double timeDelta) {
@@ -163,66 +185,43 @@ public abstract class Entity implements Tickable, Drawable {
     
     /**
      * Movement on the x-axis
+     *
      * @param timeDelta time between frames
      */
     public void moveX(double timeDelta) {
-        Vec2D vel = new Vec2D(getTotalVelocity().x(), 0);
-        
-        List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
-        Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
-        
-        double timeWeTake = timeDelta;
-        double safeDistance = Main.SAFE_DISTANCE;
-        Double timeUntilReachedSafeDistance = safeDistance / Math.abs(vel.x());
-        
-        if (!Double.isNaN(minTime)) {
-            if (minTime <= timeDelta) {
-                timeWeTake = minTime < timeUntilReachedSafeDistance ? 0.0 : minTime - timeUntilReachedSafeDistance;
-            }
-        }
-        position = position.plus(vel.x() * timeWeTake, 0);
-        
-        if (!Double.isNaN(minTime)) {
-            if (minTime <= timeDelta) {
-                this.velocity = vel.x() > 0 ? new Vec2D(Math.min(0, this.velocity.x()), this.velocity.y()) : new Vec2D(Math.max(0, this.velocity.x()), this.velocity.y());
-            }
+        Vec2D xVel = new Vec2D(getTotalVelocity().x(), 0);
+        List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), xVel, timeDelta);
+        Double minTime = getFirstIntersection(hitbox.shift(position), collidables, xVel);
+        if (!Double.isNaN(minTime) && minTime <= timeDelta) {
+            double timeUntilCollision = Math.max(0, minTime - (Main.SAFE_DISTANCE / Math.abs(xVel.x())));
+            position = position.plus(xVel.x() * timeUntilCollision, 0);
+            velocity = xVel.x() > 0 ? new Vec2D(Math.min(0, velocity.x()), velocity.y()) : new Vec2D(Math.max(0, velocity.x()), velocity.y());
+        } else {
+            position = position.plus(xVel.x() * timeDelta, 0);
         }
     }
     
     /**
      * Movement on the y-axis
+     *
      * @param timeDelta time between frames
      */
     public void moveY(double timeDelta) {
-        Vec2D vel = new Vec2D(0, getTotalVelocity().y());
-        
-        List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), vel, timeDelta);
-        Double minTime = getFirstIntersection(hitbox.shift(position), collidables, vel);
-        
-        Double timeWeTake = timeDelta;
-        Double safeDistance = Main.SAFE_DISTANCE;
-        Double timeWeNeed = safeDistance / Math.abs(vel.y());
-        
-        if (!Double.isNaN(minTime)) {
-            if (minTime <= timeDelta) {
-                timeWeTake = minTime < timeWeNeed ? 0.0 : minTime - timeWeNeed;
-            }
+        Vec2D yVel = new Vec2D(0, getTotalVelocity().y());
+        List<Hitbox> collidables = Util.getPossibleCollisions(hitbox.shift(position), yVel, timeDelta);
+        Double minTime = getFirstIntersection(hitbox.shift(position), collidables, yVel);
+        if (!Double.isNaN(minTime) && minTime <= timeDelta) {
+            double timeUntilCollision = Math.max(0, minTime - (Main.SAFE_DISTANCE / Math.abs(yVel.y())));
+            position = position.plus(0, yVel.y() * timeUntilCollision);
+            velocity = yVel.y() > 0 ? new Vec2D(velocity.x(), Math.min(0, velocity.y())) : new Vec2D(velocity.x(), Math.max(0, velocity.y()));
+        } else {
+            position = position.plus(0, yVel.y() * timeDelta);
         }
-        position = position.plus(new Point(0, vel.y() * timeWeTake));
-        if (!Double.isNaN(minTime)) {
-            if (minTime <= timeDelta) {
-                this.velocity = vel.y() > 0 ? new Vec2D(this.velocity.x(), Math.min(0, this.velocity.y())) : new Vec2D(this.velocity.x(), Math.max(0, this.velocity.y()));
-            }
-        }
-        
     }
-    
-    public void onGroundReset() { }
-    
-    public void onLand(Vec2D velocity) { }
     
     /**
      * Checks downward ground collision
+     *
      * @return true in case of collision with a ground, false otherwise
      */
     public boolean isWallDown() {
@@ -236,9 +235,9 @@ public abstract class Entity implements Tickable, Drawable {
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
     
-    
     /**
      * Checks wall collision to the right
+     *
      * @return true in case of collision with a right wall, false otherwise
      */
     public boolean isWallRight() {
@@ -254,13 +253,13 @@ public abstract class Entity implements Tickable, Drawable {
     
     /**
      * Checks wall collision to the left
+     *
      * @return true in case of collision with a left wall, false otherwise
      */
     public boolean isWallLeft() {
         Double td = getFirstIntersection(hitbox.shift(position), Util.getPossibleCollisions(hitbox.shift(position), new Vec2D(-1, 0), 1), new Vec2D(-1, 0));
         return !Double.isNaN(td) && (td >= 0 && td <= Main.COLLISION_THRESHOLD);
     }
-    
     
     public boolean isWallLeft(Point offset) {
         Hitbox hitboxToCheck = hitbox.shift(position).shift(offset);
@@ -270,6 +269,7 @@ public abstract class Entity implements Tickable, Drawable {
     
     /**
      * Checks upward ceiling collision
+     *
      * @return true in case of collision with a ceiling, false otherwise
      */
     public boolean isWallUp() {
@@ -287,5 +287,15 @@ public abstract class Entity implements Tickable, Drawable {
         return velocity.plus(recoil).scale(viscosity);
     }
     
-    public void midAir(double timeDelta) { }
+    @Override
+    public void draw(Graphics graphics) {
+        Drawable.super.draw(graphics);
+        if (Main.DEBUG_HITBOX) {
+            for (LineSegment line : hitbox.shift(getPosition()).edges()) {
+                graphics.setColor(Main.HITBOX_STROKE_COLOR);
+                Util.drawLineSegment(graphics, line);
+            }
+        }
+    }
+    
 }

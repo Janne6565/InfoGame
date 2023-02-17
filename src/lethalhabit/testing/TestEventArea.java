@@ -21,7 +21,7 @@ public class TestEventArea extends EventArea {
     }
     
     @Override
-    public void playerInsideTick(Player player) {
+    public void tick(Player player) {
         Main.GAME_PANEL.showTooltip("Test tooltip", 1);
     }
     

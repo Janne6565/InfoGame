@@ -19,19 +19,19 @@ public class Player extends Entity {
     
     public static final int WIDTH = 33;
     
-    public static final Hitbox HITBOX = new Hitbox(new Point[]{
+    public static final Hitbox HITBOX = new Hitbox(
             new Point(18, 14).scale(WIDTH / 50.0),
             new Point(18, 42).scale(WIDTH / 50.0),
             new Point(36, 42).scale(WIDTH / 50.0),
             new Point(36, 14).scale(WIDTH / 50.0)
-    });
+    );
     
-    public static final Hitbox HIT_HITBOX = new Hitbox(new Point[] {
+    public static final Hitbox HIT_HITBOX = new Hitbox(
             new Point(0, 10),
             new Point(10, 10),
             new Point(10, 20),
             new Point(0, 20)
-    });
+    );
     
     public static final double MOVEMENT_SPEED = 80;
     public static final double JUMP_BOOST = 200;
@@ -48,11 +48,6 @@ public class Player extends Entity {
     private double resetRecoil = 0;
     
     public int hp = 10; // Wow really great job you did here my friend :)))))))))
-    
-    public double timeInGame = 0; // Used to calculate the current frame of the animation
-    public Direction direction = Direction.NONE;
-    public Direction lastDirection = Direction.NONE;
-    public Animation currentAnimation = Animation.PLAYER_IDLE;
 
     /**
      * Until end of the cooldown you will remain in a state where gravity isn't affecting you at all <3
@@ -83,7 +78,6 @@ public class Player extends Entity {
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
         gravityCooldown = Math.max(gravityCooldown - timeDelta, 0);
-        attackCooldown = Math.max(gravityCooldown - timeDelta, 0);
     }
     
     /**
@@ -151,6 +145,7 @@ public class Player extends Entity {
     
     /**
      * Checks the player's ability to jump
+     *
      * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
@@ -222,6 +217,7 @@ public class Player extends Entity {
     
     /**
      * Method called for handling animation and every other tick based mechanic
+     *
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
     @Override
@@ -229,22 +225,13 @@ public class Player extends Entity {
         super.tick(timeDelta);
         TAKES_GRAVITY = gravityCooldown == 0;
         resetCooldowns(timeDelta);
-        timeInGame += timeDelta;
-
-        currentAnimation = getCurrentAnimation();
-
-        BufferedImage currentImage = currentAnimation.getCurrentFrame(timeInGame);
-        switch (lastDirection) {
-            case RIGHT -> this.graphic = currentImage;
-            case LEFT -> this.graphic = mirrorImage(currentImage);
-        }
-        double timeBeforeSuperTick = System.nanoTime();
         if (recoil.x() != 0) {
             recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
         }
     }
 
-    private Animation getCurrentAnimation() {
+    @Override
+    public Animation getAnimation() {
         return switch (direction) {
             case NONE -> Animation.PLAYER_IDLE;
             case LEFT -> Animation.PLAYER_WALK_LEFT;
@@ -253,8 +240,7 @@ public class Player extends Entity {
     }
 
     public void hit() {
-        if (attackCooldown == 0) {
-            attackCooldown = ATTACK_COOLDOWN;
+        if (attackCooldown <= 0 && lastDirection != Direction.NONE) {
             Point pointBasedOnMotion = switch (lastDirection) {
                 case LEFT -> new Point(-5, 0);
                 case RIGHT -> new Point(20, 0);
@@ -262,10 +248,11 @@ public class Player extends Entity {
             };
             Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
 
-
             List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
             for (Hittable hittable : hitted) {
-                hittable.onHit();
+                hittable.onHit(DamageSource.standard(this, 1));
+                attackCooldown = ATTACK_COOLDOWN;
+                System.out.println(attackCooldown);
             }
 
         }
@@ -282,7 +269,7 @@ public class Player extends Entity {
     }
     
     @Override
-    public void onLand(Vec2D velocity) {
+    public void land(Vec2D velocity) {
         // TODO: play landing sound
         // TODO: standing up animation??
     }

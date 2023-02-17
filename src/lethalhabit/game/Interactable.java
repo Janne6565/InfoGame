@@ -18,7 +18,7 @@ public abstract class Interactable extends EventArea {
     }
     
     @Override
-    public void playerInsideTick(Player player) {
+    public void tick(Player player) {
         Main.GAME_PANEL.showTooltip(INTERACTION_MESSAGE, 0.3);
     }
     
