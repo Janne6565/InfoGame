@@ -2,6 +2,7 @@ package lethalhabit.game.enemy;
 
 import lethalhabit.Main;
 import lethalhabit.game.Entity;
+import lethalhabit.game.Hittable;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
@@ -13,7 +14,7 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.util.Random;
 
-public class Frog extends Entity {
+public class Frog extends Entity implements Hittable {
     public static final int WIDTH = 33;
     public static final Hitbox HITBOX = new Hitbox(new Point[]{
             new Point(18, 14).scale(WIDTH / 50.0),
@@ -28,16 +29,20 @@ public class Frog extends Entity {
     private double attackCooldown = 0;
     public static final int SIGHT_RANGE = 270;
 
+    public double hp = 10;
+
     public static final Point relativeEyes = new Point(9, 6);
 
     public Frog(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
+        Util.registerHittable(this);
     }
 
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
         JUMP_COOLDOWN = Math.max(0, JUMP_COOLDOWN - timeDelta);
         attackCooldown = Math.max(0, attackCooldown - timeDelta);
+        if(JUMP_COOLDOWN > 1.5   && canSeePlayer()){JUMP_COOLDOWN = 1.5;}
         //Movement
         if (canSeePlayer() && JUMP_COOLDOWN == 0 && isWallDown()) {
             if (Main.mainCharacter.position.x() < position.x() && isWallDown()) {
@@ -63,6 +68,7 @@ public class Frog extends Entity {
                 if (!canSeePlayer()){setRandomJUMP_COOLDOWN();} else { JUMP_COOLDOWN = 1.5;}
             }
         }
+
         if(velocity.y() == 0) {
             velocity = new Vec2D(0, 0);
         }
@@ -85,6 +91,24 @@ public class Frog extends Entity {
             }
         }
         return false;
+    }
+
+    @Override
+    public void onChangeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) {
+        Util.removeHittable(this, hitboxBefore);
+        Util.registerHittable(this);
+    }
+
+    @Override
+    public Hitbox getHitbox() {
+        return hitbox;
+    }
+
+    public void onHit() {
+        hp -= 1;
+        System.out.println(hp);
+        if (hp <= 0){die();}
+
     }
 
     private void attack(double timeDelta) {
