@@ -28,7 +28,9 @@ public class Goomba extends Enemy {
             new Point(36, 14).scale(WIDTH / 50.0)
     });
 
-    public static final double MOVEMENT_SPEED = 80;
+    public static double MOVEMENT_SPEED = 80;
+
+    public static final double ATTACK_COOLDOWN = 2;
     public static final double JUMP_BOOST = 200;
     public static final double WALL_JUMP_BOOST = 200;
     public static final double DASH_BOOST = 300;
@@ -157,7 +159,6 @@ public class Goomba extends Enemy {
      * Method called for handling animation and every other tick based mechanic
      * @param timeDelta time since last tick (used for calculating the speed of the camera)
      */
-    
     @Override
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
@@ -165,32 +166,49 @@ public class Goomba extends Enemy {
         resetCooldowns(timeDelta);
         TAKES_GRAVITY = gravityCooldown == 0;
         timeInGame += timeDelta;
-        boolean until = false;
-        
+
+        //no movement when no floor
         if (!isWallDown()) {
             direction = Direction.NONE;
         }
-        
+
+        if(attackCooldown<=0){
+            if (Main.mainCharacter.position.distance(position) < ATTACK_RANGE) {
+                this.velocity = new Vec2D(0, this.velocity.y());
+                attack(timeDelta);
+                return;
+            }
+        }else{
+            attackCooldown -= timeDelta;
+        }
+
+
+
+        //platform movement
         if (direction != Direction.NONE) {
+
+            //movement - left and right
             velocity = switch (direction) {
                 case LEFT -> new Vec2D(-MOVEMENT_SPEED, velocity.y());
                 case RIGHT -> new Vec2D(MOVEMENT_SPEED, velocity.y());
                 default -> throw new IllegalStateException("Unexpected Value: " + direction);
             };
-    
+            //shifted hitbox check
             float shiftage = 0.5f;
             Point pointToCheck = switch (direction) {
                 case LEFT -> new Point(-Main.TILE_SIZE * shiftage, 0);
                 case RIGHT -> new Point(Main.TILE_SIZE * shiftage, 0);
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
             };
-    
+
+            //check if wall is left or right based on direction
             boolean isWallInDirection = switch(direction) {
                 case RIGHT -> isWallRight(pointToCheck) || isWallRight();
                 case LEFT -> isWallLeft(pointToCheck) || isWallLeft();
                 default -> false;
             };
-    
+
+            //if there is no wall down of shifted hitbox, or wall is in direction, change direction, else stay same
             if (!isWallDown(pointToCheck) || isWallInDirection) {
                 direction = switch (direction) {
                     case LEFT -> Direction.RIGHT;
@@ -202,39 +220,8 @@ public class Goomba extends Enemy {
         } else {
             direction = Direction.LEFT;
         }
-        
 
-        /*
-        if (canSeePlayer()) {
-            if (Main.mainCharacter.position.distance(position) < ATTACK_RANGE) {
-                this.velocity = new Vec2D(0, this.velocity.y());
-                attack(timeDelta);
-                return;
-            }
-            if (Main.mainCharacter.position.x() < position.x()) {
-                velocity = new Vec2D(-MOVEMENT_SPEED, velocity.y());
-                this.direction = Direction.LEFT;
-                this.lastDirection = Direction.LEFT;
-                if (isWallLeft() && isWallDown() && !isSubmerged()) {
-                    velocity = new Vec2D(velocity.x(), -JUMP_BOOST);
-                }
-            } else if (Main.mainCharacter.position.x() > position.x()) {
-                velocity = new Vec2D(MOVEMENT_SPEED, velocity.y());
-                this.direction = Direction.RIGHT;
-                this.lastDirection = Direction.RIGHT;
-                if (isWallRight() && isWallDown() && !isSubmerged()) {
-                    velocity = new Vec2D(velocity.x(), -JUMP_BOOST);
-                }
-            } else {
-                velocity = new Vec2D(0, velocity.y());
-                this.direction = Direction.NONE;
-                this.lastDirection = Direction.NONE;
-            }
-        }else{
-            stopMovementX();
-        }*/
-
-
+        // Animation
         currentAnimation = getCurrentAnimation();
 
         int currentFrameIndex = (int) ((timeInGame % currentAnimation.animationTime) / currentAnimation.frameTime);
@@ -248,10 +235,9 @@ public class Goomba extends Enemy {
         }
 
         double timeBeforeSuperTick = System.nanoTime();
-        if (recoil.x() != 0) {
-            recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
-        }
+
     }
+
     private boolean canSeePlayer() {
         Point absoluteEyes = position.plus(relativeEyes);
         for (Point playerVertex : Main.mainCharacter.hitbox.shift(Main.mainCharacter.position)) {
@@ -265,7 +251,18 @@ public class Goomba extends Enemy {
 
     @Override
     public void onHit() {
-        die();
+        this.hp -= 1;
+        direction = switch (direction) {
+            case LEFT -> Direction.RIGHT;
+            case RIGHT -> Direction.LEFT;
+            default -> throw new IllegalStateException("Unexpected value: " + direction);
+        };
+        this.lastDirection = direction;
+
+        if(hp<=0) {
+            die();
+        }
+        System.out.println("Enemy hp: " + this.hp);
     }
     
     private void attack(double timeDelta) {
@@ -273,7 +270,14 @@ public class Goomba extends Enemy {
             System.out.println("ATTACKING PLAYER");
             Main.mainCharacter.hp -= 1;
             System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
-            //this.die();
+            direction = switch (direction) {
+                case LEFT -> Direction.RIGHT;
+                case RIGHT -> Direction.LEFT;
+                default -> throw new IllegalStateException("Unexpected value: " + direction);
+            };
+            this.lastDirection = direction;
+
+            attackCooldown = ATTACK_COOLDOWN;
         }
         attackCooldown -= timeDelta;
     }
@@ -330,18 +334,5 @@ public class Goomba extends Enemy {
         }
     }
 
-    public void dash() {
-        if (dashCoolDown <= 0 && direction != Direction.NONE) {
-            recoil = switch (direction) {
-                case LEFT -> new Vec2D(-DASH_BOOST, 0);
-                case RIGHT -> new Vec2D(DASH_BOOST, 0);
-                default -> null;
-            };
-            velocity = new Vec2D(velocity.x(), 0);
-            resetRecoil = RECOIL_RESET_DASH;
-            dashCoolDown = DASH_COOLDOWN;
-            gravityCooldown = TIME_NO_GRAVITY_AFTER_DASH;
-        }
-    }
 
 }
