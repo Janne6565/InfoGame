@@ -529,7 +529,6 @@ public final class Util {
         int maxY = (int) (hitbox.maxY() / Main.TILE_SIZE);
         List<Hittable> hittables = new ArrayList<>();
         for (int x = minX - 1; x < maxX + 1; x++) {
-            System.out.println("");
             Map<Integer, List<Hittable>> column = Main.hittables.get(x);
             if (column != null) {
                 for (int y = minY - 1; y < maxY + 1; y++) {

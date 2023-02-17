@@ -251,6 +251,15 @@ public class Goomba extends Enemy {
 
     @Override
     public void onHit() {
+        /* Just for demo purposes */
+        if (position.x() > Main.mainCharacter.position.x()) {
+            recoil = new Vec2D(200, 0);
+        } else {
+            recoil = new Vec2D(-200, 0);
+        }
+        resetRecoil = 200;
+
+
         this.hp -= 1;
         direction = switch (direction) {
             case LEFT -> Direction.RIGHT;
@@ -263,6 +272,7 @@ public class Goomba extends Enemy {
             die();
         }
         System.out.println("Enemy hp: " + this.hp);
+
     }
     
     private void attack(double timeDelta) {

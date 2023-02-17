@@ -83,6 +83,7 @@ public class Player extends Entity {
         dashCoolDown = Math.max(dashCoolDown - timeDelta, 0);
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
         gravityCooldown = Math.max(gravityCooldown - timeDelta, 0);
+        attackCooldown = Math.max(gravityCooldown - timeDelta, 0);
     }
     
     /**
@@ -252,20 +253,19 @@ public class Player extends Entity {
     }
 
     public void hit() {
-        if (attackCooldown <= 0 && lastDirection != Direction.NONE) {
+        if (attackCooldown == 0) {
+            attackCooldown = ATTACK_COOLDOWN;
             Point pointBasedOnMotion = switch (lastDirection) {
                 case LEFT -> new Point(-5, 0);
                 case RIGHT -> new Point(20, 0);
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
             };
             Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
-    
-    
+
+
             List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
             for (Hittable hittable : hitted) {
                 hittable.onHit();
-                attackCooldown = ATTACK_COOLDOWN;
-                System.out.println(attackCooldown);
             }
 
         }

@@ -117,7 +117,7 @@ public final class Main {
          */
         Goomba enemy = new Goomba(new Point(3916, 500));
         enemy.spawn();
-        playSoundtrack();
+        // playSoundtrack();
         
         EventArea growShroom = new GrowShroom(new Point(3718, 500));
         Util.registerEventArea(growShroom);
