@@ -335,7 +335,6 @@ public final class Main {
         // TODO: start menu?
         GAME_PANEL = new GamePanel();
         JFrame frame = new JFrame("Lethal Habit");
-        
         // KeyListener
         frame.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -359,9 +358,10 @@ public final class Main {
         } else {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
-        
+
         frame.setResizable(false);
         frame.setVisible(true);
+        frame.setBackground(Color.DARK_GRAY);
     }
     
     public static void createStartWindow() {

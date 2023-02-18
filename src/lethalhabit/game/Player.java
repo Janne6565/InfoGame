@@ -17,15 +17,15 @@ public class Player extends Entity {
     public static final Hitbox HITBOX = new Hitbox(
             new Point(18, 14).scale(WIDTH / 50.0),
             new Point(18, 42).scale(WIDTH / 50.0),
-            new Point(36, 42).scale(WIDTH / 50.0),
-            new Point(36, 14).scale(WIDTH / 50.0)
+            new Point(33, 42).scale(WIDTH / 50.0),
+            new Point(33, 14).scale(WIDTH / 50.0)
     );
     
     public static final Hitbox HIT_HITBOX = new Hitbox(
-            new Point(0, 10),
-            new Point(10, 10),
-            new Point(10, 20),
-            new Point(0, 20)
+            new Point(0, 5),
+            new Point(15, 5),
+            new Point(15, 25),
+            new Point(0, 25)
     );
     
     public static final double MOVEMENT_SPEED = 80;
@@ -235,26 +235,44 @@ public class Player extends Entity {
     }
 
     public void hit() {
-        Point pointBasedOnMotion = switch (lastDirection) {
-            case LEFT -> new Point(hitbox.minX() - (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (hitbox.minY() - (HIT_HITBOX.maxY() - HIT_HITBOX.minY()) / 2));
-            case RIGHT -> new Point(hitbox.maxX(), (hitbox.minY() - (HIT_HITBOX.maxY() - HIT_HITBOX.minY()) / 2));
-            default -> throw new IllegalStateException("Unexpected value: " + direction);
-        };
-        Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
-        GamePanel.drawenHitboxesForDebugs.clear();
-        GamePanel.drawenHitboxesForDebugs.add(hitbox);
-        if (attackCooldown == 0) {
-            System.out.println("HIT");
-            List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
-            attackCooldown = ATTACK_COOLDOWN;
-            for (Hittable hittable : hitted) {
-                hittable.onHit(DamageSource.standard(this, 1));
+        if (lastDirection != Direction.NONE) {
+            Point pointBasedOnMotion = switch (lastDirection) {
+                case LEFT -> new Point(hitbox.minX() - (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Player.HIT_HITBOX.maxY() - Player.HIT_HITBOX.minY()) / 2 - Player.HIT_HITBOX.minY());
+                case RIGHT -> new Point(hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Player.HIT_HITBOX.maxY() - Player.HIT_HITBOX.minY()) / 2 - Player.HIT_HITBOX.minY());
+                default -> throw new IllegalStateException("Unexpected value: " + direction);
+            };
+            Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
+
+            if (attackCooldown == 0) {
+                attackCooldown = ATTACK_COOLDOWN;
+
+                List<Hittable> hitted = Util.getHittablesInHitbox(hitbox);
+
+                if (hitted.size() > 0) {
+                    double xKnockback = switch (lastDirection) {
+                        case RIGHT -> -50;
+                        case LEFT -> 50;
+                        case NONE -> 0.0;
+                    };
+                    double yKnockback = 0;
+                    knockback(xKnockback, yKnockback);
+                }
+
+                for (Hittable hittable : hitted) {
+                    hittable.onHit(DamageSource.standard(this, 1));
+                }
+
+                PlayerSlashAnimation slashAnimation = new PlayerSlashAnimation(lastDirection, getHitDimensions());
+                slashAnimation.register();
             }
-            SlashAnimation slashAnimation = new SlashAnimation(lastDirection, pointBasedOnMotion.plus(position));
-            slashAnimation.register();
         }
     }
-    
+
+    public void knockback(double amountX, double amountY) {
+        recoil = new Vec2D(amountX, amountY);
+        resetRecoil = 300;
+    }
+
     /**
      * Resets all the jumps on ground touch
      */

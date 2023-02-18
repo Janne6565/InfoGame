@@ -8,7 +8,14 @@ import java.util.function.Consumer;
 
 
 public final class Hitbox implements Iterable<Point> {
-    
+
+    public static final Hitbox TEST_HITBOX = new Hitbox(
+            new Point(10, 10),
+            new Point(10, -10),
+            new Point(-10, -10),
+            new Point(-10, 10)
+    );
+
     /**
      * array of points to describe a vertex
      */

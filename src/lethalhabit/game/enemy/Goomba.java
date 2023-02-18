@@ -123,9 +123,9 @@ public class Goomba extends Enemy {
         this.hp -= 1;
 
         if (source.source.position.x() > position.x()) {
-            knockback(100);
+            knockback(-source.knockback);
         } else {
-            knockback(-100);
+            knockback(source.knockback);
         }
 
         if (hp <= 0) {
@@ -134,8 +134,8 @@ public class Goomba extends Enemy {
         System.out.println("Enemy hp: " + this.hp);
     }
 
-    public void knockback(float value) {
-        recoil = new Vec2D(100, 0);
+    public void knockback(double value) {
+        recoil = new Vec2D(value, 0);
         resetRecoil = 300;
     }
 
