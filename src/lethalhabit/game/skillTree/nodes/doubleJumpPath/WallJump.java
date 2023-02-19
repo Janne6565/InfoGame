@@ -40,6 +40,7 @@ public class WallJump extends SkillTreeNode {
 
     @Override
     public void onSkill(int level) {
+        super.onSkill(level);
         switch (level) {
             case 1 -> {
                 Main.mainCharacter.CAN_WALL_JUMP = true;

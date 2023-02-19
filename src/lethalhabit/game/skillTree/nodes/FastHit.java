@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FastHit extends SkillTreeNode {
+
     @Override
     public ArrayList<SkillTreeNode> followingNodes() {
         return new ArrayList<>(List.of(new WideHit[]{
@@ -44,6 +45,7 @@ public class FastHit extends SkillTreeNode {
 
     @Override
     public void onSkill(int level) {
+        super.onSkill(level);
         switch (level) {
             case 1 -> {
                 Main.mainCharacter.ATTACK_COOLDOWN = 0.7;

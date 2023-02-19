@@ -60,6 +60,7 @@ public class Player extends Entity {
     public double gravityCooldown = 0.0;
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
+    public int spareLevel = 100;
 
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;

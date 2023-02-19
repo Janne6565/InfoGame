@@ -41,6 +41,7 @@ public class WideHit extends SkillTreeNode {
 
     @Override
     public void onSkill(int level) {
+        super.onSkill(level);
         switch (level) {
             case 1 -> {
                 Main.mainCharacter.HIT_HITBOX = new Hitbox(

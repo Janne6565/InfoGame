@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 public abstract class SkillTreeNode {
 
+    public int level = 0;
+
+    public float scale = 1;
+
     /**
      * Maximum 3 Nodes else we have some graphic problems :)
      */
@@ -21,6 +25,8 @@ public abstract class SkillTreeNode {
 
     }
 
-    public abstract void onSkill(int level);
+    public void onSkill(int level) {
+        this.level = Math.max(level, maxLevel());
+    };
 
 }

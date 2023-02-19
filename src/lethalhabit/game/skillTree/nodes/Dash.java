@@ -42,6 +42,7 @@ public class Dash extends SkillTreeNode {
 
     @Override
     public void onSkill(int level) {
+        super.onSkill(level);
         switch (level) {
             case 1 -> {
                 Main.mainCharacter.DASH_AMOUNTS = 1;

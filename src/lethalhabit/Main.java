@@ -23,6 +23,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -69,6 +71,7 @@ public final class Main {
     public static final float SCALING_SPEED_GROWSHROOM = 100;
 
     private static final List<Integer> activeKeys = new ArrayList<>();
+    private static final List<Integer> activeMouseButtons = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
@@ -208,22 +211,32 @@ public final class Main {
     }
     
     public static void handleKeyInput(double timeDelta) {
+        GAME_PANEL.handleMouseInputs(MouseInfo.getPointerInfo(), activeMouseButtons, timeDelta);
+
         if (mainCharacter != null) {
             if (activeKeys.contains(VK_0)) {
                 camera.layerRendering = 0;
                 IS_GAME_RUNNING = true;
+                GAME_PANEL.clearClickables();
+                GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_1)) {
                 camera.layerRendering = 1;
                 IS_GAME_RUNNING = false;
+                GAME_PANEL.clearClickables();
+                GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_2)) {
                 camera.layerRendering = 2;
                 IS_GAME_RUNNING = false;
+                GAME_PANEL.clearClickables();
+                GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_3)) {
                 camera.layerRendering = 3;
                 IS_GAME_RUNNING = false;
+                GAME_PANEL.clearClickables();
+                GAME_PANEL.loadClickables();
             }
             
             switch (camera.layerRendering) {
@@ -372,6 +385,18 @@ public final class Main {
             
             public void keyReleased(KeyEvent e) {
                 activeKeys.removeIf(key -> key == e.getKeyCode());
+            }
+        });
+
+        frame.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                activeMouseButtons.add(e.getButton());
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                activeMouseButtons.removeIf(key -> key == e.getButton());
             }
         });
         
