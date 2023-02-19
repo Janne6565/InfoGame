@@ -2,6 +2,7 @@ package lethalhabit.ui;
 
 import lethalhabit.Main;
 import lethalhabit.math.Hitbox;
+import lethalhabit.math.LineSegment;
 import lethalhabit.util.Util;
 import lethalhabit.world.Block;
 import lethalhabit.world.Liquid;
@@ -88,6 +89,22 @@ public final class GamePanel extends JPanel {
             }
             case Camera.LAYER_MAP -> {
                 minimap.draw(g);
+
+                if (Main.DEVELOPER_MODE) {
+                    if (Main.backgroundTileHovered != null) {
+                        Hitbox hitbox = new Hitbox(
+                                new Point((Main.backgroundTileHovered.x() + 1) * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale, Main.backgroundTileHovered.y() * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale),
+                                new Point((Main.backgroundTileHovered.x()) * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale, Main.backgroundTileHovered.y() * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale),
+                                new Point((Main.backgroundTileHovered.x()) * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale, (Main.backgroundTileHovered.y() + 1) * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale),
+                                new Point((Main.backgroundTileHovered.x() + 1) * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale, (Main.backgroundTileHovered.y() + 1) * Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * minimap.scale)
+                        ).shift(minimap.positionDrawen);
+
+                        for (LineSegment edge : hitbox.edges()) {
+                            g.drawLine((int) edge.a().x(), (int) edge.a().y(), (int) edge.b().x(), (int) edge.b().y());
+                        }
+                    }
+                }
+
                 for (Drawable drawable : drawablesInLayer) {
                     drawable.draw(g);
                 }

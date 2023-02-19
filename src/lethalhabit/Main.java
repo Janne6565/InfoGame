@@ -3,6 +3,7 @@ package lethalhabit;
 import lethalhabit.game.*;
 import lethalhabit.game.enemy.Frog;
 import lethalhabit.game.enemy.Goomba;
+import lethalhabit.math.Hitbox;
 import lethalhabit.sound.Sound;
 import lethalhabit.math.Point;
 import lethalhabit.testing.GrowShroom;
@@ -42,6 +43,12 @@ public final class Main {
     
     public static final boolean MINIMIZED = false;
     public static final boolean DEBUG_HITBOX = false;
+    /**
+     * if true you gain following ability's:
+     *  - Teleport
+     *  - Map Renderer
+     */
+    public static final boolean DEVELOPER_MODE = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
@@ -50,9 +57,12 @@ public final class Main {
     public static final double COLLISION_THRESHOLD = 1;
     public static final double MAX_VELOCITY_SPEED = 800;
     public static final double GRAVITATIONAL_ACCELERATION = 400;
-    public static final double TILE_SIZE = 20;
     public static final double SAFE_DISTANCE = 0.05;
-    
+
+    public static final double TILE_SIZE = 20;
+    public static final double BACKGROUND_TILE_SIZE = 50;
+    public static final String BACKGROUND_EXPORT_PATH = "";
+
     public static final Set<Entity> entities = new HashSet<>();
     public static final Set<Drawable> drawables = new HashSet<>();
     public static final Set<Tickable> tickables = new HashSet<>();
@@ -78,10 +88,9 @@ public final class Main {
     public static Settings settings;
     
     private static long lastTick;
-    
-    // For test purposes
-    private static EventArea testEventArea;
-    
+
+    public static Point backgroundTileHovered = null;
+
     public static void main(String[] args) {
         gameInit();
     }
@@ -212,12 +221,25 @@ public final class Main {
             
             switch (camera.layerRendering) {
                 case Camera.LAYER_MAP -> {
-                    if (activeKeys.contains(VK_T)) {
-                        Point mouseCoordinates = new Point(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
-                        Point relativePointToMap = mouseCoordinates.minus(GamePanel.minimap.positionDrawen);
-                        Point positionOfMouse = relativePointToMap.divide(GamePanel.minimap.scale);
-                        if (positionOfMouse.compareTo(new Point(0, 0)) > 0 && positionOfMouse.compareTo(new Point(GamePanel.minimap.size.width, GamePanel.minimap.size.height)) < 0) {
-                            mainCharacter.position = positionOfMouse;
+                    if (DEVELOPER_MODE) {
+                        if (GamePanel.minimap.positionDrawen != null) {
+                            Point mouseCoordinates = new Point(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
+                            Point relativePointToMap = mouseCoordinates.minus(GamePanel.minimap.positionDrawen);
+                            Point positionOfMouse = relativePointToMap.divide(GamePanel.minimap.scale);
+                            // Teleport
+                            if (activeKeys.contains(VK_T)) {
+                                if (positionOfMouse.compareTo(new Point(0, 0)) > 0 && positionOfMouse.compareTo(new Point(GamePanel.minimap.size.width, GamePanel.minimap.size.height)) < 0) {
+                                    mainCharacter.position = positionOfMouse;
+                                }
+                            }
+
+                            // Render Map background Tiles:
+                            if (positionOfMouse.compareTo(new Point(0, 0)) > 0 && positionOfMouse.compareTo(new Point(GamePanel.minimap.size.width, GamePanel.minimap.size.height)) < 0) {
+                                backgroundTileHovered = new Point((int) positionOfMouse.x(), (int) positionOfMouse.y()).divide(TILE_SIZE).divide(BACKGROUND_TILE_SIZE).toInt();
+                                if (activeKeys.contains(VK_R)) {
+                                    Util.exportMapBackgroundTile(backgroundTileHovered);
+                                }
+                            }
                         }
                     }
                 }

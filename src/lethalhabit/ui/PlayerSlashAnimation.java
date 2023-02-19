@@ -80,8 +80,7 @@ public class PlayerSlashAnimation implements Drawable, Tickable {
     public void draw(Graphics graphics) {
         Drawable.super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
-            GamePanel.drawenHitboxesForDebugs.clear();
-            GamePanel.drawenHitboxesForDebugs.add(Player.HIT_HITBOX.shift(getPosition()).shift(-Player.HIT_HITBOX.minX(), -Player.HIT_HITBOX.minY()));
+            Util.drawHitbox(graphics, Player.HIT_HITBOX.shift(getPosition()).shift(-Player.HIT_HITBOX.minX(), -Player.HIT_HITBOX.minY()));
         }
     }
 }

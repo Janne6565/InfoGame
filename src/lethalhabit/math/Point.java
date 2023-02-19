@@ -80,6 +80,9 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
         return new Point(this.x / twoDimensional.x(), this.y / twoDimensional.y());
     }
 
+    public Point toInt() {
+        return new Point((int) this.x, (int) this.y);
+    }
 
     /**
      *

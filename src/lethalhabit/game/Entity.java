@@ -78,6 +78,9 @@ public abstract class Entity implements Tickable, Drawable {
         if (recoil.x() != 0) {
             recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
         }
+        if (recoil.y() != 0) {
+            recoil = recoil.y() < 0 ? new Vec2D(recoil.x(), Math.min(recoil.y() + resetRecoil * timeDelta, 0)) : new Vec2D(recoil.y(), Math.max(recoil.y() - resetRecoil * timeDelta, 0));
+        }
 
         Hitbox hitboxBefore = hitbox.shift(position);
         

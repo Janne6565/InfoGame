@@ -9,6 +9,7 @@ import lethalhabit.testing.TestEventArea;
 import lethalhabit.ui.GamePanel;
 import lethalhabit.world.Block;
 import lethalhabit.game.EventArea;
+import lethalhabit.world.Liquid;
 import lethalhabit.world.Tile;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
@@ -16,13 +17,13 @@ import lethalhabit.math.Point;
 import lethalhabit.math.Vec2D;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.image.RenderedImage;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -545,5 +546,40 @@ public final class Util {
             }
         }
         return hittables;
+    }
+
+    public static void exportMapBackgroundTile(Point backgroundTileIndex) {
+        BufferedImage imageExport = new BufferedImage((int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = (Graphics2D) imageExport.getGraphics();
+
+        Point minTile = backgroundTileIndex.scale(Main.BACKGROUND_TILE_SIZE);
+        Point maxTile = backgroundTileIndex.plus(1, 1).scale(Main.BACKGROUND_TILE_SIZE);
+
+        for (int x = (int) minTile.x(); x < maxTile.x(); x++) {
+            for (int y= (int) minTile.y(); y < maxTile.y(); y++) {
+                Tile tile = Main.tileAt(x, y);
+                Point relativeTilePoint = new Point(x, y).minus(minTile);
+
+                if (tile != null) {
+                    Liquid liquid = Liquid.TILEMAP.getOrDefault(tile.liquid, null);
+                    if (liquid != null) {
+                        graphics.drawImage((Image) liquid.graphic, (int) (relativeTilePoint.x() * Main.TILE_SIZE * Main.scaledPixelSize()), (int) (relativeTilePoint.y() * Main.TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.scaledPixelSize()), null);
+                    }
+
+                    Block block = Block.TILEMAP.getOrDefault(tile.block, null);
+                    if (block != null) {
+                        graphics.drawImage((Image) block.graphic, (int) (relativeTilePoint.x() * Main.TILE_SIZE * Main.scaledPixelSize()), (int) (relativeTilePoint.y() * Main.TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.scaledPixelSize()), null);
+                    }
+                }
+            }
+        }
+        try {
+            String path = Main.BACKGROUND_EXPORT_PATH + "Exported_Map_Tile_X" + backgroundTileIndex.x() + "_Y" + backgroundTileIndex.y() + ".png";
+            System.out.println(path);
+            File outputfile = new File(path);
+            ImageIO.write(imageExport, "png", outputfile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
