@@ -215,26 +215,18 @@ public final class GamePanel extends JPanel {
     public void loadClickables() {
         switch (Main.camera.layerRendering) {
             case Camera.LAYER_SKILL_TREE -> {
-                SkillTree skillTree = Main.mainCharacter.PLAYER_SKILL_TREE;
                 ArrayList<SkillTreeNode> skills;
                 if (nodeFocused == null) {
+                    SkillTree skillTree = Main.mainCharacter.PLAYER_SKILL_TREE;
                     skills = skillTree.startNodes;
                 } else {
-                    skills = nodeFocused.followingNodes();
+                    skills = nodeFocused.followingNodes;
                 }
-
-                float skilltreeWidthProportion = (float) Main.screenWidth / SKILL_TREE_BACKGROUND.getWidth();
-                float skilltreeHeightProportion = (float) Main.screenHeight / SKILL_TREE_BACKGROUND.getHeight();
-                float proportionForImage = Math.min(skilltreeWidthProportion, skilltreeHeightProportion);
-
-                int width = (int) (SKILL_TREE_BACKGROUND.getWidth() * proportionForImage);
-                int height = (int) (SKILL_TREE_BACKGROUND.getHeight() * proportionForImage);
-
-                Point pointForCentering = new Point(Main.screenWidth, Main.screenHeight).divide(2).minus(width / 2.0, height / 2.0);
 
                 for (SkillTreeNode skill : skills) {
                     BufferedImage skillTreeNode = SKILL_TREE_ICONS.get(skill.level);
-                    BufferedImage imageBorder = skillTreeNode.getSubimage(0, 0, skillTreeNode.getWidth(), skillTreeNode.getHeight());
+                    BufferedImage imageBorder = new BufferedImage((int) (skillTreeNode.getWidth() * skill.scale), (int) (skillTreeNode.getHeight() * skill.scale), BufferedImage.TYPE_INT_ARGB);
+                    imageBorder.getGraphics().drawImage(skillTreeNode, 0, 0, (int) (skillTreeNode.getWidth() * skill.scale), (int) (skillTreeNode.getHeight() * skill.scale), null);
 
                     Point pointToDrawNode = new Point(Main.screenWidth / 2.0, Main.screenHeight / 2.0)
                             .minus(imageBorder.getWidth() / 2.0, imageBorder.getHeight() / 2.0)
@@ -255,7 +247,7 @@ public final class GamePanel extends JPanel {
         if (nodeFocused == null) {
             skills = skillTree.startNodes;
         } else {
-            skills = nodeFocused.followingNodes();
+            skills = nodeFocused.followingNodes;
         }
 
         float skilltreeWidthProportion = (float) Main.screenWidth / SKILL_TREE_BACKGROUND.getWidth();
@@ -268,7 +260,6 @@ public final class GamePanel extends JPanel {
         Point pointForCentering = new Point(Main.screenWidth, Main.screenHeight).divide(2).minus(width / 2.0, height / 2.0);
 
         graphics.drawImage(SKILL_TREE_BACKGROUND, 0, 0, width, height, null);
-
         for (SkillTreeNode skill : skills) {
             BufferedImage imageInside = skill.image();
             BufferedImage icon = SKILL_TREE_ICONS.get(skill.level);
@@ -354,11 +345,15 @@ public final class GamePanel extends JPanel {
     }
 
     public void handleMouseInputs(PointerInfo pointerInfo, List<Integer> mouseInputs, double timeDelta) {
-        for (Clickable clickable : clickables) {
-            Point pointerPosition = new Point(pointerInfo.getLocation().x, pointerInfo.getLocation().y);
+        Point pointerPosition = new Point(pointerInfo.getLocation().x, pointerInfo.getLocation().y);
+        for (Clickable clickable : new ArrayList<Clickable>(clickables)) {
             Hitbox shiftedHitbox = clickable.hitbox.shift(clickable.position);
             if (pointerPosition.x() > shiftedHitbox.minX() && pointerPosition.x() < shiftedHitbox.maxX() && pointerPosition.y() > shiftedHitbox.minY() && pointerPosition.y() < shiftedHitbox.maxY()) {
                 clickable.onHover(timeDelta);
+                if (mouseInputs.contains(3)) {
+                    clickable.onRightClick(timeDelta);
+                }
+
                 if (mouseInputs.contains(1)) {
                     clickable.onClick(timeDelta);
                 } else {

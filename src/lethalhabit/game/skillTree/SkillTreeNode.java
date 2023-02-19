@@ -14,7 +14,7 @@ public abstract class SkillTreeNode {
     /**
      * Maximum 3 Nodes else we have some graphic problems :)
      */
-    public abstract ArrayList<SkillTreeNode> followingNodes();
+    public ArrayList<SkillTreeNode> followingNodes = null;
     public abstract int maxLevel();
     public abstract boolean isUltimate();
     public abstract BufferedImage image();
@@ -26,7 +26,7 @@ public abstract class SkillTreeNode {
     }
 
     public void onSkill(int level) {
-        this.level = Math.max(level, maxLevel());
+        this.level = level;
     };
 
 }

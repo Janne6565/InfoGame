@@ -326,6 +326,13 @@ public final class Main {
                         }
                     }
                 }
+                case Camera.LAYER_SKILL_TREE -> {
+                    if (activeKeys.contains(VK_ESCAPE)) {
+                        GAME_PANEL.nodeFocused = null;
+                        GAME_PANEL.clearClickables();
+                        GAME_PANEL.loadClickables();
+                    }
+                }
             }
         }
     }

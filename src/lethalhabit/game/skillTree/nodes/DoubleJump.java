@@ -3,6 +3,7 @@ package lethalhabit.game.skillTree.nodes;
 import lethalhabit.Main;
 import lethalhabit.game.skillTree.SkillTreeNode;
 import lethalhabit.game.skillTree.nodes.doubleJumpPath.WallJump;
+import lethalhabit.game.skillTree.nodes.fastHitPath.WideHit;
 import lethalhabit.math.Point;
 
 import java.awt.image.BufferedImage;
@@ -11,10 +12,10 @@ import java.util.List;
 
 public class DoubleJump extends SkillTreeNode {
 
-    @Override
-    public ArrayList<SkillTreeNode> followingNodes() {
-        return new ArrayList<>(List.of(new WallJump[]{
-            new WallJump(),
+
+    public DoubleJump() {
+        followingNodes = new ArrayList<>(List.of(new WallJump[]{
+                new WallJump(),
         }));
     }
 

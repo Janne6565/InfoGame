@@ -11,10 +11,9 @@ import java.util.List;
 
 public class FastHit extends SkillTreeNode {
 
-    @Override
-    public ArrayList<SkillTreeNode> followingNodes() {
-        return new ArrayList<>(List.of(new WideHit[]{
-            new WideHit(),
+    public FastHit() {
+        followingNodes = new ArrayList<>(List.of(new WideHit[]{
+                new WideHit(),
         }));
     }
 

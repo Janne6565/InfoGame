@@ -9,12 +9,6 @@ import java.util.ArrayList;
 
 public class Dash extends SkillTreeNode {
 
-
-    @Override
-    public ArrayList<SkillTreeNode> followingNodes() {
-        return new ArrayList<>();
-    }
-
     @Override
     public int maxLevel() {
         return 2;

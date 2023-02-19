@@ -19,5 +19,7 @@ public abstract class Clickable {
 
     public abstract void onReset(double timeDelta);
 
+    public abstract void onRightClick(double timeDelta);
+
     public abstract void onOnlyHover(double timeDelta);
 }

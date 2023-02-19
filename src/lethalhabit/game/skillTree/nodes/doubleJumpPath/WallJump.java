@@ -8,10 +8,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class WallJump extends SkillTreeNode {
-    @Override
-    public ArrayList<SkillTreeNode> followingNodes() {
-        return null;
-    }
+
+    public ArrayList<SkillTreeNode> followingNodes = null;
 
     @Override
     public int maxLevel() {

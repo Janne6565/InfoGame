@@ -8,10 +8,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Fireball extends SkillTreeNode {
-    @Override
-    public ArrayList<SkillTreeNode> followingNodes() {
-        return null;
-    }
 
     @Override
     public int maxLevel() {

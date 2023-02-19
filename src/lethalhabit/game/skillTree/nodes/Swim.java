@@ -10,11 +10,6 @@ import java.util.ArrayList;
 public class Swim extends SkillTreeNode {
 
     @Override
-    public ArrayList<SkillTreeNode> followingNodes() {
-        return null;
-    }
-
-    @Override
     public int maxLevel() {
         return 2;
     }
