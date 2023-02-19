@@ -28,5 +28,4 @@ public abstract class SkillTreeNode {
     public void onSkill(int level) {
         this.level = level;
     };
-
 }

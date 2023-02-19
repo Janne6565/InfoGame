@@ -40,6 +40,9 @@ public final class GamePanel extends JPanel {
     public static BufferedImage buffer;
     public boolean showed = false;
 
+    public BufferedImage BACK_BUTTON = Util.getImage("/assets/hud/back.png");
+    public float BACK_BUTTON_SCALE = 1;
+
     public BufferedImage SKILL_TREE_BACKGROUND = Util.getImage("/assets/hud/skillTree/background.png");
     public BufferedImage SKILL_TREE_CONNECTION = Util.getImage("/assets/hud/skillTree/connection_main.png");
     public BufferedImage SKILL_TREE_CONNECTION_SIDE = Util.getImage("/assets/hud/skillTree/connection_side.png");
@@ -221,6 +224,36 @@ public final class GamePanel extends JPanel {
                     skills = skillTree.startNodes;
                 } else {
                     skills = nodeFocused.followingNodes;
+                    Point position = new Point((int) (12.0 * Main.scaledPixelSize()), (int) (15.0 * Main.scaledPixelSize()));
+                    Point pointBotRight = new Point((int) (BACK_BUTTON.getWidth() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE), (int) (BACK_BUTTON.getHeight() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE));
+                    clickables.add(new Clickable(position, new Hitbox(new Point(0, 0), new Point(0, pointBotRight.y()), new Point(pointBotRight.x(), pointBotRight.y()), new Point(pointBotRight.x(), 0))) {
+                        @Override
+                        public void onClick(double timeDelta) {
+                            nodeFocused = null;
+                            clearClickables();
+                            loadClickables();
+                        }
+
+                        @Override
+                        public void onHover(double timeDelta) {
+                            BACK_BUTTON_SCALE = (float) Math.min(BACK_BUTTON_SCALE + timeDelta * 0.3, 1.1);
+                        }
+
+                        @Override
+                        public void onReset(double timeDelta) {
+                            BACK_BUTTON_SCALE = (float) Math.max(BACK_BUTTON_SCALE - timeDelta * 0.3, 1);
+                        }
+
+                        @Override
+                        public void onRightClick(double timeDelta) {
+
+                        }
+
+                        @Override
+                        public void onOnlyHover(double timeDelta) {
+
+                        }
+                    });
                 }
 
                 for (SkillTreeNode skill : skills) {
@@ -231,7 +264,7 @@ public final class GamePanel extends JPanel {
                     Point pointToDrawNode = new Point(Main.screenWidth / 2.0, Main.screenHeight / 2.0)
                             .minus(imageBorder.getWidth() / 2.0, imageBorder.getHeight() / 2.0)
                             .plus(
-                                    skill.position().scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
+                                skill.position().scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
                             );
 
                     Hitbox hitbox = new Hitbox(new Point(0, 0), new Point(0, imageBorder.getWidth()), new Point(imageBorder.getHeight(), imageBorder.getWidth()), new Point(imageBorder.getHeight(), 0));
@@ -244,11 +277,6 @@ public final class GamePanel extends JPanel {
     private void renderSkillTree(Graphics graphics) {
         SkillTree skillTree = Main.mainCharacter.PLAYER_SKILL_TREE;
         ArrayList<SkillTreeNode> skills;
-        if (nodeFocused == null) {
-            skills = skillTree.startNodes;
-        } else {
-            skills = nodeFocused.followingNodes;
-        }
 
         float skilltreeWidthProportion = (float) Main.screenWidth / SKILL_TREE_BACKGROUND.getWidth();
         float skilltreeHeightProportion = (float) Main.screenHeight / SKILL_TREE_BACKGROUND.getHeight();
@@ -256,10 +284,17 @@ public final class GamePanel extends JPanel {
 
         int width = (int) (SKILL_TREE_BACKGROUND.getWidth() * proportionForImage);
         int height = (int) (SKILL_TREE_BACKGROUND.getHeight() * proportionForImage);
-
         Point pointForCentering = new Point(Main.screenWidth, Main.screenHeight).divide(2).minus(width / 2.0, height / 2.0);
 
         graphics.drawImage(SKILL_TREE_BACKGROUND, 0, 0, width, height, null);
+
+        if (nodeFocused == null) {
+            skills = skillTree.startNodes;
+        } else {
+            skills = nodeFocused.followingNodes;
+            graphics.drawImage(BACK_BUTTON, (int) (12.0 * Main.scaledPixelSize()), (int) (15.0 * Main.scaledPixelSize()), (int) (BACK_BUTTON.getWidth() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE), (int) (BACK_BUTTON.getHeight() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE), null);
+        }
+
         for (SkillTreeNode skill : skills) {
             BufferedImage imageInside = skill.image();
             BufferedImage icon = SKILL_TREE_ICONS.get(skill.level);
