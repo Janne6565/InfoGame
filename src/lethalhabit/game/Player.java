@@ -95,7 +95,6 @@ public class Player extends Entity {
         if (dashCoolDown == 0 && dashes < DASH_AMOUNTS) {
             dashCoolDown = DASH_COOLDOWN;
             dashes += 1;
-            System.out.println(dashes);
         }
     }
     
@@ -321,7 +320,6 @@ public class Player extends Entity {
     }
 
     public void dash() {
-        System.out.println(dashes);
         if (direction != Direction.NONE && dashes > 0 && dashCooldownSafety == 0) {
             dashCooldownSafety = 1;
             recoil = switch (direction) {

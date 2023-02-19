@@ -164,9 +164,6 @@ public final class GamePanel extends JPanel {
                                 ) {
                                     double timeBefore = System.currentTimeMillis();
                                     g.drawImage(image, (int) positionOfImage.x(), (int) positionOfImage.y(), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), null);
-                                    if (System.currentTimeMillis() != timeBefore) {
-                                        System.out.println(System.currentTimeMillis() - timeBefore);
-                                    }
                                 }
                             } else {
                                 if (!pathsLoaded.contains(path)) {
