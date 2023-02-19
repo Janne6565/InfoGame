@@ -27,13 +27,16 @@ public class Animation implements Iterable<BufferedImage> {
     public final double frameTime;
     public final double length; // Time needed to run the animation
     public final double animationOffset;
-    
-    public static void loadAnimations() {
+
+    public static void loadPlayerAnimations() {
         PLAYER_IDLE = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
-        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.85, "slash", Player.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
-        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.85, PLAYER_SLASH_LEFT.getMirroredAnimation(), Player.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
+    }
+
+    public static void loadAnimations() {
+        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.85, "slash", Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.85, PLAYER_SLASH_LEFT.getMirroredAnimation(), Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
     }
     
     /**

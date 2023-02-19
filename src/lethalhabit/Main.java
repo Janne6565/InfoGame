@@ -67,7 +67,7 @@ public final class Main {
     public static final Set<Drawable> drawables = new HashSet<>();
     public static final Set<Tickable> tickables = new HashSet<>();
     public static final float SCALING_SPEED_GROWSHROOM = 100;
-    
+
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
     public static boolean IS_GAME_LOADING = true;
@@ -82,6 +82,7 @@ public final class Main {
     public static Player mainCharacter;
     
     public static Map<Integer, Map<Integer, Tile>> map;
+    public static Map<Integer, Map<Integer, String>> backgroundImages;
     public static Map<Integer, Map<Integer, List<EventArea>>> eventAreas;
     public static Map<Integer, Map<Integer, List<Hittable>>> hittables;
     
@@ -112,10 +113,12 @@ public final class Main {
         loadSettings();
         setupCamera();
         Liquid.loadLiquids();
+        Animation.loadPlayerAnimations();
+        mainCharacter = new Player(new Point(3816, 500)); // TODO: load skills from file
         Animation.loadAnimations();
         Block.loadBlocks();
         GamePanel.generateMinimap();
-        mainCharacter = new Player(new Point(3816, 500), new PlayerSkills()); // TODO: load skills from file
+        loadBackgrounds();
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
@@ -130,7 +133,11 @@ public final class Main {
         EventArea growShroom = new GrowShroom(new Point(3718, 500));
         Util.registerEventArea(growShroom);
     }
-    
+
+    private static void loadBackgrounds() {
+        backgroundImages = Util.getBackgroundImages();
+    }
+
     public static void playSoundtrack() {
         try {
             Sound soundtrack = new Sound("/assets/music/soundtrack1.wav");
@@ -264,7 +271,7 @@ public final class Main {
                                 mainCharacter.jump();
                             }
                         } else if (activeKeys.contains(VK_CONTROL)) {
-                            if (mainCharacter.isSubmerged() && mainCharacter.skills.swim > 0) {
+                            if (mainCharacter.isSubmerged()) {
                                 mainCharacter.moveDown();
                             }
                         } else {
@@ -274,16 +281,16 @@ public final class Main {
                             mainCharacter.resetJump();
                         }
                         
-                        if (activeKeys.contains(VK_SHIFT) && mainCharacter.skills.dash > 0) {
+                        if (activeKeys.contains(VK_SHIFT)) {
                             mainCharacter.dash();
                         }
                         
                         if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
-                            if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
+                            if (!mainCharacter.isSubmerged()) {
                                 mainCharacter.moveLeft();
                             }
                         } else if (activeKeys.contains(VK_D) && !activeKeys.contains(VK_A)) {
-                            if (!mainCharacter.isSubmerged() || mainCharacter.skills.swim > 0) {
+                            if (!mainCharacter.isSubmerged()) {
                                 mainCharacter.moveRight();
                             }
                         } else {

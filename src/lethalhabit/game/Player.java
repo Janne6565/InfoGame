@@ -1,6 +1,7 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
+import lethalhabit.game.skillTree.SkillTree;
 import lethalhabit.ui.*;
 import lethalhabit.util.PlayerSkills;
 import lethalhabit.math.*;
@@ -20,27 +21,38 @@ public class Player extends Entity {
             new Point(33, 42).scale(WIDTH / 50.0),
             new Point(33, 14).scale(WIDTH / 50.0)
     );
-    
-    public static final Hitbox HIT_HITBOX = new Hitbox(
+
+
+    public static final double MOVEMENT_SPEED = 80;
+    public static final double JUMP_BOOST = 200;
+    public static final double WALL_JUMP_BOOST = 200;
+    public static final double DASH_BOOST = 300;
+    public static final double RECOIL_RESET_DASH = 1000;
+    public static final double RECOIL_RESET_WALL_JUMP = 1000;
+    public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
+
+
+    public int hp = 10; // Wow, really great job you did here my friend :)))))))))
+
+
+    public Hitbox HIT_HITBOX = new Hitbox(
             new Point(0, 5),
             new Point(15, 5),
             new Point(15, 25),
             new Point(0, 25)
     );
-    
-    public static final double MOVEMENT_SPEED = 80;
-    public static final double JUMP_BOOST = 200;
-    public static final double WALL_JUMP_BOOST = 200;
-    public static final double DASH_BOOST = 300;
-    public static final double DASH_COOLDOWN = 2;
-    public static final double DOUBLE_JUMP_COOLDOWN = 1;
-    public static final double RECOIL_RESET_DASH = 1000;
-    public static final double RECOIL_RESET_WALL_JUMP = 1000;
-    public static final double FIREBALL_COOLDOWN = 2;
-    public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
-    public static final double ATTACK_COOLDOWN = 0.5;
 
-    public int hp = 10; // Wow really great job you did here my friend :)))))))))
+    public SkillTree PLAYER_SKILL_TREE = new SkillTree();
+
+    public boolean CAN_MAKE_FIREBALL = false;
+    public double FIREBALL_COOLDOWN = 5;
+    public double ATTACK_COOLDOWN = 1;
+    public double DOUBLE_JUMP_COOLDOWN = 3;
+    public int DASH_AMOUNTS = 0;
+    public double DASH_COOLDOWN = 5;
+    public int DOUBLE_JUMP_AMOUNT = 0;
+    public boolean CAN_WALL_JUMP = false;
+    public boolean CAN_WALL_JUMP_ONCE_PER_SIDE = false;
 
     /**
      * Until end of the cooldown you will remain in a state where gravity isn't affecting you at all <3
@@ -48,25 +60,27 @@ public class Player extends Entity {
     public double gravityCooldown = 0.0;
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
-    
+
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
     private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
-    
+
     private int timesJumped = 0;
-    public PlayerSkills skills;
-    
+
+    public double doubleJumpCooldown = 3;
+    public double dashCooldownSafety = 0;
+
     public double dashCoolDown = 0;
-    public double doubleJumpCooldown = 0;
-
     public double attackCooldown = 0;
+    private int dashes = DASH_AMOUNTS;
 
-    public Player(Point position, PlayerSkills skills) {
+
+
+    public Player(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
-        this.skills = skills;
     }
 
-    public static Dimension getHitDimensions() {
+    public Dimension getHitDimensions() {
         return new Dimension((int) (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (int) (HIT_HITBOX.maxY() - HIT_HITBOX.minY()));
     }
 
@@ -76,6 +90,13 @@ public class Player extends Entity {
         doubleJumpCooldown = Math.max(doubleJumpCooldown - timeDelta, 0);
         gravityCooldown = Math.max(gravityCooldown - timeDelta, 0);
         attackCooldown = Math.max(attackCooldown - timeDelta, 0);
+        dashCooldownSafety = Math.max(dashCooldownSafety - timeDelta, 0);
+
+        if (dashCoolDown == 0 && dashes < DASH_AMOUNTS) {
+            dashCoolDown = DASH_COOLDOWN;
+            dashes += 1;
+            System.out.println(dashes);
+        }
     }
     
     /**
@@ -135,7 +156,7 @@ public class Player extends Entity {
      * Shoots fireball <3
      */
     public void makeFireball() {
-        if (fireBallCooldown == 0.0) {
+        if (fireBallCooldown == 0.0 && CAN_MAKE_FIREBALL) {
             fireBallCooldown = FIREBALL_COOLDOWN;
             new Fireball(this.position, lastDirection);
         }
@@ -147,7 +168,7 @@ public class Player extends Entity {
      * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
-        return timesJumped <= 0 || isWallDown();
+        return (timesJumped < DOUBLE_JUMP_AMOUNT && doubleJumpCooldown == 0) || isWallDown();
     }
     
     public void jump() {
@@ -159,25 +180,24 @@ public class Player extends Entity {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             return;
         }
-        if (skills.wallJump > 0) {
-            if (direction == Direction.LEFT && !hasJumpedLeft && isWallLeft()) {
-                hasJumpedLeft = true;
-                velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
-                recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
-                resetRecoil = RECOIL_RESET_WALL_JUMP;
-                return;
-            } else if (direction == Direction.RIGHT && !hasJumpedRight && isWallRight()) {
-                hasJumpedRight = true;
-                velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
-                recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
-                resetRecoil = RECOIL_RESET_WALL_JUMP;
-                return;
-            }
+        if (direction == Direction.LEFT && ((!hasJumpedLeft && !hasJumpedRight) || (CAN_WALL_JUMP_ONCE_PER_SIDE && !hasJumpedLeft)) && isWallLeft() && CAN_WALL_JUMP) {
+            hasJumpedLeft = true;
+            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+            recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
+            resetRecoil = RECOIL_RESET_WALL_JUMP;
+            return;
+        } else if (direction == Direction.RIGHT && ((!hasJumpedLeft && !hasJumpedRight) || (CAN_WALL_JUMP_ONCE_PER_SIDE && !hasJumpedRight)) && isWallRight() && CAN_WALL_JUMP) {
+            hasJumpedRight = true;
+            velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
+            recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
+            resetRecoil = RECOIL_RESET_WALL_JUMP;
+            return;
         }
-        if (canJump() && skills.doubleJump > 0) {
+        if (canJump()) {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             if (!isWallDown()) {
                 timesJumped += 1;
+                doubleJumpCooldown = DOUBLE_JUMP_COOLDOWN;
             }
         }
         jumpBoost = 1.0;
@@ -190,18 +210,6 @@ public class Player extends Entity {
             jumpBoost = 1;
         } else {
             onGroundReset();
-            jumpBoost = switch (skills.swim) {
-                case 1 -> 0.3;
-                case 2 -> 0.5;
-                case 3 -> 0.8;
-                default -> 0.0;
-            };
-            viscosity = switch (skills.swim) {
-                case 1 -> 0.6 * viscosity;
-                case 2 -> 0.8 * viscosity;
-                case 3 -> viscosity;
-                default -> 0.0;
-            };
         }
     }
     
@@ -237,8 +245,8 @@ public class Player extends Entity {
     public void hit() {
         if (lastDirection != Direction.NONE) {
             Point pointBasedOnMotion = switch (lastDirection) {
-                case LEFT -> new Point(hitbox.minX() - (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Player.HIT_HITBOX.maxY() - Player.HIT_HITBOX.minY()) / 2 - Player.HIT_HITBOX.minY());
-                case RIGHT -> new Point(hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Player.HIT_HITBOX.maxY() - Player.HIT_HITBOX.minY()) / 2 - Player.HIT_HITBOX.minY());
+                case LEFT -> new Point(hitbox.minX() - (HIT_HITBOX.maxX() - HIT_HITBOX.minX()), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Main.mainCharacter.HIT_HITBOX.maxY() - Main.mainCharacter.HIT_HITBOX.minY()) / 2 - Main.mainCharacter.HIT_HITBOX.minY());
+                case RIGHT -> new Point(hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Main.mainCharacter.HIT_HITBOX.maxY() - Main.mainCharacter.HIT_HITBOX.minY()) / 2 - Main.mainCharacter.HIT_HITBOX.minY());
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
             };
             Hitbox hitbox = HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
@@ -311,9 +319,11 @@ public class Player extends Entity {
         Main.camera.resetCameraUp();
         Main.camera.resetCameraDown();
     }
-    
+
     public void dash() {
-        if (dashCoolDown <= 0 && direction != Direction.NONE) {
+        System.out.println(dashes);
+        if (direction != Direction.NONE && dashes > 0 && dashCooldownSafety == 0) {
+            dashCooldownSafety = 1;
             recoil = switch (direction) {
                 case LEFT -> new Vec2D(-DASH_BOOST, 0);
                 case RIGHT -> new Vec2D(DASH_BOOST, 0);
@@ -321,7 +331,7 @@ public class Player extends Entity {
             };
             resetRecoil = RECOIL_RESET_DASH;
             velocity = new Vec2D(velocity.x(), 0);
-            dashCoolDown = DASH_COOLDOWN;
+            dashes -= 1;
             gravityCooldown = TIME_NO_GRAVITY_AFTER_DASH;
         }
     }

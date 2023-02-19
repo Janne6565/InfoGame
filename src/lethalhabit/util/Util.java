@@ -582,4 +582,22 @@ public final class Util {
             throw new RuntimeException(e);
         }
     }
+
+    public static Map<Integer, Map<Integer, String>> getBackgroundImages() {
+        Dimension lastTile = GamePanel.minimap.size;
+        Map<Integer, Map<Integer, String>> map = new HashMap<>();
+
+        for (int x = 0; x < lastTile.width / Main.BACKGROUND_TILE_SIZE; x++) {
+            Map<Integer, String> mapY = new HashMap<>();
+            for (int y = 0; y < lastTile.height / Main.BACKGROUND_TILE_SIZE; y++) {
+                String path = "/assets/backgrounds/X" + x + "_Y" + y +".png";
+                Image backgroundImage = Util.getImage(path);
+                if (backgroundImage != null) {
+                    mapY.put(y, path);
+                }
+            }
+            map.put(x, mapY);
+        }
+        return map;
+    }
 }

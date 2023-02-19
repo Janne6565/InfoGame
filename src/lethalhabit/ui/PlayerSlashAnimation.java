@@ -63,11 +63,11 @@ public class PlayerSlashAnimation implements Drawable, Tickable {
     public Point getPosition() {
         Point position = Main.mainCharacter.getPosition();
         Point pointBasedOnMotion = switch (direction) {
-            case LEFT -> new Point(Main.mainCharacter.hitbox.minX() - (Player.HIT_HITBOX.maxX() - Player.HIT_HITBOX.minX()), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Player.HIT_HITBOX.maxY() - Player.HIT_HITBOX.minY()) / 2 - Player.HIT_HITBOX.minY());
-            case RIGHT -> new Point(Main.mainCharacter.hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Player.HIT_HITBOX.maxY() - Player.HIT_HITBOX.minY()) / 2 - Player.HIT_HITBOX.minY());
+            case LEFT -> new Point(Main.mainCharacter.hitbox.minX() - (Main.mainCharacter.HIT_HITBOX.maxX() - Main.mainCharacter.HIT_HITBOX.minX()), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Main.mainCharacter.HIT_HITBOX.maxY() - Main.mainCharacter.HIT_HITBOX.minY()) / 2 - Main.mainCharacter.HIT_HITBOX.minY());
+            case RIGHT -> new Point(Main.mainCharacter.hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - (Main.mainCharacter.HIT_HITBOX.maxY() - Main.mainCharacter.HIT_HITBOX.minY()) / 2 - Main.mainCharacter.HIT_HITBOX.minY());
             default -> throw new IllegalStateException("Unexpected value: " + direction);
         };
-        Hitbox hitbox = Player.HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
+        Hitbox hitbox = Main.mainCharacter.HIT_HITBOX.shift(position).shift(pointBasedOnMotion);
         return new Point(hitbox.minX(), hitbox.minY());
     }
 
@@ -80,7 +80,7 @@ public class PlayerSlashAnimation implements Drawable, Tickable {
     public void draw(Graphics graphics) {
         Drawable.super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
-            Util.drawHitbox(graphics, Player.HIT_HITBOX.shift(getPosition()).shift(-Player.HIT_HITBOX.minX(), -Player.HIT_HITBOX.minY()));
+            Util.drawHitbox(graphics, Main.mainCharacter.HIT_HITBOX.shift(getPosition()).shift(-Main.mainCharacter.HIT_HITBOX.minX(), -Main.mainCharacter.HIT_HITBOX.minY()));
         }
     }
 }
