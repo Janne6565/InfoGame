@@ -3,7 +3,6 @@ package lethalhabit;
 import lethalhabit.game.*;
 import lethalhabit.game.enemy.Frog;
 import lethalhabit.game.enemy.Goomba;
-import lethalhabit.math.Hitbox;
 import lethalhabit.sound.Sound;
 import lethalhabit.math.Point;
 import lethalhabit.testing.GrowShroom;
@@ -12,7 +11,6 @@ import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.ui.GamePanel;
-import lethalhabit.util.PlayerSkills;
 import lethalhabit.util.Settings;
 import lethalhabit.util.Util;
 import lethalhabit.world.Block;
@@ -42,6 +40,8 @@ public final class Main {
     public static final Map<Integer, Class<? extends Entity>> ENTITY_TYPES = Map.of(
             0, Frog.class
     );
+    
+    public static final Settings SETTINGS = new Settings();
     
     public static final boolean MINIMIZED = false;
     public static final boolean DEBUG_HITBOX = false;
