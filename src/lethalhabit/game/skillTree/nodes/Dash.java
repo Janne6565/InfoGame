@@ -9,29 +9,8 @@ import java.util.ArrayList;
 
 public class Dash extends SkillTreeNode {
 
-    @Override
-    public int maxLevel() {
-        return 2;
-    }
-
-    @Override
-    public boolean isUltimate() {
-        return true;
-    }
-
-    @Override
-    public BufferedImage image() {
-        return null;
-    }
-
-    @Override
-    public Point position() {
-        return new Point(0, 0);
-    }
-
-    @Override
-    public String name() {
-        return "SCHWUUUP";
+    public Dash() {
+        super("Schwuuup", null, new Point(0, 0), true,2, null);
     }
 
     @Override

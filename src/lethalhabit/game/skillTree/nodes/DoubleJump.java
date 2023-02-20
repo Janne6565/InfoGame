@@ -14,34 +14,10 @@ public class DoubleJump extends SkillTreeNode {
 
 
     public DoubleJump() {
+        super("Fluuup", null, new Point(0.71, 0.71), true,3, null);
         followingNodes = new ArrayList<>(List.of(new WallJump[]{
                 new WallJump(),
         }));
-    }
-
-    @Override
-    public int maxLevel() {
-        return 3;
-    }
-
-    @Override
-    public boolean isUltimate() {
-        return true;
-    }
-
-    @Override
-    public BufferedImage image() {
-        return null;
-    }
-
-    @Override
-    public Point position() {
-        return new Point(0.71, 0.71);
-    }
-
-    @Override
-    public String name() {
-        return "Fluup";
     }
 
     @Override

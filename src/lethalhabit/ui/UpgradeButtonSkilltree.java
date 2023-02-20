@@ -7,7 +7,7 @@ import lethalhabit.math.Point;
 
 public class UpgradeButtonSkilltree extends Clickable {
     public SkillTreeNode node;
-    public static final double HOLD_THRESHHOLD = 1.5;
+    public static final double HOLD_THRESHOLD = 0.5;
     public double timeHeld = 0;
 
     public UpgradeButtonSkilltree(Point position, Hitbox hitbox, SkillTreeNode node) {
@@ -18,7 +18,7 @@ public class UpgradeButtonSkilltree extends Clickable {
     @Override
     public void onClick(double timeDelta) {
         timeHeld += timeDelta;
-        if (timeHeld >= HOLD_THRESHHOLD && Main.mainCharacter.spareLevel >= 1 && node.level < node.maxLevel()) {
+        if (timeHeld >= HOLD_THRESHOLD && Main.mainCharacter.spareLevel >= 1 && node.level < node.maxLevel) {
             timeHeld = 0;
             node.onSkill(node.level + 1);
             Main.mainCharacter.spareLevel -= 1;

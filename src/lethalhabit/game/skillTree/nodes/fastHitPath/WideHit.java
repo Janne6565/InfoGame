@@ -5,36 +5,9 @@ import lethalhabit.game.skillTree.SkillTreeNode;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.Point;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
 public class WideHit extends SkillTreeNode {
-
-    public ArrayList<SkillTreeNode> followingNodes = null;
-
-    @Override
-    public int maxLevel() {
-        return 2;
-    }
-
-    @Override
-    public boolean isUltimate() {
-        return false;
-    }
-
-    @Override
-    public BufferedImage image() {
-        return null;
-    }
-
-    @Override
-    public Point position() {
-        return new Point(0, 0);
-    }
-
-    @Override
-    public String name() {
-        return "Strong Blow";
+    public WideHit() {
+        super("Strong Blow", null, new Point(0, 0), false, 2, null);
     }
 
     @Override

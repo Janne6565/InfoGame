@@ -4,36 +4,11 @@ import lethalhabit.Main;
 import lethalhabit.game.skillTree.SkillTreeNode;
 import lethalhabit.math.Point;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
 public class Fireball extends SkillTreeNode {
 
-    @Override
-    public int maxLevel() {
-        return 2;
+    public Fireball() {
+        super("Breath of the Kings", null, new Point(0.71, -0.71), false,2, null);
     }
-
-    @Override
-    public boolean isUltimate() {
-        return true;
-    }
-
-    @Override
-    public BufferedImage image() {
-        return null;
-    }
-
-    @Override
-    public Point position() {
-        return new Point(0.71, -0.71);
-    }
-
-    @Override
-    public String name() {
-        return "Breath of the Kings";
-    }
-
 
     @Override
     public void onSkill(int level) {

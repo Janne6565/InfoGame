@@ -264,7 +264,7 @@ public final class GamePanel extends JPanel {
                     Point pointToDrawNode = new Point(Main.screenWidth / 2.0, Main.screenHeight / 2.0)
                             .minus(imageBorder.getWidth() / 2.0, imageBorder.getHeight() / 2.0)
                             .plus(
-                                skill.position().scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
+                                skill.position.scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
                             );
 
                     Hitbox hitbox = new Hitbox(new Point(0, 0), new Point(0, imageBorder.getWidth()), new Point(imageBorder.getHeight(), imageBorder.getWidth()), new Point(imageBorder.getHeight(), 0));
@@ -296,7 +296,7 @@ public final class GamePanel extends JPanel {
         }
 
         for (SkillTreeNode skill : skills) {
-            BufferedImage imageInside = skill.image();
+            BufferedImage imageInside = skill.image;
             BufferedImage icon = SKILL_TREE_ICONS.get(skill.level);
             BufferedImage imageBorder = new BufferedImage((int) (icon.getWidth() * skill.scale), (int) (icon.getHeight() * skill.scale), BufferedImage.TYPE_INT_ARGB);
             imageBorder.getGraphics().drawImage(icon, 0, 0, (int) (icon.getWidth() * skill.scale), (int) (icon.getHeight() * skill.scale), null);
@@ -311,19 +311,19 @@ public final class GamePanel extends JPanel {
             Point pointToDrawNode = new Point(Main.screenWidth / 2.0, Main.screenHeight / 2.0)
                     .minus(imageBorder.getWidth() / 2.0, imageBorder.getHeight() / 2.0)
                     .plus(
-                            skill.position().scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
+                            skill.position.scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
                     );
             graphics.drawImage(imageBorder, (int) pointToDrawNode.x(), (int) pointToDrawNode.y(), null);
 
             Graphics2D graphics2D = (Graphics2D) graphics;
             graphics2D.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (FONT_SIZE_SKILL_TREE * Main.scaledPixelSize() * 16 / 12)));
-            int textWidth = graphics2D.getFontMetrics().stringWidth(skill.name());
+            int textWidth = graphics2D.getFontMetrics().stringWidth(skill.name);
             int textHeight = graphics2D.getFontMetrics().getHeight();
             BufferedImage text = new BufferedImage(textWidth, textHeight, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = (Graphics2D) text.getGraphics();
             g.setColor(Color.WHITE);
             g.setFont(new Font(Font.MONOSPACED, Font.BOLD, (int) (FONT_SIZE_SKILL_TREE * Main.scaledPixelSize() * 16 / 12 /* Constant for px to pt */)));
-            g.drawString(skill.name(), 0, (int) (textHeight - FONT_SIZE_SKILL_TREE * Main.scaledPixelSize() * 0.5));
+            g.drawString(skill.name, 0, (int) (textHeight - FONT_SIZE_SKILL_TREE * Main.scaledPixelSize() * 0.5));
 
             Point pointToWriteTextCenter = pointToDrawNode.plus(imageBorder.getWidth() / 2.0, imageBorder.getHeight()).minus(textWidth / 2.0, 0);
             graphics.drawImage(text, (int) pointToWriteTextCenter.x(), (int) pointToWriteTextCenter.y(), null);

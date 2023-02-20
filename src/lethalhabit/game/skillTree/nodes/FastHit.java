@@ -12,34 +12,9 @@ import java.util.List;
 public class FastHit extends SkillTreeNode {
 
     public FastHit() {
-        followingNodes = new ArrayList<>(List.of(new WideHit[]{
+        super("Super Shred", null, new Point(-0.71, 0.71), false,2, new ArrayList<>(List.of(new WideHit[]{
                 new WideHit(),
-        }));
-    }
-
-    @Override
-    public int maxLevel() {
-        return 2;
-    }
-
-    @Override
-    public boolean isUltimate() {
-        return true;
-    }
-
-    @Override
-    public BufferedImage image() {
-        return null;
-    }
-
-    @Override
-    public Point position() {
-        return new Point(-0.71, 0.71);
-    }
-
-    @Override
-    public String name() {
-        return "Super Shred";
+        })));
     }
 
     @Override
