@@ -1,9 +1,9 @@
 package lethalhabit.game;
 
 import lethalhabit.Main;
-import lethalhabit.game.skillTree.SkillTree;
+import lethalhabit.game.skills.SkillTree;
 import lethalhabit.ui.*;
-import lethalhabit.util.Skills;
+import lethalhabit.game.skills.Skills;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
 import lethalhabit.util.Util;
@@ -31,29 +31,6 @@ public class Player extends Entity {
     public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
     
     public int hp = 10;
-    
-    public Hitbox getAttackHitbox() {
-        return switch (skills.attackRange.get()) {
-            case 1 -> new Hitbox(
-                new Point(0, 5),
-                new Point(25, 5),
-                new Point(25, 25),
-                new Point(0, 25)
-            );
-            case 2 -> new Hitbox(
-                new Point(0, 5),
-                new Point(25, 5),
-                new Point(25, 35),
-                new Point(0, 35)
-            );
-            default -> new Hitbox(
-                new Point(0, 5),
-                new Point(15, 5),
-                new Point(15, 25),
-                new Point(0, 25)
-            );
-        };
-    }
     
     public final Skills skills = new Skills(); // TODO: load from file
     
@@ -85,7 +62,7 @@ public class Player extends Entity {
     }
     
     public Dimension getHitDimensions() {
-        return new Dimension((int) (getAttackHitbox().maxX() - getAttackHitbox().minX()), (int) (getAttackHitbox().maxY() - getAttackHitbox().minY()));
+        return new Dimension((int) (skills.attackHitbox.maxX() - skills.attackHitbox.minX()), (int) (skills.attackHitbox.maxY() - skills.attackHitbox.minY()));
     }
     
     private void resetCooldowns(double timeDelta) {
@@ -96,16 +73,8 @@ public class Player extends Entity {
         attackCooldown = Math.max(attackCooldown - timeDelta, 0);
         dashCooldownSafety = Math.max(dashCooldownSafety - timeDelta, 0);
         
-        int possibleDashes = switch (skills.dash.get()) {
-            case 1, 2 -> 1;
-            case 3 -> 2;
-            default -> 0;
-        };
-        if (dashCoolDown <= 0 && timesDashed < possibleDashes) {
-            dashCoolDown = switch (skills.dash.get()) {
-                case 2, 3 -> 3;
-                default -> 5;
-            };
+        if (dashCoolDown <= 0 && timesDashed < skills.dashAmount) {
+            dashCoolDown = skills.dashCooldown;
             timesDashed += 1;
         }
     }
@@ -164,11 +133,8 @@ public class Player extends Entity {
      * Shoots fireball <3
      */
     public void makeFireball() {
-        if (fireballCooldown <= 0 && skills.fireball.get() >= 1) {
-            fireballCooldown = switch (skills.fireball.get()) {
-                case 2 -> 3;
-                default -> 5;
-            };
+        if (fireballCooldown <= 0 && skills.canMakeFireball) {
+            fireballCooldown = skills.fireballCooldown;
             new Fireball(this.position, lastDirection);
         }
     }
@@ -178,11 +144,7 @@ public class Player extends Entity {
      * @return true if the player can jump, false otherwise
      */
     public boolean canJump() {
-        int possibleDoubleJumps = switch (skills.doubleJump.get()) {
-            case 1, 2 -> 1;
-            case 3 -> 2;
-            default -> 0;
-        };
+        int possibleDoubleJumps = skills.doubleJumpAmount;
         return (timesJumped < possibleDoubleJumps && doubleJumpCooldown <= 0) || isWallDown();
     }
     
@@ -195,13 +157,13 @@ public class Player extends Entity {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             return;
         }
-        if (direction == Direction.LEFT && ((!hasJumpedLeft && !hasJumpedRight) || (skills.wallJump.get() >= 2 && !hasJumpedLeft)) && isWallLeft() && skills.wallJump.get() >= 1) {
+        if (direction == Direction.LEFT && ((!hasJumpedLeft && !hasJumpedRight) || (skills.canWallJumpBothSides && !hasJumpedLeft)) && isWallLeft() && skills.canWallJump) {
             hasJumpedLeft = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
             resetRecoil = RECOIL_RESET_WALL_JUMP;
             return;
-        } else if (direction == Direction.RIGHT && ((!hasJumpedLeft && !hasJumpedRight) || (skills.wallJump.get() >= 2 && !hasJumpedRight)) && isWallRight() && skills.wallJump.get() >= 1) {
+        } else if (direction == Direction.RIGHT && ((!hasJumpedLeft && !hasJumpedRight) || (skills.canWallJumpBothSides && !hasJumpedRight)) && isWallRight() && skills.canWallJump) {
             hasJumpedRight = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
@@ -212,11 +174,7 @@ public class Player extends Entity {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             if (!isWallDown()) {
                 timesJumped += 1;
-                doubleJumpCooldown = switch (skills.doubleJump.get()) {
-                    case 2 -> 1;
-                    case 3 -> 0;
-                    default -> 3;
-                };
+                doubleJumpCooldown = skills.doubleJumpCooldown;
             }
         }
         jumpBoost = 1.0;
@@ -264,19 +222,15 @@ public class Player extends Entity {
         if (lastDirection != Direction.NONE) {
             Point pointBasedOnMotion = switch (lastDirection) {
                 case LEFT ->
-                        new Point(hitbox.minX() - getHitDimensions().getWidth(), (hitbox.maxY() - hitbox.minY()) - getHitDimensions().getHeight() / 2 - getAttackHitbox().minY());
+                        new Point(hitbox.minX() - getHitDimensions().getWidth(), (hitbox.maxY() - hitbox.minY()) - getHitDimensions().getHeight() / 2 - skills.attackHitbox.minY());
                 case RIGHT ->
-                        new Point(hitbox.maxX(), (hitbox.maxY() - hitbox.minY()) - getHitDimensions().getHeight() / 2 - getAttackHitbox().minY());
+                        new Point(hitbox.maxX(), (hitbox.maxY() - hitbox.minY()) - getHitDimensions().getHeight() / 2 - skills.attackHitbox.minY());
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
             };
-            Hitbox hitbox = getAttackHitbox().shift(position).shift(pointBasedOnMotion);
+            Hitbox hitbox = skills.attackHitbox.shift(position).shift(pointBasedOnMotion);
             
             if (attackCooldown <= 0) {
-                attackCooldown = switch (skills.attackSpeed.get()) {
-                    case 1 -> 0.7;
-                    case 2 -> 0.5;
-                    default -> 1;
-                };
+                attackCooldown = skills.attackCooldown;
                 
                 List<Hittable> struck = Util.getHittablesInHitbox(hitbox);
                 

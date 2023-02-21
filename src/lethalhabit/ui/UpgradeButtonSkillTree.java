@@ -1,16 +1,17 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.game.skillTree.SkillTreeNode;
+import lethalhabit.game.skills.SkillTree;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.Point;
 
-public class UpgradeButtonSkilltree extends Clickable {
-    public SkillTreeNode node;
+public class UpgradeButtonSkillTree extends Clickable {
+    
+    public SkillTree.Node node;
     public static final double HOLD_THRESHOLD = 0.5;
     public double timeHeld = 0;
     
-    public UpgradeButtonSkilltree(Point position, Hitbox hitbox, SkillTreeNode node) {
+    public UpgradeButtonSkillTree(Point position, Hitbox hitbox, SkillTree.Node node) {
         super(position, hitbox);
         this.node = node;
     }

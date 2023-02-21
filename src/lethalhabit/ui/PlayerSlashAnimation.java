@@ -62,12 +62,12 @@ public class PlayerSlashAnimation implements Drawable, Tickable {
     public Point getPosition() {
         Point pointBasedOnMotion = switch (direction) {
             case LEFT ->
-                    new Point(Main.mainCharacter.hitbox.minX() - Main.mainCharacter.getHitDimensions().width, (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - Main.mainCharacter.getHitDimensions().getHeight() / 2 - Main.mainCharacter.getAttackHitbox().minY());
+                    new Point(Main.mainCharacter.hitbox.minX() - Main.mainCharacter.getHitDimensions().width, (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - Main.mainCharacter.getHitDimensions().getHeight() / 2 - Main.mainCharacter.skills.attackHitbox.minY());
             case RIGHT ->
-                    new Point(Main.mainCharacter.hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - Main.mainCharacter.getHitDimensions().getHeight() / 2 - Main.mainCharacter.getAttackHitbox().minY());
+                    new Point(Main.mainCharacter.hitbox.maxX(), (Main.mainCharacter.hitbox.maxY() - Main.mainCharacter.hitbox.minY()) - Main.mainCharacter.getHitDimensions().getHeight() / 2 - Main.mainCharacter.skills.attackHitbox.minY());
             default -> throw new IllegalStateException("Unexpected value: " + direction);
         };
-        Hitbox hitbox = Main.mainCharacter.getAttackHitbox().shift(Main.mainCharacter.position).shift(pointBasedOnMotion);
+        Hitbox hitbox = Main.mainCharacter.skills.attackHitbox.shift(Main.mainCharacter.position).shift(pointBasedOnMotion);
         return new Point(hitbox.minX(), hitbox.minY());
     }
     
@@ -80,7 +80,7 @@ public class PlayerSlashAnimation implements Drawable, Tickable {
     public void draw(Graphics graphics) {
         Drawable.super.draw(graphics);
         if (Main.DEBUG_HITBOX) {
-            Util.drawHitbox(graphics, Main.mainCharacter.getAttackHitbox().shift(getPosition()).shift(-Main.mainCharacter.getAttackHitbox().minX(), -Main.mainCharacter.getAttackHitbox().minY()));
+            Util.drawHitbox(graphics, Main.mainCharacter.skills.attackHitbox.shift(getPosition()).shift(-Main.mainCharacter.skills.attackHitbox.minX(), -Main.mainCharacter.skills.attackHitbox.minY()));
         }
     }
     
