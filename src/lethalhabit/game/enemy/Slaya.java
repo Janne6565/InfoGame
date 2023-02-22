@@ -2,11 +2,9 @@ package lethalhabit.game.enemy;
 
 import lethalhabit.Main;
 import lethalhabit.game.DamageSource;
-import lethalhabit.math.Direction;
-import lethalhabit.math.Hitbox;
-import lethalhabit.math.Point;
-import lethalhabit.math.Vec2D;
+import lethalhabit.math.*;
 import lethalhabit.ui.Animation;
+import lethalhabit.util.Util;
 
 public class Slaya extends Enemy {
 
@@ -87,20 +85,40 @@ public class Slaya extends Enemy {
 
                 if (Main.mainCharacter.position.x() < position.x() && isWallDown()) {
                     velocity = new Vec2D(-speed, velocity.y());
+
+                    this.lastDirection = direction;
                     direction = Direction.LEFT;
-                    if(isWallLeft(new Point(-Main.TILE_SIZE / 2, 0)) && isWallDown()){
+
+
+                    if(isWallLeft(new Point(-Main.TILE_SIZE / 2, 0)) &&
+                            isWallDown() || isWallLeft()){
                         velocity = new Vec2D(-speed, -JUMP_BOOST);
                         jumpCooldown = 1.5;
 
+                    }else if((!isWallDown(new Point(-Main.TILE_SIZE / 2, 0)) &&
+                            isWallDown(new Point(-Main.TILE_SIZE*2, Main.TILE_SIZE*1))) ||
+                            !isWallDown(new Point(-Main.TILE_SIZE / 2, 0)) &&
+                            isWallDown(new Point(-Main.TILE_SIZE*2, Main.TILE_SIZE*2)) ){
+                        velocity = new Vec2D(-speed, -JUMP_BOOST);
+                        jumpCooldown = 1.5;
                     }
+
 
                 } else if (Main.mainCharacter.position.x() > position.x() && isWallDown()) {
                     velocity = new Vec2D(speed, velocity.y());
+
+                    this.lastDirection = direction;
                     direction = Direction.RIGHT;
-                    if(isWallRight(new Point(Main.TILE_SIZE / 2, 0)) && isWallDown()){
+
+                    if(isWallRight(new Point(Main.TILE_SIZE / 2, 0)) && isWallDown() || isWallRight()){
+                        velocity = new Vec2D(speed, -JUMP_BOOST);
+                        jumpCooldown = 1.5;
+                    }else if((!isWallDown(new Point(Main.TILE_SIZE / 2, 0)) && isWallDown(new Point(Main.TILE_SIZE*2, Main.TILE_SIZE*1))) ||
+                            !isWallDown(new Point(Main.TILE_SIZE / 2, 0)) && isWallDown(new Point(Main.TILE_SIZE*2, -Main.TILE_SIZE*2))){
                         velocity = new Vec2D(speed, -JUMP_BOOST);
                         jumpCooldown = 1.5;
                     }
+
                 }
 
 
