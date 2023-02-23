@@ -1,18 +1,26 @@
 {
   "0": {
     "viscosity": 0.7,
+    "gravity": 0.6,
+    "maxGravity": 60,
     "hitbox": "FULL"
   },
   "1": {
     "viscosity": 0.7,
+    "gravity": 0.6,
+    "maxGravity": 60,
     "hitbox": "LIQUID_SURFACE"
   },
   "2": {
     "viscosity": 0.25,
+    "gravity": 0.4,
+    "maxGravity": 200,
     "hitbox": "FULL"
   },
   "3": {
     "viscosity": 0.25,
+    "gravity": 0.4,
+    "maxGravity": 200,
     "hitbox": "LIQUID_SURFACE"
   }
 }

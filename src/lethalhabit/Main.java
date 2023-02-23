@@ -133,8 +133,8 @@ public final class Main {
         enemy.spawn();
         // playSoundtrack();
         
-        EventArea growShroom = new GrowShroom(new Point(3718, 500));
-        Util.registerEventArea(growShroom);
+        EventArea growshroom = new GrowShroom(new Point(3718, 500));
+        Util.registerEventArea(growshroom);
     }
 
     private static void loadBackgrounds() {
@@ -513,5 +513,4 @@ public final class Main {
         settingsFrame.setLocationRelativeTo(null);
         settingsFrame.setVisible(true);
     }
-    
 }

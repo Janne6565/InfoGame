@@ -24,8 +24,10 @@ public final class Liquid {
             for (Map.Entry<String, Map<String, Object>> entry : raw.entrySet()) {
                 Integer key = Integer.parseInt(entry.getKey());
                 Double viscosity = (Double) entry.getValue().get("viscosity");
+                Double gravity = (Double) entry.getValue().get("gravity");
+                Double maxGravity = (Double) entry.getValue().get("maxGravity");
                 Hitbox.Type hitboxType = Hitbox.Type.valueOf((String) entry.getValue().get("hitbox"));
-                Liquid liquid = new Liquid(viscosity, hitboxType.hitbox, Util.loadScaledTileImage("/assets/liquids/liquid" + key + ".png"));
+                Liquid liquid = new Liquid(viscosity, gravity, maxGravity, hitboxType.hitbox, Util.loadScaledTileImage("/assets/liquids/liquid" + key + ".png"));
                 TILEMAP.put(key, liquid);
                 loadingProgress += 1.0 / raw.size();
             }
@@ -34,11 +36,15 @@ public final class Liquid {
     }
     
     public final double viscosity;
+    public final double gravity;
+    public final double maxGravity;
     public final Hitbox hitbox;
     public final BufferedImage graphic;
     
-    public Liquid(double viscosity, Hitbox hitbox, BufferedImage graphic) {
+    public Liquid(double viscosity, double gravity, double maxGravity, Hitbox hitbox, BufferedImage graphic) {
+        this.gravity = gravity;
         this.viscosity = viscosity;
+        this.maxGravity = maxGravity;
         this.hitbox = hitbox;
         this.graphic = graphic;
     }

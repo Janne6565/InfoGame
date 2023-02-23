@@ -1,5 +1,6 @@
 package lethalhabit.game;
 
+import com.google.gson.stream.JsonToken;
 import lethalhabit.Main;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
@@ -41,6 +42,8 @@ public abstract class Entity implements Tickable, Drawable {
     protected Vec2D recoil = new Vec2D(0, 0);
     protected double resetRecoil = 0;
     protected double viscosity = 1;
+    public double gravity = 1;
+    public double maxGravity = Main.MAX_VELOCITY_SPEED;
     protected double age = 0;
     protected boolean onGround = false;
     
@@ -137,13 +140,23 @@ public abstract class Entity implements Tickable, Drawable {
         return position;
     }
     
+    
     /**
      * Checks for liquids and adjusts movement according to viscosity.
      */
     public void checkViscosity() {
-        surroundingLiquids().stream()
+        List<Liquid> surroundingLiquids = surroundingLiquids();
+        surroundingLiquids.stream()
                 .min(Comparator.comparing(liquid -> liquid.viscosity))
                 .ifPresentOrElse(liquid -> viscosity = liquid.viscosity, () -> viscosity = 1);
+    
+        surroundingLiquids.stream()
+                .min(Comparator.comparing(liquid -> liquid.gravity))
+                .ifPresentOrElse(liquid -> gravity = liquid.gravity, () -> gravity = 1);
+        
+        surroundingLiquids.stream()
+                .min(Comparator.comparing(liquid -> liquid.maxGravity))
+                .ifPresentOrElse(liquid -> maxGravity = liquid.maxGravity, () -> maxGravity = Main.MAX_VELOCITY_SPEED);
     }
     
     public final boolean isSubmerged() {
@@ -184,14 +197,10 @@ public abstract class Entity implements Tickable, Drawable {
             onGround = false;
             midAir(timeDelta);
             if (TAKES_GRAVITY) {
-                if (viscosity != 1) {
-                    System.out.println(viscosity);
+                if (gravity != 1) {
+                    System.out.println(gravity);
                 }
-                
-                double viscosityScaling = Math.pow(viscosity, 2);
-                double maxVelocityScaled = Main.MAX_VELOCITY_SPEED * Math.pow(viscosity, 2);
-                
-                velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosityScaling), maxVelocityScaled));
+                velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * gravity), maxGravity));
             }
         } else {
             onGroundReset();
