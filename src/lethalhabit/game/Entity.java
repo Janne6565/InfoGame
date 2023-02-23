@@ -108,9 +108,6 @@ public abstract class Entity implements Tickable, Drawable {
         animation = getAnimation();
         int frameIndex = (int) ((age % animation.length) / animation.frameTime);
         graphic = animation.frames.get(frameIndex);
-        if (lastDirection == Direction.LEFT) {
-            graphic = mirrorImage(graphic);
-        }
     }
     
     public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) { }

@@ -29,7 +29,7 @@ public class Frog extends Enemy {
     private double attackCooldown = 0;
     
     public Frog(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE, position, HITBOX, new Point(9, 6), 270, 40);
+        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, new Point(9, 6), 270, 40);
         Util.registerHittable(this);
     }
     
@@ -90,7 +90,7 @@ public class Frog extends Enemy {
     @Override
     public Animation getAnimation() {
         return switch (direction) {
-            case NONE -> Animation.PLAYER_IDLE;
+            case NONE -> Animation.PLAYER_IDLE_LEFT;
             case LEFT -> Animation.PLAYER_WALK_LEFT;
             case RIGHT -> Animation.PLAYER_WALK_RIGHT;
         };

@@ -14,12 +14,15 @@ import java.util.function.Consumer;
 public class Animation implements Iterable<BufferedImage> {
     
     public static final Animation EMPTY = new Animation(1, "", 0, 0);
-    
-    public static Animation PLAYER_IDLE;
+
+    public static Animation PLAYER_IDLE_LEFT;
+    public static Animation PLAYER_IDLE_RIGHT;
     public static Animation PLAYER_WALK_LEFT;
     public static Animation PLAYER_WALK_RIGHT;
     public static Animation PLAYER_SLASH_LEFT;
     public static Animation PLAYER_SLASH_RIGHT;
+    public static Animation PLAYER_FALL_LEFT;
+    public static Animation PLAYER_FALL_RIGHT;
 
     public static double loadingProgress = 0;
     
@@ -29,9 +32,12 @@ public class Animation implements Iterable<BufferedImage> {
     public final double animationOffset;
 
     public static void loadPlayerAnimations() {
-        PLAYER_IDLE = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_IDLE_RIGHT = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_IDLE_LEFT = new Animation(0.0416, PLAYER_IDLE_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
-        PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkRight", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_FALL_RIGHT = new Animation(0.0416, "playerFall", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_FALL_LEFT = new Animation(0.0416, PLAYER_FALL_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
     }
 
     public static void loadAnimations() {

@@ -59,7 +59,7 @@ public class Player extends Entity {
     public double fireballCooldown = 0.0;
     
     public Player(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE.get(0), position, HITBOX);
+        super(WIDTH, Animation.PLAYER_IDLE_LEFT.get(0), position, HITBOX);
     }
     
     public Dimension getHitDimensions() {
@@ -223,10 +223,25 @@ public class Player extends Entity {
     
     @Override
     public Animation getAnimation() {
-        if (velocity.x() == 0) {
-            return Animation.PLAYER_IDLE;
+        Direction directionToCalculate = lastDirection; // Might be useful for something like a moonwalk implementation
+        if (velocity.y() <= 0) {
+            if (velocity.x() == 0) {
+                return switch (directionToCalculate) {
+                    case LEFT, NONE -> Animation.PLAYER_IDLE_LEFT;
+                    case RIGHT -> Animation.PLAYER_IDLE_RIGHT;
+                };
+            } else {
+                return velocity.x() < 0 ? Animation.PLAYER_WALK_RIGHT : Animation.PLAYER_WALK_LEFT;
+            }
         } else {
-            return velocity.x() < 0 ? Animation.PLAYER_WALK_LEFT : Animation.PLAYER_WALK_RIGHT;
+            if (velocity.x() == 0) {
+                return switch (directionToCalculate) {
+                    case LEFT, NONE -> Animation.PLAYER_FALL_LEFT;
+                    case RIGHT -> Animation.PLAYER_FALL_RIGHT;
+                };
+            } else {
+                return velocity.x() > 0 ? Animation.PLAYER_FALL_RIGHT : Animation.PLAYER_FALL_LEFT;
+            }
         }
     }
     

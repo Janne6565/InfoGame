@@ -21,7 +21,7 @@ public class Creeper extends Enemy {
     private double attackCooldown = 0;
     
     public Creeper(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE, position, Player.HITBOX, new Point(9, 6), 160, 30);
+        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, Player.HITBOX, new Point(9, 6), 160, 30);
     }
     
     @Override
@@ -51,7 +51,7 @@ public class Creeper extends Enemy {
     
     @Override
     public Animation getAnimation() {
-        return Animation.PLAYER_IDLE;
+        return Animation.PLAYER_IDLE_LEFT;
     }
     
     private void attack(double timeDelta) {

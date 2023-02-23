@@ -25,7 +25,7 @@ public class Slipknot extends Enemy{
     private double jumpCooldown = 0;
     private double attackCooldown = 0;
     public Slipknot(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE, position, HITBOX, new Point(9, 6), 270, 40);
+        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, new Point(9, 6), 270, 40);
         Util.registerHittable(this);
     }
 
@@ -56,7 +56,7 @@ public class Slipknot extends Enemy{
 
     public Animation getAnimation() {
         return switch (direction) {
-            case NONE -> Animation.PLAYER_IDLE;
+            case NONE -> Animation.PLAYER_IDLE_LEFT;
             case LEFT -> Animation.PLAYER_WALK_LEFT;
             case RIGHT -> Animation.PLAYER_WALK_RIGHT;
         };

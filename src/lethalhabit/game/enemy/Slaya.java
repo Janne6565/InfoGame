@@ -31,7 +31,7 @@ public class Slaya extends Enemy {
 
 
     public Slaya(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE, position, HITBOX, EYES, 160, 40);
+        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, EYES, 160, 40);
     }
     
     private void resetCooldowns(double timeDelta) {
@@ -198,7 +198,7 @@ public class Slaya extends Enemy {
     @Override
     public Animation getAnimation() {
         return switch (direction) {
-            case NONE -> Animation.PLAYER_IDLE;
+            case NONE -> Animation.PLAYER_IDLE_LEFT;
             case LEFT -> Animation.PLAYER_WALK_LEFT;
             case RIGHT -> Animation.PLAYER_WALK_RIGHT;
         };
