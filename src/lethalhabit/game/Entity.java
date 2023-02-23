@@ -189,7 +189,7 @@ public abstract class Entity implements Tickable, Drawable {
                 }
                 
                 double viscosityScaling = Math.pow(viscosity, 2);
-                double maxVelocityScaled = Main.MAX_VELOCITY_SPEED * Math.pow(viscosity, 5);
+                double maxVelocityScaled = Main.MAX_VELOCITY_SPEED * Math.pow(viscosity, 2);
                 
                 velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosityScaling), maxVelocityScaled));
             }
