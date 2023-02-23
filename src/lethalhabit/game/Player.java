@@ -22,7 +22,8 @@ public class Player extends Entity {
             new Point(33, 14).scale(WIDTH / 50.0)
     );
     
-    public static final double MOVEMENT_SPEED = 80;
+    public static final double MAX_MOVEMENT_SPEED = 80;
+    public static final double MOVEMENT_SPEED_ACCELERATION = 700;
     public static final double JUMP_BOOST = 200;
     public static final double WALL_JUMP_BOOST = 200;
     public static final double DASH_BOOST = 300;
@@ -82,8 +83,8 @@ public class Player extends Entity {
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
-    public void moveLeft() {
-        this.velocity = new Vec2D(-MOVEMENT_SPEED * speedBoost, this.velocity.y());
+    public void moveLeft(double timeDelta) {
+        this.velocity = new Vec2D(Math.max(velocity.x() - MOVEMENT_SPEED_ACCELERATION * timeDelta, -MAX_MOVEMENT_SPEED), this.velocity.y());
         this.direction = Direction.LEFT;
         this.lastDirection = Direction.LEFT;
         onMove();
@@ -92,20 +93,20 @@ public class Player extends Entity {
     /**
      * Changes the move velocity of the player based on moveSpeed
      */
-    public void moveRight() {
-        this.velocity = new Vec2D(MOVEMENT_SPEED * speedBoost, this.velocity.y());
+    public void moveRight(double timeDelta) {
+        this.velocity = new Vec2D(Math.min(velocity.x() + MOVEMENT_SPEED_ACCELERATION * timeDelta, MAX_MOVEMENT_SPEED), this.velocity.y());
         this.direction = Direction.RIGHT;
         this.lastDirection = Direction.RIGHT;
         onMove();
     }
     
-    public void moveUp() {
-        this.velocity = new Vec2D(this.velocity.x(), -MOVEMENT_SPEED * speedBoost);
+    public void moveUp(double timeDelta) {
+        this.velocity = new Vec2D(this.velocity.x(), Math.max(velocity.y() - MOVEMENT_SPEED_ACCELERATION * timeDelta, -MAX_MOVEMENT_SPEED));
         onMove();
     }
     
-    public void moveDown() {
-        this.velocity = new Vec2D(this.velocity.x(), MOVEMENT_SPEED * speedBoost);
+    public void moveDown(double timeDelta) {
+        this.velocity = new Vec2D(this.velocity.x(), Math.min(velocity.y() + MOVEMENT_SPEED_ACCELERATION * timeDelta, MAX_MOVEMENT_SPEED));
         onMove();
     }
     
@@ -117,16 +118,27 @@ public class Player extends Entity {
     /**
      * Resets the x velocity
      */
-    public void stopMovementX() {
-        this.velocity = new Vec2D(0, this.velocity.y());
+    public void stopMovementX(double timeDelta) {
+        if (velocity.x() > 0) {
+            this.velocity = new Vec2D(Math.max(velocity.x() - MOVEMENT_SPEED_ACCELERATION * timeDelta, 0), this.velocity.y());
+        }
+        if (velocity.x() < 0) {
+            this.velocity = new Vec2D(Math.min(velocity.x() + MOVEMENT_SPEED_ACCELERATION * timeDelta, 0), this.velocity.y());
+        }
+        
         this.direction = Direction.NONE;
     }
     
     /**
      * Resets the y velocity
      */
-    public void stopMovementY() {
-        this.velocity = new Vec2D(this.velocity.x(), 0);
+    public void stopMovementY(double timeDelta) {
+        if (velocity.y() > 0) {
+            this.velocity = new Vec2D(this.velocity.x(), Math.max(velocity.y() - MOVEMENT_SPEED_ACCELERATION * timeDelta, 0));
+        }
+        if (velocity.y() < 0) {
+            this.velocity = new Vec2D(this.velocity.x(), Math.min(velocity.y() + MOVEMENT_SPEED_ACCELERATION * timeDelta, 0));
+        }
     }
     
     /**
@@ -211,11 +223,11 @@ public class Player extends Entity {
     
     @Override
     public Animation getAnimation() {
-        return switch (direction) {
-            case NONE -> Animation.PLAYER_IDLE;
-            case LEFT -> Animation.PLAYER_WALK_LEFT;
-            case RIGHT -> Animation.PLAYER_WALK_RIGHT;
-        };
+        if (velocity.x() == 0) {
+            return Animation.PLAYER_IDLE;
+        } else {
+            return velocity.x() < 0 ? Animation.PLAYER_WALK_LEFT : Animation.PLAYER_WALK_RIGHT;
+        }
     }
     
     public void hit() {

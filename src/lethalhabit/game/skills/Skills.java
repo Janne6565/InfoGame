@@ -5,7 +5,7 @@ import lethalhabit.math.Point;
 
 public final class Skills {
     
-    public double attackCooldown;
+    public double attackCooldown = 0.8;
     
     public int doubleJumpAmount = 0;
     public double doubleJumpCooldown = 3;

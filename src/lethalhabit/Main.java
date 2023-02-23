@@ -117,7 +117,7 @@ public final class Main {
         setupCamera();
         Liquid.loadLiquids();
         Animation.loadPlayerAnimations();
-        mainCharacter = new Player(new Point(3816, 500)); // TODO: load skills from file
+        mainCharacter = new Player(new Point(3616, 200)); // TODO: load skills from file
         Animation.loadAnimations();
         Block.loadBlocks();
         GamePanel.generateMinimap();
@@ -276,20 +276,20 @@ public final class Main {
                             mainCharacter.hit();
                         }
                         if (activeKeys.contains(VK_SPACE) && activeKeys.contains(VK_CONTROL) && mainCharacter.isSubmerged()) {
-                            mainCharacter.stopMovementY();
+                            mainCharacter.stopMovementY(timeDelta);
                         } else if (activeKeys.contains(VK_SPACE)) {
                             if (mainCharacter.isSubmerged()) {
-                                mainCharacter.moveUp();
+                                mainCharacter.moveUp(timeDelta);
                             } else {
                                 mainCharacter.jump();
                             }
                         } else if (activeKeys.contains(VK_CONTROL)) {
                             if (mainCharacter.isSubmerged()) {
-                                mainCharacter.moveDown();
+                                mainCharacter.moveDown(timeDelta);
                             }
                         } else {
                             if (mainCharacter.isSubmerged()) {
-                                mainCharacter.moveDown();
+                                mainCharacter.moveDown(timeDelta);
                             }
                             mainCharacter.resetJump();
                         }
@@ -300,14 +300,14 @@ public final class Main {
                         
                         if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
                             if (!mainCharacter.isSubmerged()) {
-                                mainCharacter.moveLeft();
+                                mainCharacter.moveLeft(timeDelta);
                             }
                         } else if (activeKeys.contains(VK_D) && !activeKeys.contains(VK_A)) {
                             if (!mainCharacter.isSubmerged()) {
-                                mainCharacter.moveRight();
+                                mainCharacter.moveRight(timeDelta);
                             }
                         } else {
-                            mainCharacter.stopMovementX();
+                            mainCharacter.stopMovementX(timeDelta);
                         }
                         
                         if (!(activeKeys.contains(VK_W) && activeKeys.contains(VK_S))) {
