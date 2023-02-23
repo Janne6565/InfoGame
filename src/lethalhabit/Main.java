@@ -288,9 +288,6 @@ public final class Main {
                                 mainCharacter.moveDown(timeDelta);
                             }
                         } else {
-                            if (mainCharacter.isSubmerged()) {
-                                mainCharacter.moveDown(timeDelta);
-                            }
                             mainCharacter.resetJump();
                         }
                         
@@ -301,9 +298,13 @@ public final class Main {
                         if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
                             if (!mainCharacter.isSubmerged()) {
                                 mainCharacter.moveLeft(timeDelta);
+                            } else {
+                                mainCharacter.moveLeft(timeDelta);
                             }
                         } else if (activeKeys.contains(VK_D) && !activeKeys.contains(VK_A)) {
                             if (!mainCharacter.isSubmerged()) {
+                                mainCharacter.moveRight(timeDelta);
+                            } else {
                                 mainCharacter.moveRight(timeDelta);
                             }
                         } else {

@@ -184,7 +184,14 @@ public abstract class Entity implements Tickable, Drawable {
             onGround = false;
             midAir(timeDelta);
             if (TAKES_GRAVITY) {
-                velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosity), Main.MAX_VELOCITY_SPEED * viscosity));
+                if (viscosity != 1) {
+                    System.out.println(viscosity);
+                }
+                
+                double viscosityScaling = Math.pow(viscosity, 2);
+                double maxVelocityScaled = Main.MAX_VELOCITY_SPEED * Math.pow(viscosity, 5);
+                
+                velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * viscosityScaling), maxVelocityScaled));
             }
         } else {
             onGroundReset();
