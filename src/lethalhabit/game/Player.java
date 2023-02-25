@@ -47,7 +47,7 @@ public class Player extends Entity {
     
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
-    private boolean jumped = false; // this is used to not let you hold your jump key and then jump more than once
+    private boolean jumped = false; // used to detect only the first press and not instantly re-trigger the jump
     
     private int timesJumped = 0;
     private int timesDashed = 0;

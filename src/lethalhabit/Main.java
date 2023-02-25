@@ -45,6 +45,7 @@ public final class Main {
     
     public static final boolean MINIMIZED = false;
     public static final boolean DEBUG_HITBOX = false;
+
     /**
      * if true you gain following ability's:
      *  - Teleport
@@ -215,25 +216,25 @@ public final class Main {
 
         if (mainCharacter != null) {
             if (activeKeys.contains(VK_0)) {
-                camera.layerRendering = 0;
+                camera.changeLayer(0);
                 IS_GAME_RUNNING = true;
                 GAME_PANEL.clearClickables();
                 GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_1)) {
-                camera.layerRendering = 1;
+                camera.changeLayer(1);
                 IS_GAME_RUNNING = false;
                 GAME_PANEL.clearClickables();
                 GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_2)) {
-                camera.layerRendering = 2;
+                camera.changeLayer(2);
                 IS_GAME_RUNNING = false;
                 GAME_PANEL.clearClickables();
                 GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_3)) {
-                camera.layerRendering = 3;
+                camera.changeLayer(3);
                 IS_GAME_RUNNING = false;
                 GAME_PANEL.clearClickables();
                 GAME_PANEL.loadClickables();

@@ -39,11 +39,10 @@ public class UpgradeButtonSkillTree extends Clickable {
     
     @Override
     public void onRightClick(double timeDelta) {
-        if (node.nextNodes != null) {
+        if (node.nextNodes.length > 0) {
             Main.GAME_PANEL.clearClickables();
             Main.GAME_PANEL.nodeFocused = node;
             Main.GAME_PANEL.loadClickables();
-            System.out.println(Main.GAME_PANEL.clickables.get(0).hitbox.shift(Main.GAME_PANEL.clickables.get(0).position));
         }
     }
     

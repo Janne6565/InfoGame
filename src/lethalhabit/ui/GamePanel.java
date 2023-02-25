@@ -52,52 +52,79 @@ public final class GamePanel extends JPanel {
     public SkillTree.Node nodeFocused = null;
     
     public final List<Clickable> clickables = new ArrayList<>();
-    
+
+    private int layerBefore = 0;
+
     public GamePanel() {
         // Set up the update timer
         Timer updateTimer = new Timer((int) (1000.0 / FRAME_RATE), e -> repaint());
         updateTimer.start();
+
+        loadIcons();
+    }
+
+    private void loadIcons() {
         SKILL_TREE_ICONS = new HashMap<>();
-        
         for (int i = 0; i < 5; i++) {
             BufferedImage imageBeforeScale = Util.getImage("/assets/hud/skillTree/node" + i + ".png");
             BufferedImage SKILL_TREE_NODE_LEVEL = new BufferedImage((int) (SKILL_TREE_NODE_SIZE * Main.scaledPixelSize()), (int) (SKILL_TREE_NODE_SIZE * Main.scaledPixelSize()), BufferedImage.TYPE_INT_ARGB);
             SKILL_TREE_NODE_LEVEL.getGraphics().drawImage(imageBeforeScale, 0, 0, (int) (SKILL_TREE_NODE_SIZE * Main.scaledPixelSize()), (int) (SKILL_TREE_NODE_SIZE * Main.scaledPixelSize()), null);
             SKILL_TREE_ICONS.put(i, SKILL_TREE_NODE_LEVEL);
         }
-        
     }
     
     public static void generateMinimap() {
         minimap = new Minimap();
     }
-    
+
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Main.tick();
-        
+        Graphics2D graphics2D = (Graphics2D) g;
         if (!Main.IS_GAME_LOADING) {
             if (Main.DEBUG_HITBOX) {
-                g.drawString(Main.mainCharacter.position.toString(), 100, 100);
-                g.drawString("(" + (int) (Main.mainCharacter.position.x() / Main.TILE_SIZE) + "|" + (int) (Main.mainCharacter.position.y() / Main.TILE_SIZE) + ")", 100, 130);
+                graphics2D.drawString(Main.mainCharacter.position.toString(), 100, 100);
+                graphics2D.drawString("(" + (int) (Main.mainCharacter.position.x() / Main.TILE_SIZE) + "|" + (int) (Main.mainCharacter.position.y() / Main.TILE_SIZE) + ")", 100, 130);
             }
-            renderLayer(g, Main.camera.layerRendering);
+
+            double opacitySecondaryLayer = Main.camera.getOpacityOfSecondaryLayer();
+            if (opacitySecondaryLayer > 0) {
+                BufferedImage mainLayer = exportLayer(Main.camera.layerRendering, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
+                AlphaComposite ac1 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) ((float) 1.0 - opacitySecondaryLayer));
+                graphics2D.setComposite(ac1);
+                graphics2D.drawImage(mainLayer, 0, 0, null);
+
+
+
+                BufferedImage secondaryLayer = exportLayer(Main.camera.layerBefore, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
+                AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacitySecondaryLayer);
+                graphics2D.setComposite(ac);
+                graphics2D.drawImage(secondaryLayer, 0, 0, null);
+            } else {
+                BufferedImage mainLayer = exportLayer(Main.camera.layerRendering, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
+                graphics2D.drawImage(mainLayer, 0, 0, null);
+            }
+
         } else {
             int height = 40;
             int width = 200;
-            g.setColor(Color.BLACK);
-            g.drawRect((Main.screenWidth - width) / 2 - 1, (Main.screenHeight - height) / 2 - 1, width + 1, height + 1);
-            g.setColor(Main.PROGRESS_BAR_COLOR);
-            g.fillRect((Main.screenWidth - width) / 2, (Main.screenHeight - height) / 2, (int) (width * (Block.loadingProgress + Liquid.loadingProgress + Animation.loadingProgress) / 3.0), height);
+            graphics2D.setColor(Color.BLACK);
+            graphics2D.drawRect((Main.screenWidth - width) / 2 - 1, (Main.screenHeight - height) / 2 - 1, width + 1, height + 1);
+            graphics2D.setColor(Main.PROGRESS_BAR_COLOR);
+            graphics2D.fillRect((Main.screenWidth - width) / 2, (Main.screenHeight - height) / 2, (int) (width * (Block.loadingProgress + Liquid.loadingProgress + Animation.loadingProgress) / 3.0), height);
         }
     }
     
-    public void renderLayer(Graphics g, int layer) {
+    public BufferedImage exportLayer(int layer, int width, int height) {
+        BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) outputImage.getGraphics();
+
         double timeDelta = (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
         
-        List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == Main.camera.layerRendering).toList();
+        List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == layer).toList();
         switch (layer) {
             case Camera.LAYER_GAME -> {
                 drawMapBackground(g);
@@ -142,6 +169,8 @@ public final class GamePanel extends JPanel {
                 renderSkillTree(g);
             }
         }
+
+        return outputImage;
     }
     
     private void drawMapBackground(Graphics g) {

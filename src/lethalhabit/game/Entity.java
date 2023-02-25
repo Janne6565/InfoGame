@@ -194,9 +194,6 @@ public abstract class Entity implements Tickable, Drawable {
             onGround = false;
             midAir(timeDelta);
             if (TAKES_GRAVITY) {
-                if (gravity != 1) {
-                    System.out.println(gravity);
-                }
                 velocity = new Vec2D(velocity.x(), Math.min(velocity.y() + (Main.GRAVITATIONAL_ACCELERATION * timeDelta * gravity), maxGravity));
             }
         } else {

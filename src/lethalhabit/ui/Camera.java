@@ -16,6 +16,8 @@ public final class Camera {
     public static final int LAYER_SKILL_TREE = 3;
     
     public static final double ANIMATION_SPEED = 3;
+
+    private static final double TRANSITION_TIME = 0.4;
     
     public final int width;
     public final int threshold;
@@ -33,6 +35,8 @@ public final class Camera {
      * Map is only getting rendered on Layer 0
      */
     public int layerRendering = LAYER_GAME;
+    public int layerBefore = layerRendering;
+    public long timeChangedLayer;
     
     public double moveCameraUpCooldown = COOLDOWN_CAMERA_SHIFT;
     public double moveCameraDownCooldown = COOLDOWN_CAMERA_SHIFT;
@@ -120,6 +124,11 @@ public final class Camera {
             shift = new Point(shift.x(), shift.y() - shift.y() * ANIMATION_SPEED * timeDelta);
         }
     }
+
+    public double getOpacityOfSecondaryLayer() {
+        double time = (System.currentTimeMillis() - timeChangedLayer) / 1000.0;
+        return time >= TRANSITION_TIME ? 0 : (1 - Math.cos((time / TRANSITION_TIME - 1) * Math.PI)) / 2;
+    }
     
     public Point getAbsolutePosition(Point position) {
         double offsetX = getRealPosition().x();
@@ -127,6 +136,14 @@ public final class Camera {
         int posXDisplay = (int) ((int) (position.x() - offsetX) * Main.scaledPixelSize() + (Main.screenWidth / 2));
         int posYDisplay = (int) ((int) (position.y() - offsetY) * Main.scaledPixelSize() + (Main.screenHeight / 2));
         return new Point(posXDisplay, posYDisplay);
+    }
+
+    public void changeLayer(int newLayer) {
+        if (newLayer != layerRendering) {
+            layerBefore = layerRendering;
+            layerRendering = newLayer;
+            timeChangedLayer = System.currentTimeMillis();
+        }
     }
     
 }
