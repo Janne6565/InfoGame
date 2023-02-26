@@ -51,7 +51,7 @@ public final class Main {
      *  - Teleport
      *  - Map Renderer
      */
-    public static final boolean DEVELOPER_MODE = false;
+    public static final boolean DEVELOPER_MODE = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
@@ -63,7 +63,7 @@ public final class Main {
     public static final double SAFE_DISTANCE = 0.05;
 
     public static final double TILE_SIZE = 20;
-    public static final double BACKGROUND_TILE_SIZE = 50;
+    public static final double BACKGROUND_TILE_SIZE = 200;
     public static final String BACKGROUND_EXPORT_PATH = "";
 
     public static final Set<Entity> entities = new HashSet<>();

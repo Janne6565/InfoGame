@@ -2,6 +2,7 @@ package lethalhabit.ui;
 
 import lethalhabit.Main;
 import lethalhabit.math.Point;
+import lethalhabit.util.Util;
 import lethalhabit.world.Block;
 import lethalhabit.world.Liquid;
 import lethalhabit.world.Tile;
@@ -29,13 +30,28 @@ public class Minimap {
         } else {
             int tilePixelSize = Math.min((int) (Main.screenWidth * Main.camera.MAP_SCALE.x()) / maxX, (int) (Main.screenHeight * Main.camera.MAP_SCALE.y()) / maxY);
             BufferedImage map = new BufferedImage((maxX + 1) * tilePixelSize, (maxY + 1) * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
+
+            // Draw Backgrounds
+            int maxXBackground = (int) (maxX / Main.BACKGROUND_TILE_SIZE) + 1;
+            int maxYBackground = (int) (maxY / Main.BACKGROUND_TILE_SIZE) + 1;
+            for (int x = 0; x < maxXBackground; x++) {
+                for (int y = 0; y < maxYBackground; y++) {
+                    Image background = Util.getImage("/assets/backgrounds/X" + x + "_Y" + y + ".png");
+                    Point position = new Point(x * tilePixelSize * Main.BACKGROUND_TILE_SIZE, y * tilePixelSize * Main.BACKGROUND_TILE_SIZE);
+                    if (background != null) {
+                        map.getGraphics().drawImage(background, (int) position.x(), (int) position.y(), (int) (tilePixelSize * Main.BACKGROUND_TILE_SIZE), (int) (tilePixelSize * Main.BACKGROUND_TILE_SIZE), null);
+                    }
+                }
+            }
+
+            // Draw Tiles
             for (Map.Entry<Integer, Map<Integer, Tile>> column : Main.map.entrySet()) {
                 for (Map.Entry<Integer, Tile> row : column.getValue().entrySet()) {
                     Tile tile = row.getValue();
                     Block block = Block.TILEMAP.get(tile.block);
                     Liquid liquid = Liquid.TILEMAP.get(tile.liquid);
                     Point position = new Point(column.getKey() * tilePixelSize, row.getKey() * tilePixelSize);
-                    
+
                     if (liquid != null) {
                         map.getGraphics().drawImage(liquid.graphic, (int) position.x(), (int) position.y(), tilePixelSize, tilePixelSize, null);
                     }
@@ -44,9 +60,16 @@ public class Minimap {
                     }
                 }
             }
+
+
+
+
+
             map.getGraphics().dispose();
             scale = tilePixelSize / Main.TILE_SIZE;
             image = map;
+
+
         }
     }
     
