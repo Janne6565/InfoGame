@@ -23,7 +23,7 @@ public class Player extends Entity {
     );
     
     public static final double MAX_MOVEMENT_SPEED = 80;
-    public static final double MOVEMENT_SPEED_ACCELERATION = 700;
+    public static final double MOVEMENT_SPEED_ACCELERATION = 900;
     public static final double JUMP_BOOST = 200;
     public static final double WALL_JUMP_BOOST = 200;
     public static final double DASH_BOOST = 300;

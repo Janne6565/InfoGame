@@ -51,7 +51,7 @@ public final class Main {
      *  - Teleport
      *  - Map Renderer
      */
-    public static final boolean DEVELOPER_MODE = true;
+    public static final boolean DEVELOPER_MODE = false;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);
