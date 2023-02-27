@@ -1,6 +1,5 @@
 package lethalhabit.game;
 
-import com.google.gson.stream.JsonToken;
 import lethalhabit.Main;
 import lethalhabit.math.*;
 import lethalhabit.math.Point;
@@ -17,7 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static lethalhabit.util.Util.getFirstIntersection;
-import static lethalhabit.util.Util.mirrorImage;
 
 /**
  * A movable object that interacts with the world.
@@ -72,9 +70,9 @@ public abstract class Entity implements Tickable, Drawable {
     @Override
     public void tick(Double timeDelta) {
         if (isWallDown() && !onGround) {
-            land(getTotalVelocity());
             onGround = true;
         }
+
         checkViscosity();
         onMove(getTotalVelocity(), timeDelta);
 
@@ -91,9 +89,9 @@ public abstract class Entity implements Tickable, Drawable {
         int beforeMaxX = (int) (hitboxBefore.maxX() / Main.TILE_SIZE);
         int beforeMinY = (int) (hitboxBefore.minY() / Main.TILE_SIZE);
         int beforeMaxY = (int) (hitboxBefore.maxY() / Main.TILE_SIZE);
-        moveX(timeDelta);
         moveY(timeDelta);
-        
+        moveX(timeDelta);
+
         Hitbox hitboxAfter = hitbox.shift(position);
         int afterMinX = (int) (hitboxAfter.minX() / Main.TILE_SIZE);
         int afterMaxX = (int) (hitboxAfter.maxX() / Main.TILE_SIZE);
@@ -115,8 +113,6 @@ public abstract class Entity implements Tickable, Drawable {
     public void onMove(Vec2D velocity, double timeDelta) { }
     
     public void onGroundReset() { }
-    
-    public void land(Vec2D velocity) { }
     
     public void midAir(double timeDelta) { }
     
@@ -212,13 +208,28 @@ public abstract class Entity implements Tickable, Drawable {
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, xVel);
         if (!Double.isNaN(minTime) && minTime <= timeDelta) {
             double timeUntilCollision = Math.max(0, minTime - (Main.SAFE_DISTANCE / Math.abs(xVel.x())));
+            if (xVel.x() < - 0.5) {
+                onCrashLeft(velocity);
+            }
+            if (xVel.x() > 0.5){
+                onCrashRight(velocity);
+            }
             position = position.plus(xVel.x() * timeUntilCollision, 0);
-            velocity = xVel.x() > 0 ? new Vec2D(Math.min(0, velocity.x()), velocity.y()) : new Vec2D(Math.max(0, velocity.x()), velocity.y());
+            velocity = new Vec2D(0, velocity.y());
         } else {
             position = position.plus(xVel.x() * timeDelta, 0);
         }
     }
-    
+
+    public void onCrashRight(Vec2D velocity) {
+        System.out.println("Crashed Right");
+    }
+
+
+    public void onCrashLeft(Vec2D velocity) {
+        System.out.println("Crashed Left");
+    }
+
     /**
      * Movement on the y-axis
      *
@@ -230,13 +241,27 @@ public abstract class Entity implements Tickable, Drawable {
         Double minTime = getFirstIntersection(hitbox.shift(position), collidables, yVel);
         if (!Double.isNaN(minTime) && minTime <= timeDelta) {
             double timeUntilCollision = Math.max(0, minTime - (Main.SAFE_DISTANCE / Math.abs(yVel.y())));
+            if (yVel.y() > Main.GRAVITATIONAL_ACCELERATION * gravity * (timeDelta * 1.5)) {
+                onCrashDown(velocity);
+            }
+            if (yVel.y() < -Main.GRAVITATIONAL_ACCELERATION * gravity * (timeDelta * 1.5)){
+                onCrashUp(velocity);
+            }
             position = position.plus(0, yVel.y() * timeUntilCollision);
-            velocity = yVel.y() > 0 ? new Vec2D(velocity.x(), Math.min(0, velocity.y())) : new Vec2D(velocity.x(), Math.max(0, velocity.y()));
+            velocity = new Vec2D(velocity.x(), 0);
         } else {
             position = position.plus(0, yVel.y() * timeDelta);
         }
     }
-    
+
+    public void onCrashDown(Vec2D velocity) {
+        System.out.println("Crashed Down");
+    }
+
+    public void onCrashUp(Vec2D velocity) {
+        System.out.println("Crashed Top");
+    }
+
     /**
      * Checks downward ground collision
      *

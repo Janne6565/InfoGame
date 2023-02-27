@@ -7,6 +7,7 @@ import lethalhabit.game.Hittable;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
+import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
 import lethalhabit.util.Util;
@@ -80,5 +81,24 @@ public abstract class Enemy extends Entity implements Hittable {
         }
         return false;
     }
-    
+
+    @Override
+    public void onCrashDown(Vec2D velocity) {
+
+    }
+
+    @Override
+    public void onCrashLeft(Vec2D velocity) {
+
+    }
+
+    @Override
+    public void onCrashRight(Vec2D velocity) {
+
+    }
+
+    @Override
+    public void onCrashUp(Vec2D velocity) {
+
+    }
 }

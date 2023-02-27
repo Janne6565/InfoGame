@@ -205,7 +205,7 @@ public class Slaya extends Enemy {
     }
 
     @Override
-    public void land(Vec2D velocity) {
+    public void onCrashDown(Vec2D velocity) {
         // TODO: play landing sound
         // TODO: standing up animation??
     }

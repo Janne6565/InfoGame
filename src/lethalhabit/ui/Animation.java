@@ -41,8 +41,8 @@ public class Animation implements Iterable<BufferedImage> {
     }
 
     public static void loadAnimations() {
-        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.85, "slash", Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
-        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.85, PLAYER_SLASH_LEFT.getMirroredAnimation(), Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.65, "slash", Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
+        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.65, PLAYER_SLASH_LEFT.getMirroredAnimation(), Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
     }
     
     /**
