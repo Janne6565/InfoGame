@@ -222,12 +222,12 @@ public abstract class Entity implements Tickable, Drawable {
     }
 
     public void onCrashRight(Vec2D velocity) {
-        System.out.println("Crashed Right");
+
     }
 
 
     public void onCrashLeft(Vec2D velocity) {
-        System.out.println("Crashed Left");
+
     }
 
     /**
@@ -255,11 +255,11 @@ public abstract class Entity implements Tickable, Drawable {
     }
 
     public void onCrashDown(Vec2D velocity) {
-        System.out.println("Crashed Down");
+
     }
 
     public void onCrashUp(Vec2D velocity) {
-        System.out.println("Crashed Top");
+
     }
 
     /**

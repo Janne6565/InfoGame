@@ -186,8 +186,47 @@ public final class GamePanel extends JPanel {
         if (renderMin.y() == renderMax.y()) {
             renderMax = renderMax.plus(0, 1);
         }
-        
+
+        System.out.println(mapBackgroundImages.keySet().size());
+
         // TODO: Unload images not in range
+
+        for (int x = 0; x < renderMin.x() - 1; x++) {
+            for (int y = 0; y < renderMin.y() - 1; y++) {
+                Map<Integer, BufferedImage> mapOnX = mapBackgroundImages.getOrDefault(x, null);
+                if (mapOnX != null) {
+                    mapOnX.put(y, null);
+                    mapBackgroundImages.put(x, mapOnX);
+                }
+            }
+            for (int y = (int) (renderMax.y() + 1); y < minimap.size.height / Main.TILE_SIZE / Main.BACKGROUND_TILE_SIZE; y ++) {
+                Map<Integer, BufferedImage> mapOnX = mapBackgroundImages.getOrDefault(x, null);
+                if (mapOnX != null) {
+                    mapOnX.put(y, null);
+                    mapBackgroundImages.put(x, mapOnX);
+                }
+            }
+        }
+
+        for (int x = (int) (renderMax.x() + 1); x < minimap.size.width / Main.TILE_SIZE / Main.BACKGROUND_TILE_SIZE; x++) {
+            for (int y = 0; y < renderMin.y() - 1; y++) {
+                Map<Integer, BufferedImage> mapOnX = mapBackgroundImages.getOrDefault(x, null);
+                if (mapOnX != null) {
+                    mapOnX.put(y, null);
+                    mapBackgroundImages.put(x, mapOnX);
+                }
+            }
+            for (int y = (int) (renderMax.y() + 1); y < minimap.size.height / Main.TILE_SIZE / Main.BACKGROUND_TILE_SIZE; y ++) {
+                Map<Integer, BufferedImage> mapOnX = mapBackgroundImages.getOrDefault(x, null);
+                if (mapOnX != null) {
+                    mapOnX.put(y, null);
+                    mapBackgroundImages.put(x, mapOnX);
+                }
+            }
+        }
+
+
+
         for (int x = (int) renderMin.x() - 1; x <= renderMax.x(); x++) {
             Map<Integer, String> images = Main.backgroundImages.getOrDefault(x, null);
             if (images != null) {
@@ -208,6 +247,8 @@ public final class GamePanel extends JPanel {
                                     g.drawImage(image, (int) positionOfImage.x(), (int) positionOfImage.y(), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), null);
                                 }
                             } else {
+                                g.setColor(Color.RED);
+                                g.fillRect((int) positionOfImage.x(), (int) positionOfImage.y(), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()));
                                 if (!pathsLoaded.contains(path)) {
                                     LazyBackgroundImageLoader loader = new LazyBackgroundImageLoader(path, x, y, g);
                                     Thread thread = new Thread(loader);

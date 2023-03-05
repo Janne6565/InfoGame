@@ -63,7 +63,7 @@ public final class Main {
     public static final double SAFE_DISTANCE = 0.05;
 
     public static final double TILE_SIZE = 20;
-    public static final double BACKGROUND_TILE_SIZE = 200;
+    public static final double BACKGROUND_TILE_SIZE = 200 / 20;
     public static final String BACKGROUND_EXPORT_PATH = "";
 
     public static final Set<Entity> entities = new HashSet<>();
