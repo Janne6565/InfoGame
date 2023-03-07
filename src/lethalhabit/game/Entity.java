@@ -133,7 +133,6 @@ public abstract class Entity implements Tickable, Drawable {
         return position;
     }
     
-    
     /**
      * Checks for liquids and adjusts movement according to viscosity.
      */

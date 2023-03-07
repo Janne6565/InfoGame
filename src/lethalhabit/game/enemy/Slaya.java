@@ -27,11 +27,9 @@ public class Slaya extends Enemy {
      * Until end of the cooldown you will remain in a state where gravity isn't affecting you at all <3
      */
     private double gravityCooldown = 0.0;
-
-
-
+    
     public Slaya(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, EYES, 160, 40);
+        super(WIDTH, position, HITBOX, EYES, 160, 40);
     }
     
     private void resetCooldowns(double timeDelta) {

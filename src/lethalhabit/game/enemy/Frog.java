@@ -1,20 +1,27 @@
 package lethalhabit.game.enemy;
 
 import lethalhabit.Main;
-import lethalhabit.math.Hitbox;
-import lethalhabit.math.LineSegment;
-import lethalhabit.math.Point;
-import lethalhabit.math.Vec2D;
-import lethalhabit.ui.Animation;
-import lethalhabit.ui.Camera;
+import lethalhabit.math.*;
+import lethalhabit.game.*;
+import lethalhabit.ui.*;
 import lethalhabit.util.Util;
 
 import java.awt.*;
 import java.util.Random;
 
+/**
+ * An enemy that follows the player by jumping and deals some damage
+ */
 public class Frog extends Enemy {
     
+    /**
+     * Every frog is 33 units wide
+     */
     public static final int WIDTH = 33;
+
+    /**
+     * Quadrilateral hitbox of a frog, auto-scaled to its size
+     */
     public static final Hitbox HITBOX = new Hitbox(
             new Point(18, 14).scale(WIDTH / 50.0),
             new Point(18, 42).scale(WIDTH / 50.0),
@@ -22,17 +29,40 @@ public class Frog extends Enemy {
             new Point(36, 14).scale(WIDTH / 50.0)
     );
     
+    /**
+     * On every jump, a frog gains +250 up-velocity (negative y-velocity)
+     */
     public static final int JUMP_BOOST = 250;
+
+    /**
+     * The distance (to the player) a frog must have in order to attack
+     */
     public static final int ATTACK_RANGE = 20;
     
+    /**
+     * Cooldown until this frog can jump again
+     */
     private double jumpCooldown = 0;
+
+    /**
+     * Cooldown until this frog can attack again
+     */
     private double attackCooldown = 0;
     
+    /**
+     * Constructs a new frog at the specified position
+     * 
+     * @param position Absolute position for the frog to be instantiated at
+     */
     public Frog(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, new Point(9, 6), 270, 40);
+        super(WIDTH, position, HITBOX, new Point(9, 6), 270, 40);
         Util.registerHittable(this);
     }
     
+    /**
+     * @see Tickable#tick(Double)
+     */
+    @Override
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
         jumpCooldown = Math.max(0, jumpCooldown - timeDelta);
@@ -87,6 +117,9 @@ public class Frog extends Enemy {
         }
     }
     
+    /**
+     * @see Drawable#getAnimation()
+     */
     @Override
     public Animation getAnimation() {
         return switch (direction) {
@@ -96,16 +129,17 @@ public class Frog extends Enemy {
         };
     }
     
+    /**
+     * Sets this frog's jump cooldown to a random time span between 1.5 and 5 seconds <br>
+     * (Frogs jump rather randomly)
+     */
     private void setRandomJumpCooldown() {
-        this.jumpCooldown = new Random().nextInt(100) / 10;
+        this.jumpCooldown = new Random().nextDouble() * 3.5 + 1.5;
     }
     
-    @Override
-    public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) {
-        Util.removeHittable(this, hitboxBefore);
-        Util.registerHittable(this);
-    }
-    
+    /**
+     * @see Hittable#getHitbox()
+     */
     @Override
     public Hitbox getHitbox() {
         return hitbox;

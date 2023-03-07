@@ -10,7 +10,8 @@ import lethalhabit.util.Util;
 
 import java.util.Random;
 
-public class Slipknot extends Enemy{
+public class Slipknot extends Enemy {
+
     public static final int WIDTH = 33;
     public static final Hitbox HITBOX = new Hitbox(
             new Point(18, 14).scale(WIDTH / 50.0),
@@ -24,8 +25,9 @@ public class Slipknot extends Enemy{
 
     private double jumpCooldown = 0;
     private double attackCooldown = 0;
+
     public Slipknot(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, new Point(9, 6), 270, 40);
+        super(WIDTH, position, HITBOX, new Point(9, 6), 270, 40);
         Util.registerHittable(this);
     }
 
@@ -61,4 +63,5 @@ public class Slipknot extends Enemy{
             case RIGHT -> Animation.PLAYER_WALK_RIGHT;
         };
     }
+
 }

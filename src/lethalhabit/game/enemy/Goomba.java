@@ -34,7 +34,7 @@ public class Goomba extends Enemy {
     private double gravityCooldown = 0.0;
 
     public Goomba(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, HITBOX, EYES, 160, 80);
+        super(WIDTH, position, HITBOX, EYES, 160, 80);
     }
     
     private void resetCooldowns(double timeDelta) {
@@ -132,11 +132,6 @@ public class Goomba extends Enemy {
             despawn();
         }
         System.out.println("Enemy hp: " + this.hp);
-    }
-
-    public void knockback(double value) {
-        recoil = new Vec2D(value, 0);
-        resetRecoil = 300;
     }
 
     private void attack(double timeDelta) {
