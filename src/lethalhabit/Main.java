@@ -95,7 +95,7 @@ public final class Main {
     private static long lastTick;
 
     public static Point backgroundTileHovered = null;
-
+    
     public static void main(String[] args) {
         gameInit();
     }
@@ -116,13 +116,12 @@ public final class Main {
         loadMap();
         loadSettings();
         setupCamera();
-        Liquid.loadLiquids();
-        Animation.loadPlayerAnimations();
-        mainCharacter = new Player(new Point(3616, 200)); // TODO: load skills from file
-        Animation.loadAnimations();
-        Block.loadBlocks();
+        Animation.load();
+        Block.load();
+        Liquid.load();
         GamePanel.generateMinimap();
         loadBackgrounds();
+        mainCharacter = new Player(new Point(3616, 200)); // TODO: load skills from file
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;

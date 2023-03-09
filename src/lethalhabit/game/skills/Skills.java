@@ -3,7 +3,20 @@ package lethalhabit.game.skills;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.Point;
 
+import java.awt.*;
+
 public final class Skills {
+    
+    public static Hitbox defaultAttackHitbox = new Hitbox(
+            new Point(0, 5),
+            new Point(15, 5),
+            new Point(15, 25),
+            new Point(0, 25)
+    );
+    
+    public static Dimension getDefaultHitDimensions() {
+        return new Dimension((int) (defaultAttackHitbox.maxX() - defaultAttackHitbox.minX()), (int) (defaultAttackHitbox.maxY() - defaultAttackHitbox.minY()));
+    }
     
     public double attackCooldown = 0.8;
     
@@ -19,11 +32,6 @@ public final class Skills {
     public boolean canMakeFireball = false;
     public double fireballCooldown = 5;
     
-    public Hitbox attackHitbox = new Hitbox(
-        new Point(0, 5),
-        new Point(15, 5),
-        new Point(15, 25),
-        new Point(0, 25)
-    );
+    public Hitbox attackHitbox = defaultAttackHitbox;
     
 }

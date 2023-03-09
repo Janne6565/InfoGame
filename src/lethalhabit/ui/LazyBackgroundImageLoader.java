@@ -26,14 +26,14 @@ public class LazyBackgroundImageLoader implements Runnable {
     @Override
     public void run() {
         System.out.println("Starting to load");
-        Map<Integer, BufferedImage> mapX = GamePanel.mapBackgroundImages.getOrDefault(x, new HashMap<>());
         BufferedImage image = Util.getImage(path);
         System.out.println("IMAGE LOADED: " + x + " " + y);
-        mapX.put(y, image);
         BufferedImage bufferImage = new BufferedImage((int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = bufferImage.createGraphics();
         g2.drawImage(image, 0, 0, (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), null);
-
+    
+        Map<Integer, BufferedImage> mapX = GamePanel.mapBackgroundImages.getOrDefault(x, new HashMap<>());
+        mapX.put(y, bufferImage);
         GamePanel.mapBackgroundImages.put(x, mapX);
     }
 }

@@ -40,4 +40,7 @@ public final class Block {
         this.graphic = graphic;
     }
     
+    public static void load() {
+        loadBlocks();
+    }
 }

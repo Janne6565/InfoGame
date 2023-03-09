@@ -3,6 +3,7 @@ package lethalhabit.game.enemy;
 import lethalhabit.Main;
 import lethalhabit.math.*;
 import lethalhabit.game.*;
+import lethalhabit.math.Point;
 import lethalhabit.ui.*;
 import lethalhabit.util.Util;
 

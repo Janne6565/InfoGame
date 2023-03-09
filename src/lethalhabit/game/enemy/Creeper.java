@@ -3,6 +3,7 @@ package lethalhabit.game.enemy;
 import lethalhabit.Main;
 import lethalhabit.math.*;
 import lethalhabit.game.*;
+import lethalhabit.math.Point;
 import lethalhabit.ui.*;
 import lethalhabit.util.Util;
 
@@ -30,7 +31,7 @@ public class Creeper extends Enemy {
      * @param position Absolute position for the creeper to be instantiated at
      */
     public Creeper(Point position) {
-        super(WIDTH, Animation.PLAYER_IDLE_LEFT, position, Player.HITBOX, new Point(9, 6), 160, 30);
+        super(WIDTH, position, Player.HITBOX, new Point(9, 6),160, 9);
     }
     
     /**

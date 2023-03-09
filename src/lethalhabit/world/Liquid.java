@@ -49,4 +49,7 @@ public final class Liquid {
         this.graphic = graphic;
     }
     
+    public static void load() {
+        loadLiquids();
+    }
 }

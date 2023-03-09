@@ -2,6 +2,7 @@ package lethalhabit.ui;
 
 import lethalhabit.Main;
 import lethalhabit.game.Player;
+import lethalhabit.game.skills.Skills;
 import lethalhabit.util.Util;
 
 import java.awt.*;
@@ -38,13 +39,10 @@ public class Animation implements Iterable<BufferedImage> {
         PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkRight", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_FALL_RIGHT = new Animation(0.0416, "playerFall", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_FALL_LEFT = new Animation(0.0416, PLAYER_FALL_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.65, "slash", Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
+        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.65, PLAYER_SLASH_LEFT.getMirroredAnimation(), Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
     }
 
-    public static void loadAnimations() {
-        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.65, "slash", Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
-        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.65, PLAYER_SLASH_LEFT.getMirroredAnimation(), Main.mainCharacter.getHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
-    }
-    
     /**
      * Structure class for all information needed to compute animations (loads the images)
      * @param frameTime       time between each frame (1/fps)
@@ -115,4 +113,7 @@ public class Animation implements Iterable<BufferedImage> {
         return frames.get(index);
     }
     
+    public static void load() {
+        loadPlayerAnimations();
+    }
 }
