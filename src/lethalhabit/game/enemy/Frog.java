@@ -19,22 +19,22 @@ public class Frog extends Enemy {
      * Every frog is 33 units wide
      */
     public static final int WIDTH = 33;
-
+    
     /**
      * Quadrilateral hitbox of a frog, auto-scaled to its size
      */
     public static final Hitbox HITBOX = new Hitbox(
-            new Point(18, 14).scale(WIDTH / 50.0),
-            new Point(18, 42).scale(WIDTH / 50.0),
-            new Point(36, 42).scale(WIDTH / 50.0),
-            new Point(36, 14).scale(WIDTH / 50.0)
+        new Point(18, 14).scale(WIDTH / 50.0),
+        new Point(18, 42).scale(WIDTH / 50.0),
+        new Point(36, 42).scale(WIDTH / 50.0),
+        new Point(36, 14).scale(WIDTH / 50.0)
     );
     
     /**
      * On every jump, a frog gains +250 up-velocity (negative y-velocity)
      */
     public static final int JUMP_BOOST = 250;
-
+    
     /**
      * The distance (to the player) a frog must have in order to attack
      */
@@ -44,7 +44,7 @@ public class Frog extends Enemy {
      * Cooldown until this frog can jump again
      */
     private double jumpCooldown = 0;
-
+    
     /**
      * Cooldown until this frog can attack again
      */
@@ -52,12 +52,10 @@ public class Frog extends Enemy {
     
     /**
      * Constructs a new frog at the specified position
-     * 
-     * @param position Absolute position for the frog to be instantiated at
+     * @param position absolute position for the frog to be instantiated at
      */
     public Frog(Point position) {
         super(WIDTH, position, HITBOX, new Point(9, 6), 270, 40);
-        Util.registerHittable(this);
     }
     
     /**
@@ -119,7 +117,7 @@ public class Frog extends Enemy {
     }
     
     /**
-     * @see Drawable#getAnimation()
+     * @see Entity#getAnimation()
      */
     @Override
     public Animation getAnimation() {
@@ -132,7 +130,7 @@ public class Frog extends Enemy {
     
     /**
      * Sets this frog's jump cooldown to a random time span between 1.5 and 5 seconds <br>
-     * (Frogs jump rather randomly)
+     * (Frogs jump randomly)
      */
     private void setRandomJumpCooldown() {
         this.jumpCooldown = new Random().nextDouble() * 3.5 + 1.5;
@@ -146,18 +144,16 @@ public class Frog extends Enemy {
         return hitbox;
     }
     
-    public void onHit() {
-        hp -= 1;
-        System.out.println(hp);
-        if (hp <= 0) {
-            despawn();
-        }
-    }
-    
+    /**
+     * Attacks the player, dealing exactly 1 damage.
+     * @param timeDelta time since last tick (in seconds)
+     */
     private void attack(double timeDelta) {
-        System.out.println("ATTACKING PLAYER");
-        Main.mainCharacter.hp -= 1;
-        System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
+        if (attackCooldown <= 0) {
+            System.out.println("ATTACKING PLAYER");
+            Main.mainCharacter.hp -= 1;
+            System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
+        }
         attackCooldown = 2;
     }
     

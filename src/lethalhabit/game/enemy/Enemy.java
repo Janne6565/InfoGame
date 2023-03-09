@@ -10,12 +10,13 @@ import lethalhabit.math.Point;
 import lethalhabit.math.Vec2D;
 import lethalhabit.ui.Animation;
 import lethalhabit.ui.Camera;
+import lethalhabit.ui.Drawable;
 import lethalhabit.util.Util;
 
 import java.awt.*;
 
 /**
- * Abstract model for all enemies. All enemies are hittable entities (and therefore tickable and drawable)
+ * Abstract model for all enemies. Every enemy is a hittable entity (and therefore tickable and drawable)
  */
 public abstract class Enemy extends Entity implements Hittable {
     
@@ -23,12 +24,12 @@ public abstract class Enemy extends Entity implements Hittable {
      * The position of the enemy's eyes, relative to its hitbox (used to check player visibility)
      */
     protected final Point eyePosition;
-
+    
     /**
      * The maximum distance this enemy can see
      */
     protected final double sightRange;
-
+    
     /**
      * The speed this enemy normally moves at
      */
@@ -43,21 +44,21 @@ public abstract class Enemy extends Entity implements Hittable {
     /**
      * Constructs an enemy with the given parameters <br>
      * Only accessible from subclasses to prevent instantiation of unspecified enemies
-     * 
-     * @param width Width of the enemy's graphic (in in-game units)
-     * @param position Absolute position for the enemy to be instantiated at
-     * @param hitbox Relative hitbox for the enemy
-     * @param eyePosition Relative position for the enemy's eyes 
-     * @param sightRange Maximum sight range for the enemy
-     * @param speed Movement speed for the enemy
+     * @param width       Width of the enemy's graphic (in in-game units)
+     * @param position    Absolute position for the enemy to be instantiated at
+     * @param hitbox      Relative hitbox for the enemy
+     * @param eyePosition Relative position for the enemy's eyes
+     * @param sightRange  Maximum sight range for the enemy
+     * @param speed       Movement speed for the enemy
      */
     protected Enemy(double width, Point position, Hitbox hitbox, Point eyePosition, double sightRange, double speed) {
         super(width, Animation.PLAYER_IDLE_LEFT.get(0), position, hitbox);
         this.eyePosition = eyePosition;
         this.sightRange = sightRange;
         this.speed = speed;
+        Util.registerHittable(this);
     }
-
+    
     /**
      * @see Entity#despawn()
      */
@@ -66,7 +67,7 @@ public abstract class Enemy extends Entity implements Hittable {
         super.despawn();
         Util.removeHittable(this);
     }
-
+    
     /**
      * @see Hittable#getHitbox()
      */
@@ -88,19 +89,18 @@ public abstract class Enemy extends Entity implements Hittable {
      */
     @Override
     public void onHit(DamageSource source) {
-
+    
     }
-
+    
     /**
      * Sets the enemy's x-knockback
-     *
      * @param value value of the knockback (only x-direction)
      */
     public void knockback(double value) {
         recoil = new Vec2D(value, 0);
         resetRecoil = 300;
     }
-
+    
     /**
      * @see Drawable#draw(Graphics)
      */
@@ -115,7 +115,7 @@ public abstract class Enemy extends Entity implements Hittable {
             }
         }
     }
-
+    
     /**
      * @see Entity#changeTiles(Hitbox, Hitbox)
      */
@@ -127,7 +127,6 @@ public abstract class Enemy extends Entity implements Hittable {
     
     /**
      * Checks if this enemy can see the player by checking if it can see any of their vertices
-     * 
      * @return <code>true</code> if the player can be seen, <code>false</code> otherwise
      */
     protected boolean canSeePlayer() {
@@ -140,5 +139,5 @@ public abstract class Enemy extends Entity implements Hittable {
         }
         return false;
     }
-
+    
 }
