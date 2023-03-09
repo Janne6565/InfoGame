@@ -35,5 +35,6 @@ public class LazyBackgroundImageLoader implements Runnable {
         Map<Integer, BufferedImage> mapX = GamePanel.mapBackgroundImages.getOrDefault(x, new HashMap<>());
         mapX.put(y, bufferImage);
         GamePanel.mapBackgroundImages.put(x, mapX);
+        GamePanel.loadingThreads.remove(this);
     }
 }

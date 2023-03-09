@@ -187,7 +187,7 @@ public final class GamePanel extends JPanel {
             renderMax = renderMax.plus(0, 1);
         }
         
-        // TODO: Unload images not in range
+        // Unloading Images out of sight:
 
         for (int x = 0; x < renderMin.x() - 1; x++) {
             Map<Integer, String> images = Main.backgroundImages.getOrDefault(x, null);
