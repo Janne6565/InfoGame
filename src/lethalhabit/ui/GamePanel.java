@@ -199,6 +199,7 @@ public final class GamePanel extends JPanel {
                 if (mapOnX != null) {
                     mapOnX.put(y, null);
                     mapBackgroundImages.put(x, mapOnX);
+                    pathsLoaded.remove(path);
                 }
             }
             for (int y = (int) (renderMax.y() + 1); y < minimap.size.height / Main.TILE_SIZE / Main.BACKGROUND_TILE_SIZE; y ++) {
