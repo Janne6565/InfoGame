@@ -2,6 +2,8 @@ package lethalhabit.game.skills;
 
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.Point;
+import lethalhabit.ui.GamePanel;
+import lethalhabit.ui.UpgradeButtonSkillTree;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -33,11 +35,8 @@ public class SkillTree {
         public final Point position;
         public final boolean ultimate;
         public final int maxLevel;
-        
-        /**
-         * Maximum 3 Nodes else we have some graphic problems :)
-         */
         public final Node[] nextNodes;
+        public double hoverTime;
         
         protected Node(String name, BufferedImage image, Point position, boolean ultimate, int maxLevel, Node... nextNodes) {
             this.name = name;
@@ -46,6 +45,7 @@ public class SkillTree {
             this.ultimate = ultimate;
             this.maxLevel = maxLevel;
             this.nextNodes = nextNodes;
+            this.hoverTime = 0;
         }
         
         public int getLevel() {

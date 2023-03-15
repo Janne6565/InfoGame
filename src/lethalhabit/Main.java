@@ -16,6 +16,7 @@ import lethalhabit.util.Util;
 import lethalhabit.world.Block;
 import lethalhabit.world.Liquid;
 import lethalhabit.world.Tile;
+import org.ietf.jgss.GSSManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,7 +78,7 @@ public final class Main {
     public static boolean IS_GAME_LOADING = true;
     public static boolean IS_GAME_RUNNING = false;
     
-    public static final Camera PLAYER_FOLLOWING_CAMERA = new Camera(new Point(0, 0), 400, 40, 80, 100, 0);
+    public static final Camera PLAYER_FOLLOWING_CAMERA = new Camera(new Point(0, 0), 400, 40, 80, 100, Camera.LAYER_MENU);
     
     public static Camera camera = PLAYER_FOLLOWING_CAMERA;
     
@@ -121,6 +122,7 @@ public final class Main {
         Liquid.load();
         GamePanel.generateMinimap();
         loadBackgrounds();
+        GAME_PANEL.instantiateButtons();
         mainCharacter = new Player(new Point(3616, 200)); // TODO: load skills from file
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
@@ -174,10 +176,10 @@ public final class Main {
     /**
      * Method called on game tick
      */
-    public static void tick() {
+    public static void tick(Graphics graphics) {
         double timeDelta = (double) (System.currentTimeMillis() - lastTick) / 1000.0;
         lastTick = System.currentTimeMillis();
-        handleKeyInput(timeDelta);
+        handleKeyInput(timeDelta, graphics);
         if (IS_GAME_RUNNING) {
             // testEventArea.moveAndRegister(new Point(10 * timeDelta, 0));
             
@@ -210,33 +212,25 @@ public final class Main {
         }
     }
     
-    public static void handleKeyInput(double timeDelta) {
-        GAME_PANEL.handleMouseInputs(MouseInfo.getPointerInfo(), activeMouseButtons, timeDelta);
+    public static void handleKeyInput(double timeDelta, Graphics graphics) {
+        GAME_PANEL.handleMouseInputs(MouseInfo.getPointerInfo(), activeMouseButtons, timeDelta, graphics);
 
         if (mainCharacter != null) {
             if (activeKeys.contains(VK_0)) {
                 camera.changeLayer(0);
                 IS_GAME_RUNNING = true;
-                GAME_PANEL.clearClickables();
-                GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_1)) {
                 camera.changeLayer(1);
                 IS_GAME_RUNNING = false;
-                GAME_PANEL.clearClickables();
-                GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_2)) {
                 camera.changeLayer(2);
                 IS_GAME_RUNNING = false;
-                GAME_PANEL.clearClickables();
-                GAME_PANEL.loadClickables();
             }
             if (activeKeys.contains(VK_3)) {
                 camera.changeLayer(3);
                 IS_GAME_RUNNING = false;
-                GAME_PANEL.clearClickables();
-                GAME_PANEL.loadClickables();
             }
             
             switch (camera.layerRendering) {
@@ -330,8 +324,6 @@ public final class Main {
                 case Camera.LAYER_SKILL_TREE -> {
                     if (activeKeys.contains(VK_ESCAPE)) {
                         GAME_PANEL.nodeFocused = null;
-                        GAME_PANEL.clearClickables();
-                        GAME_PANEL.loadClickables();
                     }
                 }
             }
@@ -512,5 +504,16 @@ public final class Main {
         settingsFrame.add(panel);
         settingsFrame.setLocationRelativeTo(null);
         settingsFrame.setVisible(true);
+    }
+    
+    public static void play() {
+        System.out.println("PLAY");
+        camera.changeLayer(Camera.LAYER_GAME);
+    }
+    
+    public static void close() {
+        GAME_PANEL.updateTimer.stop();
+        GAME_PANEL.setEnabled(false);
+        GAME_PANEL.setVisible(false);
     }
 }

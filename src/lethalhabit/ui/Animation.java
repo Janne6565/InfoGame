@@ -24,6 +24,7 @@ public class Animation implements Iterable<BufferedImage> {
     public static Animation PLAYER_SLASH_RIGHT;
     public static Animation PLAYER_FALL_LEFT;
     public static Animation PLAYER_FALL_RIGHT;
+    public static Animation MAIN_MENU_BACKGROUND_ANIMATION;
 
     public static double loadingProgress = 0;
     
@@ -32,15 +33,20 @@ public class Animation implements Iterable<BufferedImage> {
     public final double length; // Time needed to run the animation
     public final double animationOffset;
 
-    public static void loadPlayerAnimations() {
+    public static void loadAnimations() {
+        // Player Animations
         PLAYER_IDLE_RIGHT = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_IDLE_LEFT = new Animation(0.0416, PLAYER_IDLE_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_LEFT = new Animation(0.0416, "playerWalkLeft", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkRight", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_FALL_RIGHT = new Animation(0.0416, "playerFall", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_FALL_LEFT = new Animation(0.0416, PLAYER_FALL_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
+        // Slash Animations
         PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.65, "slash", Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
         PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.65, PLAYER_SLASH_LEFT.getMirroredAnimation(), Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
+        
+        // Others
+        MAIN_MENU_BACKGROUND_ANIMATION = new Animation(0.0416, "backgroundAnimation", Main.screenWidth, 0);
     }
 
     /**
@@ -114,6 +120,6 @@ public class Animation implements Iterable<BufferedImage> {
     }
     
     public static void load() {
-        loadPlayerAnimations();
+        loadAnimations();
     }
 }

@@ -17,10 +17,10 @@ public class UpgradeButtonSkillTree extends Clickable {
     }
     
     @Override
-    public void onClick(double timeDelta) {
-        timeHeld += timeDelta;
-        if (timeHeld >= HOLD_THRESHOLD && Main.mainCharacter.spareLevel >= 1 && node.getLevel() < node.maxLevel) {
-            timeHeld = 0;
+    public void onLeftClick(double timeDelta) {
+        node.hoverTime += timeDelta;
+        if (node.hoverTime >= HOLD_THRESHOLD && Main.mainCharacter.spareLevel >= 1 && node.getLevel() < node.maxLevel) {
+            node.hoverTime = 0;
             node.upgrade();
             Main.mainCharacter.spareLevel -= 1;
         }
@@ -40,9 +40,7 @@ public class UpgradeButtonSkillTree extends Clickable {
     @Override
     public void onRightClick(double timeDelta) {
         if (node.nextNodes.length > 0) {
-            Main.GAME_PANEL.clearClickables();
             Main.GAME_PANEL.nodeFocused = node;
-            Main.GAME_PANEL.loadClickables();
         }
     }
     

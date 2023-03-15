@@ -176,6 +176,7 @@ public final class Hitbox implements Iterable<Point> {
         HALF_TOP(new Point[]{new Point(0, 0), new Point(Main.TILE_SIZE, 0), new Point(Main.TILE_SIZE, Main.TILE_SIZE / 2), new Point(0, Main.TILE_SIZE / 2)}),
         HALF_BOTTOM(new Point[]{new Point(0, Main.TILE_SIZE / 2), new Point(Main.TILE_SIZE, Main.TILE_SIZE / 2), new Point(Main.TILE_SIZE, Main.TILE_SIZE), new Point(0, Main.TILE_SIZE)}),
         LIQUID_SURFACE(new Point[]{new Point(0, Main.TILE_SIZE / 4), new Point(Main.TILE_SIZE, Main.TILE_SIZE / 4), new Point(Main.TILE_SIZE, Main.TILE_SIZE), new Point(0, Main.TILE_SIZE)}),
+        SMALL_BLOCK(new Point[]{new Point(0, Main.TILE_SIZE / 4 * 3), new Point(Main.TILE_SIZE, Main.TILE_SIZE / 4 * 3), new Point(Main.TILE_SIZE, Main.TILE_SIZE / 4 * 3), new Point(Main.TILE_SIZE, Main.TILE_SIZE)}),
         NONE(new Point[0]);
         
         public final Hitbox hitbox;

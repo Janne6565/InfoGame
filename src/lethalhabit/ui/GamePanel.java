@@ -22,47 +22,48 @@ import java.util.List;
  */
 public final class GamePanel extends JPanel {
     
-    public static final double FRAME_RATE = 280;
+    public static final double FRAME_RATE = 140;
     private static final double FONT_SIZE_SKILL_TREE = 6;
     
     public static Minimap minimap;
     
-    private final Tooltip tooltip = new Tooltip("", 0.0);
+    private final Tooltip tooltip = new Tooltip("",  0.0);
     
     private long lastTick = System.currentTimeMillis();
     
+    // Background Image rendering
     public static Map<Integer, Map<Integer, BufferedImage>> mapBackgroundImages = new HashMap<>();
     public static ArrayList<String> pathsLoaded = new ArrayList<>();
     public static ArrayList<LazyBackgroundImageLoader> loadingThreads = new ArrayList<>();
     
-    public static BufferedImage buffer;
-    public boolean showed = false;
-    
+    // Skill Tree Images
     public BufferedImage BACK_BUTTON = Util.getImage("/assets/hud/back.png");
     public float BACK_BUTTON_SCALE = 1;
-    
     public BufferedImage SKILL_TREE_BACKGROUND = Util.getImage("/assets/hud/skillTree/background.png");
     public BufferedImage SKILL_TREE_CONNECTION = Util.getImage("/assets/hud/skillTree/connection_main.png");
     public BufferedImage SKILL_TREE_CONNECTION_SIDE = Util.getImage("/assets/hud/skillTree/connection_side.png");
-    public Map<Integer, BufferedImage> SKILL_TREE_ICONS;
     public int SKILL_TREE_NODE_SIZE = 40;
+    public static Map<Integer, BufferedImage> SKILL_TREE_ICONS;
     
+    public ArrayList<MainMenuButton> mainMenuButtons = new ArrayList<>();
+    
+    
+    // Skill Tree variables
     public static double SHIFT_SPEED = 200;
     public static double SHIFT_PER_ROW = 100;
+    public static double timeInGame = 0;
     public SkillTree.Node nodeFocused = null;
     
-    public final List<Clickable> clickables = new ArrayList<>();
-
-    private int layerBefore = 0;
-
+    public Timer updateTimer;
+    
     public GamePanel() {
         // Set up the update timer
-        Timer updateTimer = new Timer((int) (1000.0 / FRAME_RATE), e -> repaint());
+        updateTimer = new Timer((int) (1000.0 / FRAME_RATE), e -> repaint());
         updateTimer.start();
 
         loadIcons();
     }
-
+    
     private void loadIcons() {
         SKILL_TREE_ICONS = new HashMap<>();
         for (int i = 0; i < 5; i++) {
@@ -77,11 +78,10 @@ public final class GamePanel extends JPanel {
         minimap = new Minimap();
     }
 
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Main.tick();
+        Main.tick(g);
         Graphics2D graphics2D = (Graphics2D) g;
         if (!Main.IS_GAME_LOADING) {
             if (Main.DEBUG_HITBOX) {
@@ -117,11 +117,80 @@ public final class GamePanel extends JPanel {
         }
     }
     
+    public void instantiateButtons() {
+        mainMenuButtons.add(new MainMenuButton.PlayButton(new Point(50, 20)));
+        mainMenuButtons.add(new MainMenuButton.QuitButton(new Point(50, 30)));
+    }
+    
+    public ArrayList<Clickable> getClickables() {
+        ArrayList<Clickable> clickis = new ArrayList<>();
+        
+        switch (Main.camera.layerRendering) {
+            case Camera.LAYER_SKILL_TREE -> {
+                List<SkillTree.Node> skills;
+                if (nodeFocused == null) {
+                    SkillTree skillTree = Main.mainCharacter.skillTree;
+                    skills = skillTree.startNodes;
+                } else {
+                    skills = Arrays.asList(nodeFocused.nextNodes);
+                    Point position = new Point((int) (12.0 * Main.scaledPixelSize()), (int) (15.0 * Main.scaledPixelSize()));
+                    Point pointBotRight = new Point((int) (BACK_BUTTON.getWidth() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE), (int) (BACK_BUTTON.getHeight() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE));
+                    clickis.add(new Clickable(position, new Hitbox(new Point(0, 0), new Point(0, pointBotRight.y()), new Point(pointBotRight.x(), pointBotRight.y()), new Point(pointBotRight.x(), 0))) {
+                        @Override
+                        public void onLeftClick(double timeDelta) {
+                            nodeFocused = null;
+                        }
+                    
+                        @Override
+                        public void onHover(double timeDelta) {
+                            BACK_BUTTON_SCALE = (float) Math.min(BACK_BUTTON_SCALE + timeDelta * 0.3, 1.1);
+                        }
+                    
+                        @Override
+                        public void onReset(double timeDelta) {
+                            BACK_BUTTON_SCALE = (float) Math.max(BACK_BUTTON_SCALE - timeDelta * 0.3, 1);
+                        }
+                    
+                        @Override
+                        public void onRightClick(double timeDelta) {
+                        
+                        }
+                    
+                        @Override
+                        public void onOnlyHover(double timeDelta) {
+                        
+                        }
+                    });
+                }
+            
+                for (SkillTree.Node skill : skills) {
+                    BufferedImage skillTreeNode = SKILL_TREE_ICONS.get(skill.getLevel());
+                    BufferedImage imageBorder = new BufferedImage((int) (skillTreeNode.getWidth() * skill.scale), (int) (skillTreeNode.getHeight() * skill.scale), BufferedImage.TYPE_INT_ARGB);
+                    imageBorder.getGraphics().drawImage(skillTreeNode, 0, 0, (int) (skillTreeNode.getWidth() * skill.scale), (int) (skillTreeNode.getHeight() * skill.scale), null);
+                
+                    Point pointToDrawNode = new Point(Main.screenWidth / 2.0, Main.screenHeight / 2.0)
+                            .minus(imageBorder.getWidth() / 2.0, imageBorder.getHeight() / 2.0)
+                            .plus(
+                                    skill.position.scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
+                            );
+                
+                    Hitbox hitbox = new Hitbox(new Point(0, 0), new Point(0, imageBorder.getWidth()), new Point(imageBorder.getHeight(), imageBorder.getWidth()), new Point(imageBorder.getHeight(), 0));
+                    clickis.add(new UpgradeButtonSkillTree(pointToDrawNode, hitbox, skill));
+                }
+            }
+            case Camera.LAYER_MENU -> {
+                clickis.addAll(mainMenuButtons);
+            }
+        }
+        return clickis;
+    }
+    
     public BufferedImage exportLayer(int layer, int width, int height) {
         BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) outputImage.getGraphics();
 
         double timeDelta = (System.currentTimeMillis() - lastTick) / 1000.0;
+        timeInGame += timeDelta;
         lastTick = System.currentTimeMillis();
         
         List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == layer).toList();
@@ -141,7 +210,8 @@ public final class GamePanel extends JPanel {
                 drawTooltip(g, timeDelta);
             }
             case Camera.LAYER_MENU -> {
-                g.drawString("Main Menu", Main.screenWidth / 2, Main.screenHeight / 2);
+                BufferedImage backgroundImage = Animation.MAIN_MENU_BACKGROUND_ANIMATION.getCurrentFrame(timeInGame);
+                g.drawImage(backgroundImage, 0, 0, Main.screenWidth, Main.screenHeight, null);
             }
             case Camera.LAYER_MAP -> {
                 minimap.draw(g);
@@ -161,13 +231,13 @@ public final class GamePanel extends JPanel {
                     }
                 }
                 
-                for (Drawable drawable : drawablesInLayer) {
-                    drawable.draw(g);
-                }
             }
             case Camera.LAYER_SKILL_TREE -> {
                 renderSkillTree(g);
             }
+        }
+        for (Drawable drawable : drawablesInLayer) {
+            drawable.draw(g);
         }
 
         return outputImage;
@@ -199,6 +269,7 @@ public final class GamePanel extends JPanel {
                 if (mapOnX != null) {
                     mapOnX.put(y, null);
                     mapBackgroundImages.put(x, mapOnX);
+                    pathsLoaded.remove(path);
                 }
             }
             for (int y = (int) (renderMax.y() + 1); y < minimap.size.height / Main.TILE_SIZE / Main.BACKGROUND_TILE_SIZE; y ++) {
@@ -260,10 +331,10 @@ public final class GamePanel extends JPanel {
                                     g.drawImage(image, (int) positionOfImage.x(), (int) positionOfImage.y(), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), null);
                                 }
                             } else {
+                                g.setColor(Color.RED);
+                                g.fillRect((int) positionOfImage.x(), (int) positionOfImage.y(), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()));
                                 if (!pathsLoaded.contains(path)) {
                                     pathsLoaded.add(path);
-                                    g.setColor(Color.RED);
-                                    g.fillRect((int) positionOfImage.x(), (int) positionOfImage.y(), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()), (int) (Main.TILE_SIZE * Main.BACKGROUND_TILE_SIZE * Main.scaledPixelSize()));
                                     LazyBackgroundImageLoader loader = new LazyBackgroundImageLoader(path, x, y, g);
                                     Thread thread = new Thread(loader);
                                     thread.start();
@@ -280,69 +351,6 @@ public final class GamePanel extends JPanel {
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-    
-    public void clearClickables() {
-        clickables.clear();
-    }
-    
-    public void loadClickables() {
-        switch (Main.camera.layerRendering) {
-            case Camera.LAYER_SKILL_TREE -> {
-                List<SkillTree.Node> skills;
-                if (nodeFocused == null) {
-                    SkillTree skillTree = Main.mainCharacter.skillTree;
-                    skills = skillTree.startNodes;
-                } else {
-                    skills = Arrays.asList(nodeFocused.nextNodes);
-                    Point position = new Point((int) (12.0 * Main.scaledPixelSize()), (int) (15.0 * Main.scaledPixelSize()));
-                    Point pointBotRight = new Point((int) (BACK_BUTTON.getWidth() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE), (int) (BACK_BUTTON.getHeight() / 100.0 * 4.0 * Main.scaledPixelSize() * BACK_BUTTON_SCALE));
-                    clickables.add(new Clickable(position, new Hitbox(new Point(0, 0), new Point(0, pointBotRight.y()), new Point(pointBotRight.x(), pointBotRight.y()), new Point(pointBotRight.x(), 0))) {
-                        @Override
-                        public void onClick(double timeDelta) {
-                            nodeFocused = null;
-                            clearClickables();
-                            loadClickables();
-                        }
-                        
-                        @Override
-                        public void onHover(double timeDelta) {
-                            BACK_BUTTON_SCALE = (float) Math.min(BACK_BUTTON_SCALE + timeDelta * 0.3, 1.1);
-                        }
-                        
-                        @Override
-                        public void onReset(double timeDelta) {
-                            BACK_BUTTON_SCALE = (float) Math.max(BACK_BUTTON_SCALE - timeDelta * 0.3, 1);
-                        }
-                        
-                        @Override
-                        public void onRightClick(double timeDelta) {
-                        
-                        }
-                        
-                        @Override
-                        public void onOnlyHover(double timeDelta) {
-                        
-                        }
-                    });
-                }
-                
-                for (SkillTree.Node skill : skills) {
-                    BufferedImage skillTreeNode = SKILL_TREE_ICONS.get(skill.getLevel());
-                    BufferedImage imageBorder = new BufferedImage((int) (skillTreeNode.getWidth() * skill.scale), (int) (skillTreeNode.getHeight() * skill.scale), BufferedImage.TYPE_INT_ARGB);
-                    imageBorder.getGraphics().drawImage(skillTreeNode, 0, 0, (int) (skillTreeNode.getWidth() * skill.scale), (int) (skillTreeNode.getHeight() * skill.scale), null);
-                    
-                    Point pointToDrawNode = new Point(Main.screenWidth / 2.0, Main.screenHeight / 2.0)
-                            .minus(imageBorder.getWidth() / 2.0, imageBorder.getHeight() / 2.0)
-                            .plus(
-                                    skill.position.scale(SHIFT_PER_ROW).scale(Main.scaledPixelSize())
-                            );
-                    
-                    Hitbox hitbox = new Hitbox(new Point(0, 0), new Point(0, imageBorder.getWidth()), new Point(imageBorder.getHeight(), imageBorder.getWidth()), new Point(imageBorder.getHeight(), 0));
-                    clickables.add(new UpgradeButtonSkillTree(pointToDrawNode, hitbox, skill));
                 }
             }
         }
@@ -449,10 +457,10 @@ public final class GamePanel extends JPanel {
         }
     }
     
-    public void handleMouseInputs(PointerInfo pointerInfo, List<Integer> mouseInputs, double timeDelta) {
+    public void handleMouseInputs(PointerInfo pointerInfo, List<Integer> mouseInputs, double timeDelta, Graphics graphics) {
         Point pointerPosition = new Point(pointerInfo.getLocation().x, pointerInfo.getLocation().y);
-        for (Clickable clickable : new ArrayList<Clickable>(clickables)) {
-            Hitbox shiftedHitbox = clickable.hitbox.shift(clickable.position);
+        for (Clickable clickable : getClickables()) {
+            Hitbox shiftedHitbox = clickable.getHitbox().shift(clickable.position);
             if (pointerPosition.x() > shiftedHitbox.minX() && pointerPosition.x() < shiftedHitbox.maxX() && pointerPosition.y() > shiftedHitbox.minY() && pointerPosition.y() < shiftedHitbox.maxY()) {
                 clickable.onHover(timeDelta);
                 if (mouseInputs.contains(3)) {
@@ -460,7 +468,7 @@ public final class GamePanel extends JPanel {
                 }
                 
                 if (mouseInputs.contains(1)) {
-                    clickable.onClick(timeDelta);
+                    clickable.onLeftClick(timeDelta);
                 } else {
                     clickable.onOnlyHover(timeDelta);
                 }
