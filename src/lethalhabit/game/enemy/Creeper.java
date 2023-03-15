@@ -19,7 +19,7 @@ public class Creeper extends Enemy {
      * Every creeper is 20 units wide
      */
     public static final int WIDTH = 20;
-
+    
     /**
      * The distance (to the player) a creeper must have in order to attack
      */
@@ -27,11 +27,10 @@ public class Creeper extends Enemy {
     
     /**
      * Constructs a new creeper at the specified position
-     * 
      * @param position Absolute position for the creeper to be instantiated at
      */
     public Creeper(Point position) {
-        super(WIDTH, position, Player.HITBOX, new Point(9, 6),160, 9);
+        super(WIDTH, position, Player.HITBOX, new Point(9, 6), 160, 9);
     }
     
     /**
