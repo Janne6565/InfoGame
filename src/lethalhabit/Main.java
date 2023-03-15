@@ -370,6 +370,8 @@ public final class Main {
     
     public static GamePanel GAME_PANEL;
     
+    public static Frame frame;
+    
     /**
      * Initiates the screen
      */
@@ -416,94 +418,7 @@ public final class Main {
         frame.setResizable(false);
         frame.setVisible(true);
         frame.setBackground(Color.DARK_GRAY);
-    }
-    
-    public static void createStartWindow() {
-        JFrame startFrame = new JFrame("Lethal Habit");
-        JPanel panel = new JPanel();
-        // menu.setUndecorated(true);
-        
-        // Set the menu to full-screen mode and automatically resize the window to fit the screen
-        
-        startFrame.setUndecorated(true);
-        
-        startFrame.setSize(200, 200);
-        startFrame.setResizable(false);
-        startFrame.setVisible(true);
-        
-        JLabel gameLabel = new JLabel("Lethal Habit");
-        JButton startButton = new JButton("Start");
-        JButton settingsButton = new JButton("Settings");
-        JButton exitButton = new JButton("Exit");
-        
-        // New Panel mit Button Layout
-        panel.setLayout(new BorderLayout());
-        
-        // action event listeners:
-        startButton.addActionListener(e -> {
-            IS_GAME_RUNNING = true;
-            startFrame.dispose();
-            gameInit();
-        });
-        settingsButton.addActionListener(e -> {
-            startFrame.dispose();
-            createSettingsWindow();
-        });
-        exitButton.addActionListener(e -> startFrame.dispose());
-        
-        panel.add(gameLabel, BorderLayout.PAGE_START);
-        panel.add(startButton, BorderLayout.CENTER);
-        panel.add(settingsButton, BorderLayout.EAST);
-        panel.add(exitButton, BorderLayout.SOUTH);
-        
-        startFrame.add(panel);
-        startFrame.setLocationRelativeTo(null);
-        startFrame.setVisible(true);
-    }
-    
-    public static void createSettingsWindow() {
-        String[] petStrings = {"Bird", "Cat", "Dog", "Rabbit", "Pig"};
-        
-        //Create the combo box, select item at index 4.
-        //Indices start at 0, so 4 specifies the pig.
-        JComboBox petList = new JComboBox(petStrings);
-        petList.setSelectedIndex(4);
-        
-        JFrame settingsFrame = new JFrame();
-        JPanel panel = new JPanel();
-        // menu.setUndecorated(true);
-        
-        //New Panel mit Button Layout
-        panel.setLayout(new BorderLayout());
-        
-        // Set the menu to full-screen mode and automatically resize the window to fit the screen
-        settingsFrame.setUndecorated(true);
-        
-        settingsFrame.setSize(200, 200);
-        settingsFrame.setResizable(false);
-        settingsFrame.show();
-        
-        JLabel gameLabel = new JLabel("Lethal Habit");
-        JButton startButton = new JButton("Start");
-        JButton backButton = new JButton("Back");
-        
-        //action event listeners:
-        startButton.addActionListener(e -> {
-            settingsFrame.dispose();
-            setupCamera();
-        });
-        backButton.addActionListener(e -> {
-            settingsFrame.dispose();
-            createStartWindow();
-        });
-        
-        panel.add(gameLabel, BorderLayout.NORTH);
-        panel.add(petList, BorderLayout.CENTER);
-        panel.add(backButton, BorderLayout.SOUTH);
-        
-        settingsFrame.add(panel);
-        settingsFrame.setLocationRelativeTo(null);
-        settingsFrame.setVisible(true);
+        Main.frame = frame;
     }
     
     public static void play() {
@@ -515,5 +430,6 @@ public final class Main {
         GAME_PANEL.updateTimer.stop();
         GAME_PANEL.setEnabled(false);
         GAME_PANEL.setVisible(false);
+        Main.frame.dispose();
     }
 }
