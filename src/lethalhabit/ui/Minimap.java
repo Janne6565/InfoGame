@@ -61,10 +61,6 @@ public class Minimap {
                 }
             }
 
-
-
-
-
             map.getGraphics().dispose();
             scale = tilePixelSize / Main.TILE_SIZE;
             image = map;

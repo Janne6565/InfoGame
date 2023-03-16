@@ -38,7 +38,7 @@ public abstract class MainMenuButton extends Clickable implements Drawable {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = image.getGraphics();
         graphics.setFont(font);
-        graphics.setColor(Color.BLACK);
+        graphics.setColor(Color.WHITE);
         graphics.drawString(text, 0, height);
         graphics.dispose();
         this.image = image;
