@@ -1,10 +1,7 @@
 package lethalhabit.game.enemy;
 
 import lethalhabit.Main;
-import lethalhabit.game.DamageSource;
-import lethalhabit.game.Entity;
-import lethalhabit.game.Hittable;
-import lethalhabit.game.Tickable;
+import lethalhabit.game.*;
 import lethalhabit.math.Point;
 import lethalhabit.math.*;
 import lethalhabit.ui.Animation;
@@ -21,16 +18,16 @@ public class Goomba extends Enemy {
     /**
      * Every goomba is 33 units wide
      */
-    private static final int WIDTH = 33;
+    public static final int WIDTH = 22;
     
     /**
      * Quadrilateral hitbox of a goomba, auto-scaled to its size
      */
     private static final Hitbox HITBOX = new Hitbox(
-        new Point(18, 14).scale(WIDTH / 50.0),
-        new Point(18, 42).scale(WIDTH / 50.0),
-        new Point(36, 42).scale(WIDTH / 50.0),
-        new Point(36, 14).scale(WIDTH / 50.0)
+        new Point(18, 4).scale(WIDTH / 50.0),
+        new Point(18, 45).scale(WIDTH / 50.0),
+        new Point(36, 45).scale(WIDTH / 50.0),
+        new Point(36, 4).scale(WIDTH / 50.0)
     );
     
     /**
@@ -43,12 +40,14 @@ public class Goomba extends Enemy {
      */
     private double attackCooldown = 0;
     
+    
+    public double timeSinceLastAttack = -1;
     /**
      * Constructs a new goomba at the specified position
      * @param position absolute position for the goomba to be instantiated at
      */
     public Goomba(Point position) {
-        super(WIDTH, position, HITBOX, new Point(9, 6), 160, 80);
+        super(WIDTH, position, HITBOX, new Point(9, 6), 160, 20);
     }
     
     /**
@@ -69,7 +68,7 @@ public class Goomba extends Enemy {
     @Override
     public void tick(Double timeDelta) {
         super.tick(timeDelta);
-        
+        timeSinceLastAttack += timeDelta;
         attackCooldown -= timeDelta;
         
         if (!isWallDown()) {
@@ -85,7 +84,7 @@ public class Goomba extends Enemy {
         }
         
         // platform movement
-        if (direction != Direction.NONE) {
+        if (direction != Direction.NONE && !(timeSinceLastAttack != -1 && timeSinceLastAttack < Animation.SLAYA_HIT_LEFT.length)) {
             
             // movement - left and right
             velocity = switch (direction) {
@@ -103,8 +102,8 @@ public class Goomba extends Enemy {
             
             // check if wall is left or right based on direction
             boolean isWallInDirection = switch (direction) {
-                case RIGHT -> isWallRight(pointToCheck) || isWallRight();
-                case LEFT -> isWallLeft(pointToCheck) || isWallLeft();
+                case RIGHT -> isWallRight();
+                case LEFT -> isWallLeft();
                 default -> false;
             };
             
@@ -145,18 +144,19 @@ public class Goomba extends Enemy {
         System.out.println("Enemy hp: " + this.hp);
     }
     
+    
+    Direction directionHit;
     /**
      * Attacks the player, dealing exactly 1 damage
      * @param timeDelta time since last tick (in seconds)
      */
     private void attack(double timeDelta) {
         if (attackCooldown <= 0) {
-            System.out.println("ATTACKING PLAYER");
-            Main.mainCharacter.hp -= 1;
-            System.out.println("PLAYER HP = " + Main.mainCharacter.hp);
+            Main.mainCharacter.takeHit(new DamageSource(this, DamageType.STANDARD, 1, 100));
             attackCooldown = 2;
+            timeSinceLastAttack = 0;
+            directionHit = Main.mainCharacter.position.x() < position.x() ? Direction.LEFT : Direction.RIGHT;
         }
-        attackCooldown -= timeDelta;
     }
     
     /**
@@ -164,10 +164,17 @@ public class Goomba extends Enemy {
      */
     @Override
     public Animation getAnimation() {
+        if (timeSinceLastAttack != -1 && timeSinceLastAttack < Animation.SLAYA_HIT_LEFT.length) {
+            return switch (direction) {
+                case NONE, LEFT -> Animation.SLAYA_HIT_LEFT;
+                case RIGHT -> Animation.SLAYA_HIT_RIGHT;
+            };
+        }
+        
         return switch (direction) {
-            case NONE -> Animation.PLAYER_IDLE_LEFT;
-            case LEFT -> Animation.PLAYER_WALK_LEFT;
-            case RIGHT -> Animation.PLAYER_WALK_RIGHT;
+            case NONE -> Animation.SLAYA_IDLE_LEFT;
+            case LEFT -> Animation.SLAYA_WALK_LEFT;
+            case RIGHT -> Animation.SLAYA_WALK_RIGHT;
         };
     }
     

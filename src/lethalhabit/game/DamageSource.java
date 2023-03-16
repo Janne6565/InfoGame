@@ -37,7 +37,7 @@ public final class DamageSource {
      * @param damage damage amount
      * @param knockback knockback amount
      */
-    private DamageSource(Entity source, DamageType type, double damage, double knockback) {
+    public DamageSource(Entity source, DamageType type, double damage, double knockback) {
         this.source = source;
         this.type = type;
         this.damage = damage;

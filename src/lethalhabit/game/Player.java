@@ -52,6 +52,10 @@ public class Player extends Entity {
     private int timesJumped = 0;
     private int timesDashed = 0;
     
+    public double timeSinceLastHit = -1;
+    public double timeSinceLastDoubleJump = -1;
+    
+    
     public double dashCoolDown = 0;
     public double dashCooldownSafety = 0;
     public double doubleJumpCooldown = 3;
@@ -77,6 +81,14 @@ public class Player extends Entity {
         if (dashCoolDown <= 0 && timesDashed < skills.dashAmount) {
             dashCoolDown = skills.dashCooldown;
             timesDashed += 1;
+        }
+        
+        if (timeSinceLastHit != -1) {
+            timeSinceLastHit += timeDelta;
+        }
+        
+        if (timeSinceLastDoubleJump != -1) {
+            timeSinceLastDoubleJump += timeDelta;
         }
     }
     
@@ -174,12 +186,14 @@ public class Player extends Entity {
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(WALL_JUMP_BOOST * jumpBoost, 0);
             resetRecoil = RECOIL_RESET_WALL_JUMP;
+            timeSinceLastDoubleJump = 0;
             return;
         } else if (direction == Direction.RIGHT && ((!hasJumpedLeft && !hasJumpedRight) || (skills.canWallJumpBothSides && !hasJumpedRight)) && isWallRight() && skills.canWallJump) {
             hasJumpedRight = true;
             velocity = new Vec2D(velocity.x(), -JUMP_BOOST * jumpBoost);
             recoil = new Vec2D(-WALL_JUMP_BOOST * jumpBoost, 0);
             resetRecoil = RECOIL_RESET_WALL_JUMP;
+            timeSinceLastDoubleJump = 0;
             return;
         }
         if (canJump()) {
@@ -187,6 +201,7 @@ public class Player extends Entity {
             if (!isWallDown()) {
                 timesJumped += 1;
                 doubleJumpCooldown = skills.doubleJumpCooldown;
+                timeSinceLastDoubleJump = 0;
             }
         }
         jumpBoost = 1.0;
@@ -222,8 +237,32 @@ public class Player extends Entity {
     }
     
     @Override
+    public double getTimeAnimation() {
+        if (timeSinceLastHit != -1 && timeSinceLastHit < Animation.PLAYER_SLASH_LEFT.length) {
+            return timeSinceLastHit;
+        }
+        if (timeSinceLastDoubleJump != -1 && timeSinceLastDoubleJump < Animation.PLAYER_DOUBLE_JUMP_RIGHT.length) {
+            return timeSinceLastDoubleJump;
+        }
+        return age;
+    }
+    
+    @Override
     public Animation getAnimation() {
         Direction directionToCalculate = lastDirection; // Might be useful for something like a moonwalk implementation
+        if (timeSinceLastHit != -1 && timeSinceLastHit < Animation.PLAYER_SLASH_LEFT.length) {
+            return switch (directionToCalculate) {
+                case LEFT, NONE -> Animation.PLAYER_SLASH_LEFT;
+                case RIGHT -> Animation.PLAYER_SLASH_RIGHT;
+            };
+        }
+        if (timeSinceLastDoubleJump != -1 && timeSinceLastDoubleJump < Animation.PLAYER_DOUBLE_JUMP_LEFT.length) {
+            return switch (directionToCalculate) {
+                case LEFT, NONE -> Animation.PLAYER_DOUBLE_JUMP_LEFT;
+                case RIGHT -> Animation.PLAYER_DOUBLE_JUMP_RIGHT;
+            };
+        }
+        
         if (velocity.y() <= 0) {
             if (velocity.x() == 0) {
                 return switch (directionToCalculate) {
@@ -231,7 +270,7 @@ public class Player extends Entity {
                     case RIGHT -> Animation.PLAYER_IDLE_RIGHT;
                 };
             } else {
-                return velocity.x() < 0 ? Animation.PLAYER_WALK_RIGHT : Animation.PLAYER_WALK_LEFT;
+                return velocity.x() < 0 ? Animation.PLAYER_WALK_LEFT : Animation.PLAYER_WALK_RIGHT;
             }
         } else {
             if (velocity.x() == 0) {
@@ -246,7 +285,7 @@ public class Player extends Entity {
     }
     
     public void hit() {
-        if (lastDirection != Direction.NONE) {
+        if (lastDirection != Direction.NONE && attackCooldown <= 0) {
             Point pointBasedOnMotion = switch (lastDirection) {
                 case LEFT ->
                         new Point(hitbox.minX() - getHitDimensions().getWidth(), (hitbox.maxY() - hitbox.minY()) - getHitDimensions().getHeight() / 2 - skills.attackHitbox.minY());
@@ -255,29 +294,28 @@ public class Player extends Entity {
                 default -> throw new IllegalStateException("Unexpected value: " + direction);
             };
             Hitbox hitbox = skills.attackHitbox.shift(position).shift(pointBasedOnMotion);
+            timeSinceLastHit = 0;
+            attackCooldown = skills.attackCooldown;
             
-            if (attackCooldown <= 0) {
-                attackCooldown = skills.attackCooldown;
-                
-                List<Hittable> struck = Util.getHittablesInHitbox(hitbox);
-                
-                if (struck.size() > 0) {
-                    double xKnockback = switch (lastDirection) {
-                        case RIGHT -> -50;
-                        case LEFT -> 50;
-                        case NONE -> 0.0;
-                    };
-                    double yKnockback = 0;
-                    knockback(xKnockback, yKnockback);
-                }
-                
-                for (Hittable hittable : struck) {
-                    hittable.onHit(DamageSource.standard(this, 1));
-                }
-                
-                PlayerSlashAnimation slashAnimation = new PlayerSlashAnimation(lastDirection, getHitDimensions());
-                slashAnimation.register();
+            List<Hittable> struck = Util.getHittablesInHitbox(hitbox);
+            
+            if (struck.size() > 0) {
+                double xKnockback = switch (lastDirection) {
+                    case RIGHT -> -50;
+                    case LEFT -> 50;
+                    case NONE -> 0.0;
+                };
+                double yKnockback = 0;
+                knockback(xKnockback, yKnockback);
             }
+            
+            for (Hittable hittable : struck) {
+                hittable.onHit(DamageSource.standard(this, 1));
+            }
+            
+            PlayerSlashAnimation slashAnimation = new PlayerSlashAnimation(lastDirection, getHitDimensions());
+            slashAnimation.register();
+            
         }
     }
     
@@ -329,4 +367,10 @@ public class Player extends Entity {
         }
     }
     
+    public void takeHit(DamageSource damageSource) {
+        System.out.println("Ouch, Player HP: " + hp);
+        recoil = damageSource.source.position.x() > position.x() ? new Vec2D(-damageSource.knockback, 0) : new Vec2D(damageSource.knockback, 0);
+        hp -= damageSource.damage;
+        resetRecoil = 300;
+    }
 }

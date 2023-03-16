@@ -2,6 +2,7 @@ package lethalhabit.ui;
 
 import lethalhabit.Main;
 import lethalhabit.game.Player;
+import lethalhabit.game.enemy.Goomba;
 import lethalhabit.game.skills.Skills;
 import lethalhabit.util.Util;
 
@@ -20,10 +21,23 @@ public class Animation implements Iterable<BufferedImage> {
     public static Animation PLAYER_IDLE_RIGHT;
     public static Animation PLAYER_WALK_LEFT;
     public static Animation PLAYER_WALK_RIGHT;
-    public static Animation PLAYER_SLASH_LEFT;
-    public static Animation PLAYER_SLASH_RIGHT;
     public static Animation PLAYER_FALL_LEFT;
     public static Animation PLAYER_FALL_RIGHT;
+    public static Animation PLAYER_DOUBLE_JUMP_LEFT;
+    public static Animation PLAYER_DOUBLE_JUMP_RIGHT;
+    public static Animation PLAYER_SLASH_LEFT;
+    public static Animation PLAYER_SLASH_RIGHT;
+    
+    public static Animation SLASH_LEFT;
+    public static Animation SLASH_RIGHT;
+    
+    public static Animation SLAYA_WALK_LEFT;
+    public static Animation SLAYA_WALK_RIGHT;
+    public static Animation SLAYA_HIT_LEFT;
+    public static Animation SLAYA_HIT_RIGHT;
+    public static Animation SLAYA_IDLE_LEFT;
+    public static Animation SLAYA_IDLE_RIGHT;
+    
     public static Animation MAIN_MENU_BACKGROUND_ANIMATION;
 
     public static double loadingProgress = 0;
@@ -41,12 +55,26 @@ public class Animation implements Iterable<BufferedImage> {
         PLAYER_WALK_RIGHT = new Animation(0.0416, "playerWalkRight", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_FALL_RIGHT = new Animation(0.0416, "playerFall", Player.WIDTH * Main.scaledPixelSize(), 0);
         PLAYER_FALL_LEFT = new Animation(0.0416, PLAYER_FALL_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_DOUBLE_JUMP_RIGHT = new Animation(0.0416 * 0.5, "playerDoubleJump", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_DOUBLE_JUMP_LEFT = new Animation(0.0416 * 0.5, PLAYER_DOUBLE_JUMP_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.5, "playerSlash", Player.WIDTH * Main.scaledPixelSize(), 0);
+        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.5, PLAYER_SLASH_RIGHT.getMirroredAnimation(), Player.WIDTH * Main.scaledPixelSize(), 0);
+        
+        
         // Slash Animations
-        PLAYER_SLASH_LEFT = new Animation(0.0416 * 0.65, "slash", Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
-        PLAYER_SLASH_RIGHT = new Animation(0.0416 * 0.65, PLAYER_SLASH_LEFT.getMirroredAnimation(), Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
+        SLASH_LEFT = new Animation(0.0416 * 0.65, "slash", Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
+        SLASH_RIGHT = new Animation(0.0416 * 0.65, SLASH_LEFT.getMirroredAnimation(), Skills.getDefaultHitDimensions().getWidth() * Main.scaledPixelSize() * 5, 0);
         
         // Others
         MAIN_MENU_BACKGROUND_ANIMATION = new Animation(0.0416, "backgroundAnimation", Main.screenWidth, 0);
+        
+        // Slaya Animations
+        SLAYA_WALK_LEFT = new Animation(0.0416, "slayaWalk", Goomba.WIDTH, 0);
+        SLAYA_WALK_RIGHT = new Animation(0.0416, SLAYA_WALK_LEFT.getMirroredAnimation(), Goomba.WIDTH * Main.scaledPixelSize(), 0);
+        SLAYA_HIT_RIGHT = new Animation(0.0416, "slayaHit", Goomba.WIDTH * Main.scaledPixelSize(), 0);
+        SLAYA_HIT_LEFT = new Animation(0.0416, SLAYA_HIT_RIGHT.getMirroredAnimation(), Goomba.WIDTH * Main.scaledPixelSize(), 0);
+        SLAYA_IDLE_LEFT = new Animation(0.0416, "slayaIdle", Goomba.WIDTH * Main.scaledPixelSize(), 0);
+        SLAYA_IDLE_RIGHT = new Animation(0.0416, SLAYA_IDLE_LEFT.getMirroredAnimation(), Goomba.WIDTH * Main.scaledPixelSize(), 0);
     }
 
     /**

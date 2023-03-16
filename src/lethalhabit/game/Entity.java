@@ -104,8 +104,7 @@ public abstract class Entity implements Tickable, Drawable {
         checkDirections(timeDelta);
         age += timeDelta;
         animation = getAnimation();
-        int frameIndex = (int) ((age % animation.length) / animation.frameTime);
-        graphic = animation.frames.get(frameIndex);
+        graphic = animation.getCurrentFrame(getTimeAnimation());
     }
     
     public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) { }
@@ -117,6 +116,10 @@ public abstract class Entity implements Tickable, Drawable {
     public void midAir(double timeDelta) { }
     
     public abstract Animation getAnimation();
+    
+    public double getTimeAnimation() {
+        return age;
+    }
     
     @Override
     public BufferedImage getGraphic() {

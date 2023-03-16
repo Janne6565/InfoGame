@@ -1,7 +1,6 @@
 package lethalhabit.ui;
 
 import lethalhabit.Main;
-import lethalhabit.game.Player;
 import lethalhabit.game.Tickable;
 import lethalhabit.math.Direction;
 import lethalhabit.math.Hitbox;
@@ -22,8 +21,8 @@ public class PlayerSlashAnimation implements Drawable, Tickable {
         this.dimension = dimension;
         this.direction = direction;
         animation = switch (direction) {
-            case LEFT -> Animation.PLAYER_SLASH_LEFT;
-            case RIGHT -> Animation.PLAYER_SLASH_RIGHT;
+            case LEFT -> Animation.SLASH_LEFT;
+            case RIGHT -> Animation.SLASH_RIGHT;
             case NONE -> null;
         };
     }

@@ -422,7 +422,6 @@ public final class Main {
     }
     
     public static void play() {
-        System.out.println("PLAY");
         camera.changeLayer(Camera.LAYER_GAME);
     }
     
