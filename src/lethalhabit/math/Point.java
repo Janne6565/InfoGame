@@ -1,27 +1,26 @@
 package lethalhabit.math;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
+ * Two-dimensional point with an x and y value
  *
- * @param x
- * @param y
+ * @param x x coordinate of the point
+ * @param y y coordinate of the point
  */
-
 public record Point(double x, double y) implements TwoDimensional, Comparable<Point> {
     
     /**
-     * Position of Spawn (hardcoded to fit onto start map)
+     * Position of spawn (hardcoded to fit onto start map)
      */
     public static Point SPAWN = new Point(8430, 750);
+    
     /**
      * Position of Lava Falls (hardcoded to fit onto start map)
      */
     public static Point LAVA_FALLS = new Point(500, 1700);
-
-    public static ArrayList<Point> spawnPointsForMobs = new ArrayList<>(Arrays.asList(
+    
+    public static List<Point> spawnPointsForMobs = List.of(
             new Point(8648, 670),
             new Point(8743, 750),
             new Point(8580, 530),
@@ -39,14 +38,16 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
             new Point(8417, 2810),
             new Point(8641, 2410),
             new Point(9092, 1110)
-    ));
+    );
     
     /**
+     * Compares the point to another one
      *
-     * @param other the object to be compared.
-     * @return true, if point x and y of instance point is bigger than param
+     * @param other Point to be compared
+     * @return <code>1</code> if both coordinates of this point are greater,
+     * <code>-1</code> if both coordinates of this point are smaller,
+     * or <code>0</code> if one of the two coordinates (x or y) are the same in both points
      */
-
     @Override
     public int compareTo(Point other) {
         if (this.x > other.x && this.y > other.y) {
@@ -57,19 +58,17 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
             return 0;
         }
     }
-
-
+    
+    /**
+     * Creates a string representation of the point
+     *
+     * @return The point, represented by a string, in conventional mathematical notation (X|Y)
+     */
     @Override
     public String toString() {
         return "(" + x + "|" + y + ")";
     }
-
-
-    /**
-     *  @desc utils for point, addition, subtraction and scai
-     *
-     */
-
+    
     public Point plus(double x, double y) {
         return new Point(this.x + x, this.y + y);
     }
@@ -89,37 +88,35 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     public Point scale(double factor) {
         return new Point(this.x * factor, this.y * factor);
     }
-
+    
     public Point divide(double divider) {
         return new Point(this.x / divider, this.y / divider);
     }
-
-    public Point divide(double dividerX, double dividerY) {
-        return new Point(this.x / dividerX, this.y / dividerY);
-    }
-
-    public Point divide(TwoDimensional twoDimensional) {
-        return new Point(this.x / twoDimensional.x(), this.y / twoDimensional.y());
-    }
-
-    public Point toInt() {
+    
+    /**
+     * Rounds (floors) the point to the nearest integer x and y coordinates
+     *
+     * @return A new point with floored coordinates
+     */
+    public Point round() {
         return new Point((int) this.x, (int) this.y);
     }
-
+    
     /**
+     * Returns the 'location vector' of the point (vector pointing from coordinate origin (0|0) to the point)
      *
-     * @return x and y of instance
+     * @return A new {@link Vec2D} with the point's x and y coordinate as its direction
      */
     public Vec2D loc() {
         return new Vec2D(x, y);
     }
-
+    
     /**
+     * Calculates the distance to another point
      *
-     * @param point
-     * @return distance from instance point to param
+     * @param point Other point
+     * @return The absolute distance from the point to the other one
      */
-
     public double distance(Point point) {
         return minus(point).loc().length();
     }

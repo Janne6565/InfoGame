@@ -11,13 +11,33 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * An event area - an area in the game that defines reactions to certain actions (like entering or leaving the event area)
+ */
 public abstract class EventArea implements Drawable {
     
+    /**
+     * Relative hitbox of the event area
+     */
     public final Hitbox hitbox;
+    
+    /**
+     * Display image of the event area, <code>null</code> if there is none
+     */
     public final BufferedImage graphic;
     
+    /**
+     * Absolute position of the event area (top left corner)
+     */
     public Point position;
     
+    /**
+     * Constructs a new event area from a position, hitbox and graphic
+     *
+     * @param position Absolute position
+     * @param hitbox   Relative hitbox
+     * @param graphic  Display image
+     */
     public EventArea(Point position, Hitbox hitbox, BufferedImage graphic) {
         this.position = position;
         this.hitbox = hitbox;
@@ -46,15 +66,45 @@ public abstract class EventArea implements Drawable {
         }
     }
     
-    public void onEnter(Player player) { }
+    /**
+     * Method called when the player enters the event area
+     *
+     * @param player The player that entered the event area
+     */
+    public void onEnter(Player player) {
+    }
     
-    public void onLeave(Player player) { }
+    /**
+     * Method called when the player leaves the event area
+     *
+     * @param player The player that left the event area
+     */
+    public void onLeave(Player player) {
+    }
     
-    public void onDeath(Player player) { }
+    /**
+     * Method called when the player dies in the event area
+     *
+     * @param player The player that died in the event area
+     */
+    public void onDeath(Player player) {
+    }
     
-    public void tick(Player player) { }
+    /**
+     * Method called every tick that the player remains in the event area
+     *
+     * @param player The player inside the event area
+     */
+    public void tick(Player player) {
+    }
     
-    public void onKeyInput(Player player, int key, float timeDelta) { }
+    /**
+     * Method called when the player presses a key in the event area
+     *
+     * @param player The player inside the event area
+     */
+    public void onKeyInput(Player player, int key, float timeDelta) {
+    }
     
     @Override
     public void draw(Graphics g) {

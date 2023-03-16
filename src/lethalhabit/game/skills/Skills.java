@@ -6,7 +6,7 @@ import lethalhabit.math.Point;
 import java.awt.*;
 
 /**
- * A class describing the skills and abilities of a player (or enemy, unused tho)
+ * A class describing the skills and abilities of a player (or enemy, not currently used for those tho)
  */
 public final class Skills {
     

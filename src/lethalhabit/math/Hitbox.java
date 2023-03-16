@@ -4,30 +4,48 @@ import lethalhabit.Main;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-
+/**
+ * A polygonal hitbox that is defined by a set of two-dimensional points that represent its vertices.
+ */
 public final class Hitbox implements Iterable<Point> {
-
+    
     public static final Hitbox TEST_HITBOX = new Hitbox(
             new Point(10, 10),
             new Point(10, -10),
             new Point(-10, -10),
             new Point(-10, 10)
     );
-
+    
     /**
-     * array of points to describe a vertex
+     * Ordered set of vertices (corner points) of the hitbox <br>
+     * The order of the vertices defines where the hitbox's edges lie
      */
     public final Point[] vertices;
     
+    /**
+     * Point with the hitbox's maximum x and y position <br>
+     * If a rectangle were drawn around the hitbox, its bottom right vertex would be this point
+     * @see Hitbox#maxX()
+     * @see Hitbox#maxY()
+     */
     public final Point maxPosition;
+    
+    /**
+     * Point with the hitbox's maximum x and y position <br>
+     * If a rectangle were drawn around the hitbox, its top left vertex would be this point
+     * @see Hitbox#minX()
+     * @see Hitbox#minY()
+     */
     public final Point minPosition;
     
     /**
-     * create a hitbox, with vertices and set max and min Points
+     * Constructs a new hitbox from a set of vertices
      *
-     * @param vertices vertex made of Point arrays
+     * @param vertices Vertices/Corners of the hitbox
      */
     public Hitbox(Point... vertices) {
         this.vertices = vertices;
@@ -36,9 +54,9 @@ public final class Hitbox implements Iterable<Point> {
     }
     
     /**
-     * get the edges of hitbox
+     * Calculates the edges of the hitbox by drawing lines from each vertex to the next one
      *
-     * @return the edges of hitbox as a LineSegment[] type
+     * @return The outer edges of the hitbox
      */
     public LineSegment[] edges() {
         LineSegment[] edges = new LineSegment[vertices.length];
@@ -49,25 +67,39 @@ public final class Hitbox implements Iterable<Point> {
         return edges;
     }
     
+    /**
+     * @return The x coordinate of the hitbox's rightmost point
+     */
     public double maxX() {
         return Arrays.stream(vertices).mapToDouble(Point::x).max().orElse(0);
     }
     
+    /**
+     * @return The x coordinate of the hitbox's leftmost point
+     */
     public double minX() {
         return Arrays.stream(vertices).mapToDouble(Point::x).min().orElse(0);
     }
     
+    /**
+     * @return The y coordinate of the hitbox's lowermost point
+     */
     public double maxY() {
         return Arrays.stream(vertices).mapToDouble(Point::y).max().orElse(0);
     }
     
+    /**
+     * @return The y coordinate of the hitbox's uppermost point
+     */
     public double minY() {
         return Arrays.stream(vertices).mapToDouble(Point::y).min().orElse(0);
     }
     
     /**
-     * @param offset type TwoDimensional
-     * @return a new hitbox shifted by the TwoDimensional
+     * Offsets the hitbox in two dimensions
+     *
+     * @param offset Offset to move the hitbox by
+     * @return A new hitbox, shifted by the given offset
      */
     public Hitbox shift(TwoDimensional offset) {
         Point[] newVertices = new Point[vertices.length];
@@ -77,49 +109,90 @@ public final class Hitbox implements Iterable<Point> {
         return new Hitbox(newVertices);
     }
     
+    /**
+     * Offsets the hitbox in two dimensions
+     *
+     * @param x X offset to move the hitbox by
+     * @param y Y offset to move the hitbox by
+     * @return A new hitbox, shifted by the given offsets
+     */
     public Hitbox shift(double x, double y) {
         return shift(new Point(x, y));
     }
     
+    /**
+     * Performs the given action for every vertex of the hitbox
+     *
+     * @param action The action to be performed
+     * @see Stream#forEach(Consumer)
+     */
     @Override
     public void forEach(Consumer<? super Point> action) {
         Arrays.stream(vertices).forEach(action);
     }
     
+    /**
+     * Creates a {@link Spliterator} from the vertices of the hitbox
+     *
+     * @return A {@link Spliterator} over the vertex points of the hitbox
+     * @see Stream#spliterator()
+     */
     @Override
     public Spliterator<Point> spliterator() {
         return Arrays.stream(vertices).spliterator();
     }
     
+    /**
+     * Creates an {@link Iterator} from the vertices of the hitbox
+     *
+     * @return An {@link Iterator} over the vertex points of the hitbox
+     * @see Stream#iterator()
+     */
     @Override
     public Iterator<Point> iterator() {
         return Arrays.stream(vertices).iterator();
     }
     
+    /**
+     * @return The vertices of the hitbox
+     */
     public Point[] vertices() {
         return vertices;
     }
     
+    /**
+     * Checks equality between the hitbox and another object
+     *
+     * @param obj The object to be compared
+     * @return <code>true</code> if <code>obj</code> is a hitbox and both sets of vertices are equal, <code>false</code> otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Hitbox other && Arrays.equals(this.vertices, other.vertices);
     }
     
+    /**
+     * @return A hash of the vertex array
+     */
     @Override
     public int hashCode() {
         return Arrays.hashCode(vertices);
     }
     
+    /**
+     * @return A string representation of the hitbox including string representations of all vertices
+     */
     @Override
     public String toString() {
         return "Hitbox[vertices=" + Arrays.toString(vertices) + ']';
     }
     
     /**
-     * Only works for primitive square hitboxes, for precision, use intersects
+     * Checks whether the hitbox is fully contained in another one <br>
+     * WARNING: Only works for orthogonal rectangular hitboxes
      *
      * @param hitbox Hitbox to check
-     * @return true if other hitbox is contained in this hitbox, false otherwise
+     * @return <code>true</code> if other hitbox is contained in this hitbox, <code>false</code> otherwise
      */
     public boolean isContained(Hitbox hitbox) {
         for (Point point : hitbox.vertices) {
@@ -129,12 +202,17 @@ public final class Hitbox implements Iterable<Point> {
         }
         return hitbox.minPosition.x() < minPosition.x() && hitbox.maxPosition.x() > maxPosition.x()
                 || hitbox.minPosition.y() < minPosition.y() && hitbox.maxPosition.y() > maxPosition.y();
-        
     }
     
     /**
+     * Checks whether the hitbox intersects with another one by casting rays from each point
+     * and counting their intersections with the other hitbox. <br>
+     * For even amounts of intersections the point is not contained in the hitbox,
+     * for odd amounts the point is contained. <br>
+     * If any point of the two hitboxes is contained in the other one, the hitboxes are defined as intersecting.
+     *
      * @param other Hitbox to check
-     * @return true if other hitbox
+     * @return <code>true</code> if the hitboxes intersect, <code>false</code> otherwise
      */
     public boolean intersects(Hitbox other) {
         for (Point point : this) {
@@ -166,6 +244,9 @@ public final class Hitbox implements Iterable<Point> {
         return false;
     }
     
+    /**
+     * @return The total size of the hitbox (width between leftmost and rightmost points; height between uppermost and lowermost points)
+     */
     public Dimension getSize() {
         return new Dimension((int) (maxX() - minX()), (int) (maxY() - minY()));
     }

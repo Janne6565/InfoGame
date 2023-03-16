@@ -254,7 +254,7 @@ public final class Main {
 
                             // Render Map background Tiles:
                             if (positionOfMouse.compareTo(new Point(0, 0)) > 0 && positionOfMouse.compareTo(new Point(GamePanel.minimap.size.width, GamePanel.minimap.size.height)) < 0) {
-                                backgroundTileHovered = new Point((int) positionOfMouse.x(), (int) positionOfMouse.y()).divide(TILE_SIZE).divide(BACKGROUND_TILE_SIZE).toInt();
+                                backgroundTileHovered = new Point((int) positionOfMouse.x(), (int) positionOfMouse.y()).divide(TILE_SIZE).divide(BACKGROUND_TILE_SIZE).round();
                                 if (activeKeys.contains(VK_R)) {
                                     Util.exportMapBackgroundTile(backgroundTileHovered);
                                 }

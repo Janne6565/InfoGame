@@ -11,10 +11,21 @@ import lethalhabit.util.Util;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * The player is the main character of the game. <br>
+ * It is an entity and therefore drawable, and - as a tickable - is ticked every frame. <br>
+ * Only one player should exist, and it should only be controlled by user inputs
+ */
 public class Player extends Entity {
     
+    /**
+     * Width of the player (33 in-game units)
+     */
     public static final int WIDTH = 33;
     
+    /**
+     * The relative hitbox of the player, scaled to its size
+     */
     public static final Hitbox HITBOX = new Hitbox(
             new Point(18, 14).scale(WIDTH / 50.0),
             new Point(18, 42).scale(WIDTH / 50.0),
@@ -22,31 +33,79 @@ public class Player extends Entity {
             new Point(33, 14).scale(WIDTH / 50.0)
     );
     
+    /**
+     * Value that the player's absolute movement speed cannot exceed (80)
+     */
     public static final double MAX_MOVEMENT_SPEED = 80;
+    
     public static final double MOVEMENT_SPEED_ACCELERATION = 1200;
+    
+    /**
+     * On every jump, the player gains +200 up-velocity (negative y-velocity)
+     */
     public static final double JUMP_BOOST = 200;
+    
+    /**
+     * On every wall jump, the player gains 200 x-velocity in the direction the wall faces (opposite direction of the player)
+     */
     public static final double WALL_JUMP_BOOST = 200;
+    
+    /**
+     * Dashing boosts the player's velocity by 300 in its current x-direction
+     */
     public static final double DASH_BOOST = 300;
+    
     public static final double RECOIL_RESET_DASH = 1000;
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
     public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
     
+    /**
+     * The current health points of the player <br>
+     * At 0 hp or less, the player dies
+     */
     public int hp = 10;
     
+    /**
+     * Individual skill and ability set of the player, updated and controlled by the {@link Player#skillTree}
+     */
     public final Skills skills = new Skills(); // TODO: load from file
     
+    /**
+     * Individual skill tree of the player, controlling its {@link Player#skills}
+     */
     public final SkillTree skillTree = new SkillTree(skills);
     
     /**
-     * Until end of the cooldown you will remain in a state where gravity isn't affecting you at all <3
+     * Time until the player is affected by gravity again
      */
     public double gravityCooldown = 0.0;
-    public double jumpBoost = 1.0;
-    public double speedBoost = 1.0;
     
+    /**
+     * Current jump boost, e.g. jumping is slowed down in liquids
+     */
+    public double jumpBoost = 1.0;
+    
+    /**
+     * Current experience points of the player, relative to the level. <br>
+     * For example, if the amount of xp required until next level ({@link Player#maxXp}) is 5, the player has 4 and gains 2,
+     * the new xp will not be 6, but instead the {@link Player#level} will be increased and the xp will be set to 1 (1 = 4 + 2 - 5)
+     */
     public double xp = 0;
+    
+    /**
+     * Amount of xp required until the next {@link Player#level}
+     */
     public double maxXp = 5;
+    
+    /**
+     * Amount of 'skill points', i.e. {@link Player#level}s the player has unlocked but not used to learn new skills
+     */
     public int spareLevel = 100;
+    
+    /**
+     * Current level of the player, can be upgraded by gaining {@link Player#xp} and exceeding the xp cap ({@link Player#maxXp})
+     */
+    private int level = 1;
     
     private boolean hasJumpedLeft = false;
     private boolean hasJumpedRight = false;
@@ -58,14 +117,18 @@ public class Player extends Entity {
     public double timeSinceLastHit = -1;
     public double timeSinceLastDoubleJump = -1;
     
-    
     public double dashCoolDown = 0;
     public double dashCooldownSafety = 0;
     public double doubleJumpCooldown = 3;
     public double attackCooldown = 0;
     public double fireballCooldown = 0.0;
-    private int level = 1;
     
+    /**
+     * Constructs the player and sets its position to the given one. <br>
+     * This should not be called more than once, because only one player should exist.
+     *
+     * @param position Position to place the player
+     */
     public Player(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE_LEFT.get(0), position, HITBOX);
     }
@@ -169,7 +232,8 @@ public class Player extends Entity {
     
     /**
      * Checks the player's ability to jump
-     * @return true if the player can jump, false otherwise
+     *
+     * @return <code>true</code> if the player can jump, <code>false</code> otherwise
      */
     public boolean canJump() {
         int possibleDoubleJumps = skills.doubleJumpAmount;
@@ -230,8 +294,7 @@ public class Player extends Entity {
     }
     
     /**
-     * Method called for handling animation and every other tick based mechanic
-     * @param timeDelta time since last tick (used for calculating the speed of the camera)
+     * @see Tickable#tick(Double)
      */
     @Override
     public void tick(Double timeDelta) {
@@ -352,7 +415,7 @@ public class Player extends Entity {
     }
     
     public void dash() {
-        if (direction != lastDirection.NONE && timesDashed > 0 && dashCooldownSafety <= 0) {
+        if (direction != Direction.NONE && timesDashed > 0 && dashCooldownSafety <= 0) {
             dashCooldownSafety = 1;
             recoil = switch (lastDirection) {
                 case LEFT -> new Vec2D(-DASH_BOOST, 0);
@@ -386,4 +449,5 @@ public class Player extends Entity {
         hp -= damageSource.damage;
         resetRecoil = 300;
     }
+    
 }
