@@ -45,7 +45,7 @@ public final class Main {
     public static final Settings SETTINGS = new Settings();
     
     public static final boolean MINIMIZED = false;
-    public static final boolean DEBUG_HITBOX = false;
+    public static final boolean DEBUG_HITBOX = true;
 
     /**
      * if true you gain following ability's:
@@ -64,7 +64,7 @@ public final class Main {
     public static final double SAFE_DISTANCE = 0.05;
 
     public static final double TILE_SIZE = 20;
-    public static final double BACKGROUND_TILE_SIZE = 200 / 20;
+    public static final double BACKGROUND_TILE_SIZE = 200 / 20.0;
     public static final String BACKGROUND_EXPORT_PATH = "";
 
     public static final Set<Entity> entities = new HashSet<>();
@@ -123,7 +123,7 @@ public final class Main {
         GamePanel.generateMinimap();
         loadBackgrounds();
         GAME_PANEL.instantiateButtons();
-        mainCharacter = new Player(new Point(3616, 200)); // TODO: load skills from file
+        mainCharacter = new Player(Point.SPAWN); // TODO: load skills from file
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
         IS_GAME_RUNNING = true;
@@ -131,8 +131,13 @@ public final class Main {
         testEventArea = new TestEventArea(new Point(3816, 500), new Hitbox(new Point[]{new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100)}));
         Util.registerEventArea(testEventArea);
          */
-        Goomba enemy = new Goomba(new Point(3916, 500));
-        enemy.spawn();
+        
+        for (Point position : Point.spawnPointsForMobs) {
+            Goomba enemy = new Goomba(position);
+            enemy.spawn();
+        }
+        
+        
         // playSoundtrack();
         
         EventArea growshroom = new GrowShroom(new Point(3718, 500));

@@ -29,6 +29,7 @@ public final class GamePanel extends JPanel {
     
     private final Tooltip tooltip = new Tooltip("",  0.0);
     
+    public float timeSinceXpGained = -1;
     private long lastTick = System.currentTimeMillis();
     
     // Background Image rendering
@@ -47,12 +48,18 @@ public final class GamePanel extends JPanel {
     
     public ArrayList<MainMenuButton> mainMenuButtons = new ArrayList<>();
     
-    
     // Skill Tree variables
     public static double SHIFT_SPEED = 200;
     public static double SHIFT_PER_ROW = 100;
     public static double timeInGame = 0;
     public SkillTree.Node nodeFocused = null;
+    
+    
+    public static int XP_BAR_PADDING_SIDE = 10;
+    public static int XP_BAR_PADDING_TOP = 10;
+    private static final double XP_BAR_ANIMATION_SPEED = 0.6;
+    private static final double XP_BAR_FADE_IN_OUT_TIME = 0.3;
+    private static final double XP_BAR_SHOW_TIME = 4;
     
     public Timer updateTimer;
     
@@ -60,7 +67,6 @@ public final class GamePanel extends JPanel {
         // Set up the update timer
         updateTimer = new Timer((int) (1000.0 / FRAME_RATE), e -> repaint());
         updateTimer.start();
-
         loadIcons();
     }
     
@@ -84,20 +90,14 @@ public final class GamePanel extends JPanel {
         Main.tick(g);
         Graphics2D graphics2D = (Graphics2D) g;
         if (!Main.IS_GAME_LOADING) {
-            if (Main.DEBUG_HITBOX) {
-                graphics2D.drawString(Main.mainCharacter.position.toString(), 100, 100);
-                graphics2D.drawString("(" + (int) (Main.mainCharacter.position.x() / Main.TILE_SIZE) + "|" + (int) (Main.mainCharacter.position.y() / Main.TILE_SIZE) + ")", 100, 130);
-            }
-
+    
             double opacitySecondaryLayer = Main.camera.getOpacityOfSecondaryLayer();
             if (opacitySecondaryLayer > 0) {
                 BufferedImage mainLayer = exportLayer(Main.camera.layerRendering, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
                 AlphaComposite ac1 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) ((float) 1.0 - opacitySecondaryLayer));
                 graphics2D.setComposite(ac1);
                 graphics2D.drawImage(mainLayer, 0, 0, null);
-
-
-
+    
                 BufferedImage secondaryLayer = exportLayer(Main.camera.layerBefore, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
                 AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacitySecondaryLayer);
                 graphics2D.setComposite(ac);
@@ -106,7 +106,10 @@ public final class GamePanel extends JPanel {
                 BufferedImage mainLayer = exportLayer(Main.camera.layerRendering, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
                 graphics2D.drawImage(mainLayer, 0, 0, null);
             }
-
+            if (Main.DEVELOPER_MODE) {
+                graphics2D.drawString(Main.mainCharacter.position.toString(), 100, 100);
+                graphics2D.drawString("(" + (int) (Main.mainCharacter.position.x() / Main.TILE_SIZE) + "|" + (int) (Main.mainCharacter.position.y() / Main.TILE_SIZE) + ")", 100, 130);
+            }
         } else {
             int height = 40;
             int width = 200;
@@ -119,7 +122,7 @@ public final class GamePanel extends JPanel {
     
     public void instantiateButtons() {
         mainMenuButtons.add(new MainMenuButton.PlayButton(new Point(50, 20)));
-        mainMenuButtons.add(new MainMenuButton.QuitButton(new Point(50, 30)));
+        mainMenuButtons.add(new MainMenuButton.QuitButton(new Point(50, 60)));
     }
     
     public ArrayList<Clickable> getClickables() {
@@ -191,13 +194,13 @@ public final class GamePanel extends JPanel {
 
         double timeDelta = (System.currentTimeMillis() - lastTick) / 1000.0;
         timeInGame += timeDelta;
+        timeSinceXpGained += timeDelta;
         lastTick = System.currentTimeMillis();
         
         List<Drawable> drawablesInLayer = Main.drawables.stream().filter(drawable -> drawable.layer() == layer).toList();
         switch (layer) {
             case Camera.LAYER_GAME -> {
                 drawMapBackground(g);
-                drawMap(g);
                 Point maxTotal = new Point(Main.camera.getRealPosition().x() + (double) Main.camera.width / 2, Main.camera.getRealPosition().y() + (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
                 Point minTotal = new Point(Main.camera.getRealPosition().x() - (double) Main.camera.width / 2, Main.camera.getRealPosition().y() - (Main.screenHeight * ((float) Main.getScreenWidthGame() / Main.screenWidth)) / 2);
                 for (Drawable drawable : drawablesInLayer) {
@@ -207,11 +210,15 @@ public final class GamePanel extends JPanel {
                         drawable.draw(g);
                     }
                 }
+                drawMap(g);
                 drawTooltip(g, timeDelta);
             }
             case Camera.LAYER_MENU -> {
                 BufferedImage backgroundImage = Animation.MAIN_MENU_BACKGROUND_ANIMATION.getCurrentFrame(timeInGame);
                 g.drawImage(backgroundImage, 0, 0, Main.screenWidth, Main.screenHeight, null);
+                for (Drawable drawable : drawablesInLayer) {
+                    drawable.draw(g);
+                }
             }
             case Camera.LAYER_MAP -> {
                 minimap.draw(g);
@@ -230,17 +237,71 @@ public final class GamePanel extends JPanel {
                         }
                     }
                 }
-                
+                for (Drawable drawable : drawablesInLayer) {
+                    drawable.draw(g);
+                }
             }
             case Camera.LAYER_SKILL_TREE -> {
                 renderSkillTree(g);
+                for (Drawable drawable : drawablesInLayer) {
+                    drawable.draw(g);
+                }
             }
         }
-        for (Drawable drawable : drawablesInLayer) {
-            drawable.draw(g);
-        }
-
+        
+        drawXPBar(timeDelta, g);
         return outputImage;
+    }
+    
+    private double displayedPercXPBar = 0;
+    
+    public double getOpacityXPBar(double timeSinceLastXPGained) {
+        if (0 < timeSinceLastXPGained && timeSinceLastXPGained < XP_BAR_FADE_IN_OUT_TIME) {
+            return timeSinceLastXPGained / XP_BAR_FADE_IN_OUT_TIME;
+        }
+        if (XP_BAR_FADE_IN_OUT_TIME < timeSinceLastXPGained && timeSinceLastXPGained < XP_BAR_FADE_IN_OUT_TIME + XP_BAR_SHOW_TIME) {
+            return 1;
+        }
+        if (XP_BAR_FADE_IN_OUT_TIME + XP_BAR_SHOW_TIME < timeSinceLastXPGained && timeSinceLastXPGained < XP_BAR_SHOW_TIME + 2 * XP_BAR_FADE_IN_OUT_TIME) {
+            return 1 - ((timeSinceLastXPGained - XP_BAR_SHOW_TIME - XP_BAR_FADE_IN_OUT_TIME) / XP_BAR_FADE_IN_OUT_TIME);
+        }
+        
+        return 0;
+    }
+    
+    
+    public void drawXPBar(double timeDelta, Graphics g) {
+        double opacity = getOpacityXPBar(timeSinceXpGained);
+        if (timeSinceXpGained != -1 && opacity > 0) {
+            int width = Main.screenWidth / 3;
+            int height = (int) (20 * Main.scaledPixelSize());
+    
+            BufferedImage imageBar = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics graphics = imageBar.getGraphics();
+            graphics.setColor(Color.GRAY);
+            graphics.fillRoundRect(0, 0, width, height, (int) (5 * Main.scaledPixelSize()), (int) (5 * Main.scaledPixelSize()));
+    
+            double xp = Main.mainCharacter.xp;
+            double maxXP = Main.mainCharacter.maxXp;
+    
+            double percentage = xp / maxXP;
+    
+            float widthBar = width - XP_BAR_PADDING_SIDE * 2;
+            float heightBar = height - XP_BAR_PADDING_TOP * 2;
+            
+            if (displayedPercXPBar < percentage) {
+                displayedPercXPBar = Math.min(displayedPercXPBar + timeDelta * XP_BAR_ANIMATION_SPEED, percentage);
+            } else {
+                displayedPercXPBar = Math.max(displayedPercXPBar - timeDelta * XP_BAR_ANIMATION_SPEED, percentage);
+            }
+    
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(XP_BAR_PADDING_SIDE, XP_BAR_PADDING_TOP, (int) (displayedPercXPBar * widthBar), (int) heightBar);
+    
+            BufferedImage imageDrawen = Util.getOpacityImage(imageBar, opacity);
+    
+            g.drawImage(imageDrawen, (int) ((Main.screenWidth - imageDrawen.getWidth()) / 2), (int) ((Main.screenHeight - imageDrawen.getHeight()) * 0.1), null);
+        }
     }
     
     private void drawMapBackground(Graphics g) {
@@ -406,6 +467,10 @@ public final class GamePanel extends JPanel {
             Point pointToWriteTextCenter = pointToDrawNode.plus(imageBorder.getWidth() / 2.0, imageBorder.getHeight()).minus(textWidth / 2.0, 0);
             graphics.drawImage(text, (int) pointToWriteTextCenter.x(), (int) pointToWriteTextCenter.y(), null);
         }
+        
+        String text = "Skill Points: " + Main.mainCharacter.spareLevel;
+        int widthSpareLevels = graphics.getFontMetrics().stringWidth(text);
+        graphics.drawString(text, (int) (Main.screenWidth * 0.95 - (widthSpareLevels)), (int) (Main.screenHeight * 0.1));
     }
     
     
@@ -476,5 +541,9 @@ public final class GamePanel extends JPanel {
                 clickable.onReset(timeDelta);
             }
         }
+    }
+    
+    public void xpGained() {
+        timeSinceXpGained = 0;
     }
 }

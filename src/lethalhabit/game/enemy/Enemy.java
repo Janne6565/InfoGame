@@ -39,7 +39,7 @@ public abstract class Enemy extends Entity implements Hittable {
      * The current health points of this enemy <br>
      * Enemies die at 0 hp or less
      */
-    public int hp = 10;
+    public int hp = 3;
     
     /**
      * Constructs an enemy with the given parameters <br>

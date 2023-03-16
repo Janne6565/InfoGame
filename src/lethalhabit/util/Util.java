@@ -600,4 +600,17 @@ public final class Util {
         }
         return map;
     }
+    
+    public static BufferedImage getOpacityImage(BufferedImage image, double opacity) {
+        BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        AlphaComposite ac1 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacity);
+        Graphics2D graphics2D = (Graphics2D) newImage.getGraphics();
+        graphics2D.setComposite(ac1);
+        graphics2D.drawImage(image, 0, 0, null);
+        return newImage;
+    }
+    
+    public static double easeInOut(double time, double maxTime) {
+        return time >= maxTime ? 0 : (1 - Math.cos((time / maxTime - 1) * Math.PI)) / 2;
+    }
 }

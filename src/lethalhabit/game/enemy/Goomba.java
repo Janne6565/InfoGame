@@ -56,10 +56,6 @@ public class Goomba extends Enemy {
     @Override
     public void checkViscosity() {
         super.checkViscosity();
-        if (viscosity < 1) {
-            onGroundReset();
-            viscosity = 0.0;
-        }
     }
     
     /**
@@ -70,9 +66,8 @@ public class Goomba extends Enemy {
         super.tick(timeDelta);
         timeSinceLastAttack += timeDelta;
         attackCooldown -= timeDelta;
-        
         if (!isWallDown()) {
-            direction = Direction.NONE;
+            direction = Direction.LEFT;
         }
         
         if (attackCooldown <= 0) {
@@ -108,7 +103,7 @@ public class Goomba extends Enemy {
             };
             
             // if there is no wall down of shifted hitbox, or wall is in direction, change direction, else stay same
-            if (!isWallDown(pointToCheck) || isWallInDirection) {
+            if ((!isWallDown(pointToCheck) && !isSubmerged()) || isWallInDirection) {
                 direction = switch (direction) {
                     case LEFT -> Direction.RIGHT;
                     case RIGHT -> Direction.LEFT;
@@ -140,12 +135,13 @@ public class Goomba extends Enemy {
         
         if (hp <= 0) {
             despawn();
+            Main.mainCharacter.registerKill(2);
         }
         System.out.println("Enemy hp: " + this.hp);
     }
     
-    
     Direction directionHit;
+    
     /**
      * Attacks the player, dealing exactly 1 damage
      * @param timeDelta time since last tick (in seconds)

@@ -43,6 +43,9 @@ public class Player extends Entity {
     public double gravityCooldown = 0.0;
     public double jumpBoost = 1.0;
     public double speedBoost = 1.0;
+    
+    public double xp = 0;
+    public double maxXp = 5;
     public int spareLevel = 100;
     
     private boolean hasJumpedLeft = false;
@@ -61,6 +64,7 @@ public class Player extends Entity {
     public double doubleJumpCooldown = 3;
     public double attackCooldown = 0;
     public double fireballCooldown = 0.0;
+    private int level = 1;
     
     public Player(Point position) {
         super(WIDTH, Animation.PLAYER_IDLE_LEFT.get(0), position, HITBOX);
@@ -319,11 +323,6 @@ public class Player extends Entity {
         }
     }
     
-    public void knockback(double amountX, double amountY) {
-        recoil = new Vec2D(amountX, amountY);
-        resetRecoil = 300;
-    }
-    
     /**
      * Resets all the jumps on ground touch
      */
@@ -353,9 +352,9 @@ public class Player extends Entity {
     }
     
     public void dash() {
-        if (direction != Direction.NONE && timesDashed > 0 && dashCooldownSafety <= 0) {
+        if (direction != lastDirection.NONE && timesDashed > 0 && dashCooldownSafety <= 0) {
             dashCooldownSafety = 1;
-            recoil = switch (direction) {
+            recoil = switch (lastDirection) {
                 case LEFT -> new Vec2D(-DASH_BOOST, 0);
                 case RIGHT -> new Vec2D(DASH_BOOST, 0);
                 default -> null;
@@ -365,6 +364,20 @@ public class Player extends Entity {
             timesDashed -= 1;
             gravityCooldown = TIME_NO_GRAVITY_AFTER_DASH;
         }
+    }
+    
+    public void registerKill(int xpGain) {
+        if (xp + xpGain < maxXp) {
+            this.xp += xpGain;
+        } else {
+            double xpLeft = (xp + xpGain) - maxXp;
+            spareLevel += 1;
+            level += 1;
+            this.xp = xpLeft;
+        }
+        System.out.println("XP Gained: " + xpGain);
+        System.out.println("XP: " + xp);
+        Main.GAME_PANEL.xpGained();
     }
     
     public void takeHit(DamageSource damageSource) {

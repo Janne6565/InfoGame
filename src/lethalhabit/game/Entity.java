@@ -89,6 +89,11 @@ public abstract class Entity implements Tickable, Drawable {
         int beforeMaxX = (int) (hitboxBefore.maxX() / Main.TILE_SIZE);
         int beforeMinY = (int) (hitboxBefore.minY() / Main.TILE_SIZE);
         int beforeMaxY = (int) (hitboxBefore.maxY() / Main.TILE_SIZE);
+        if (recoil.x() != 0) {
+            velocity = new Vec2D(0, velocity.y());
+            direction = Direction.NONE;
+        }
+        
         moveY(timeDelta);
         moveX(timeDelta);
 
@@ -152,6 +157,11 @@ public abstract class Entity implements Tickable, Drawable {
         surroundingLiquids.stream()
                 .min(Comparator.comparing(liquid -> liquid.maxGravity))
                 .ifPresentOrElse(liquid -> maxGravity = liquid.maxGravity, () -> maxGravity = Main.MAX_VELOCITY_SPEED);
+    }
+    
+    public void knockback(double amountX, double amountY) {
+        recoil = new Vec2D(amountX, amountY);
+        resetRecoil = 300;
     }
     
     public final boolean isSubmerged() {

@@ -1,6 +1,8 @@
 package lethalhabit.math;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -13,12 +15,32 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
     /**
      * Position of Spawn (hardcoded to fit onto start map)
      */
-    public static Point SPAWN = new Point(10000, 0);
+    public static Point SPAWN = new Point(8430, 750);
     /**
      * Position of Lava Falls (hardcoded to fit onto start map)
      */
     public static Point LAVA_FALLS = new Point(500, 1700);
 
+    public static ArrayList<Point> spawnPointsForMobs = new ArrayList<>(Arrays.asList(
+            new Point(8648, 670),
+            new Point(8743, 750),
+            new Point(8580, 530),
+            new Point(8453, 410),
+            new Point(8127, 290),
+            new Point(7958, 350),
+            new Point(8161, 770),
+            new Point(8435, 850),
+            new Point(8717, 950),
+            new Point(9087, 1110),
+            new Point(9226, 1070),
+            new Point(9259, 610),
+            new Point(8535, 1690),
+            new Point(8462, 1570),
+            new Point(8417, 2810),
+            new Point(8641, 2410),
+            new Point(9092, 1110)
+    ));
+    
     /**
      *
      * @param other the object to be compared.

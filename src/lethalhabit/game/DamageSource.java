@@ -51,7 +51,7 @@ public final class DamageSource {
      * @return a new standard damage source with the given source entity and damage amount
      */
     public static DamageSource standard(Entity source, double damage) {
-        return new DamageSource(source, DamageType.STANDARD, damage, 200);
+        return new DamageSource(source, DamageType.STANDARD, damage, 100);
     }
     
     /**
