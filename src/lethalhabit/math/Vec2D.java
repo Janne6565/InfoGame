@@ -1,28 +1,31 @@
 package lethalhabit.math;
 
 /**
- * @desc create a vector from x and y
+ * Two-dimensional vector with an x and y direction
+ *
+ * @param x X direction of the vector
+ * @param y Y direction of the vector
  */
-
 public record Vec2D(double x, double y) implements TwoDimensional {
-
+    
     /**
-     *
-     * @desc set this vector to another vector
+     * Clones another vector
+     * @param other Vector to clone
      */
     public Vec2D(TwoDimensional other) {
         this(other.x(), other.y());
     }
     
-    @Override
-
-    public String toString() {
-        return "(" + x + "," + y + ")";
-    }
-
     /**
-     * @desc tools for vector manipulation
+     * Creates a string representation of the vector
+     *
+     * @return The vector, represented by a string, in semi-mathematical notation < X,Y >
      */
+    @Override
+    public String toString() {
+        return "<" + x + "," + y + ">";
+    }
+    
     public double length() {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }

@@ -308,8 +308,8 @@ public final class GamePanel extends JPanel {
         Point minRendered = Main.camera.getRealPosition().minus(Main.camera.width * 2, Main.camera.getHeight() * 2);
         Point maxRendered = Main.camera.getRealPosition().plus(Main.camera.width * 2, Main.camera.getHeight() * 2);
         
-        Point renderMin = minRendered.divide(Main.TILE_SIZE).divide(Main.BACKGROUND_TILE_SIZE).toInt();
-        Point renderMax = maxRendered.divide(Main.TILE_SIZE).divide(Main.BACKGROUND_TILE_SIZE).toInt();
+        Point renderMin = minRendered.divide(Main.TILE_SIZE).divide(Main.BACKGROUND_TILE_SIZE).round();
+        Point renderMax = maxRendered.divide(Main.TILE_SIZE).divide(Main.BACKGROUND_TILE_SIZE).round();
         
         if (renderMin.x() == renderMax.x()) {
             renderMax = renderMax.plus(1, 0);
