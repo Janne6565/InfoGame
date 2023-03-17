@@ -60,7 +60,10 @@ public final class GamePanel extends JPanel {
     private static final double XP_BAR_ANIMATION_SPEED = 0.6;
     private static final double XP_BAR_FADE_IN_OUT_TIME = 0.3;
     private static final double XP_BAR_SHOW_TIME = 4;
-    
+
+    public static BufferedImage hpImage;
+    public static BufferedImage hpImageLost;
+
     public Timer updateTimer;
     
     public GamePanel() {
@@ -78,6 +81,8 @@ public final class GamePanel extends JPanel {
             SKILL_TREE_NODE_LEVEL.getGraphics().drawImage(imageBeforeScale, 0, 0, (int) (SKILL_TREE_NODE_SIZE * Main.scaledPixelSize()), (int) (SKILL_TREE_NODE_SIZE * Main.scaledPixelSize()), null);
             SKILL_TREE_ICONS.put(i, SKILL_TREE_NODE_LEVEL);
         }
+        hpImage = Util.getImage("/assets/hud/heart.png");
+        hpImageLost = Util.getImage("/assets/hud/heartLost.png");
     }
     
     public static void generateMinimap() {
@@ -212,6 +217,8 @@ public final class GamePanel extends JPanel {
                 }
                 drawMap(g);
                 drawTooltip(g, timeDelta);
+
+                drawGui(g);
             }
             case Camera.LAYER_MENU -> {
                 BufferedImage backgroundImage = Animation.MAIN_MENU_BACKGROUND_ANIMATION.getCurrentFrame(timeInGame);
@@ -252,7 +259,25 @@ public final class GamePanel extends JPanel {
         drawXPBar(timeDelta, g);
         return outputImage;
     }
-    
+
+    private void drawGui(Graphics2D g) {
+        int sizeSingle = Main.screenWidth / 5 / Main.mainCharacter.maxHp;
+        int paddingBetween = (int) (3 * Main.scaledPixelSize());
+        int paddingTop = (int) (5 * Main.scaledPixelSize());
+        int paddingLeft = (int) (5 * Main.scaledPixelSize());
+
+        for (int i = 1; i <= Main.mainCharacter.maxHp; i++) {
+            Point positionDrawen = new Point(paddingLeft + i * sizeSingle + paddingBetween * (i - 1), paddingTop);
+            if (i <= Main.mainCharacter.hp) {
+                g.drawImage((Image) hpImage, (int) positionDrawen.x(), (int) positionDrawen.y(), sizeSingle, sizeSingle, null);
+            } else {
+                g.drawImage((Image) hpImageLost, (int) positionDrawen.x(), (int) positionDrawen.y(), sizeSingle, sizeSingle, null);
+            }
+        }
+
+
+    }
+
     private double displayedPercXPBar = 0;
     
     public double getOpacityXPBar(double timeSinceLastXPGained) {

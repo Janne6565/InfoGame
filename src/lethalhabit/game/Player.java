@@ -53,18 +53,21 @@ public class Player extends Entity {
     /**
      * Dashing boosts the player's velocity by 300 in its current x-direction
      */
-    public static final double DASH_BOOST = 300;
+    public static final double DASH_BOOST = 400;
     
     public static final double RECOIL_RESET_DASH = 1000;
     public static final double RECOIL_RESET_WALL_JUMP = 1000;
     public static final double TIME_NO_GRAVITY_AFTER_DASH = 0.2;
-    
+
+
+    public int maxHp = 5;
+
     /**
      * The current health points of the player <br>
      * At 0 hp or less, the player dies
      */
-    public int hp = 10;
-    
+    public int hp = maxHp;
+
     /**
      * Individual skill and ability set of the player, updated and controlled by the {@link Player#skillTree}
      */
@@ -415,7 +418,10 @@ public class Player extends Entity {
     }
     
     public void dash() {
-        if (direction != Direction.NONE && timesDashed > 0 && dashCooldownSafety <= 0) {
+        if (lastDirection == Direction.NONE) {
+            lastDirection = Direction.RIGHT;
+        }
+        if (timesDashed > 0 && dashCooldownSafety <= 0) {
             dashCooldownSafety = 1;
             recoil = switch (lastDirection) {
                 case LEFT -> new Vec2D(-DASH_BOOST, 0);
