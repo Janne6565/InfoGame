@@ -51,7 +51,7 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
     /**
      * Subtracts a two-dimensional object from the line segment
      *
-     * @param other two-dimensional offset to be subtracted (<code>Point</code> or <code>Vector</code>)
+     * @param other two-dimensional offset to be subtracted ({@link Point} or {@link Vec2D})
      * @return New line segment, offset by the specified value
      */
     public LineSegment minus(TwoDimensional other) {
@@ -101,10 +101,24 @@ public record LineSegment(Point a, Point b) implements Iterable<Point> {
         return List.of(a, b).iterator();
     }
     
+    /**
+     * Adds x and y offsets to the line segment
+     *
+     * @param x X offset to be added
+     * @param y Y offset to be added
+     * @return New line segment, offset by the specified values
+     */
     public LineSegment plus(double x, double y) {
         return plus(new Point(x, y));
     }
     
+    /**
+     * Subtracts x and y offsets from the line segment
+     *
+     * @param x X offset to be subtracted
+     * @param y Y offset to be subtracted
+     * @return New line segment, offset by the specified values
+     */
     public LineSegment minus(double x, double y) {
         return minus(new Point(x, y));
     }

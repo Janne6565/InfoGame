@@ -35,22 +35,22 @@ import static java.awt.event.KeyEvent.*;
 public final class Main {
     
     public static final Map<Integer, Class<? extends EventArea>> EVENT_AREA_TYPES = Map.of(
-            0, TestItem.class
+        0, TestItem.class
     );
     
     public static final Map<Integer, Class<? extends Entity>> ENTITY_TYPES = Map.of(
-            0, Frog.class
+        0, Frog.class
     );
     
     public static final Settings SETTINGS = new Settings();
     
     public static final boolean MINIMIZED = false;
     public static final boolean DEBUG_HITBOX = true;
-
+    
     /**
      * if true you gain following ability's:
-     *  - Teleport
-     *  - Map Renderer
+     * - Teleport
+     * - Map Renderer
      */
     public static final boolean DEVELOPER_MODE = true;
     
@@ -62,16 +62,16 @@ public final class Main {
     public static final double MAX_VELOCITY_SPEED = 800;
     public static final double GRAVITATIONAL_ACCELERATION = 400;
     public static final double SAFE_DISTANCE = 0.05;
-
+    
     public static final double TILE_SIZE = 20;
     public static final double BACKGROUND_TILE_SIZE = 200 / 20.0;
     public static final String BACKGROUND_EXPORT_PATH = "";
-
+    
     public static final Set<Entity> entities = new HashSet<>();
     public static final Set<Drawable> drawables = new HashSet<>();
     public static final Set<Tickable> tickables = new HashSet<>();
     public static final float SCALING_SPEED_GROWSHROOM = 100;
-
+    
     private static final List<Integer> activeKeys = new ArrayList<>();
     private static final List<Integer> activeMouseButtons = new ArrayList<>();
     private static final List<Integer> listKeysHolding = new ArrayList<>();
@@ -94,7 +94,7 @@ public final class Main {
     public static Settings settings;
     
     private static long lastTick;
-
+    
     public static Point backgroundTileHovered = null;
     
     public static void main(String[] args) {
@@ -143,11 +143,11 @@ public final class Main {
         EventArea growshroom = new GrowShroom(new Point(3718, 500));
         Util.registerEventArea(growshroom);
     }
-
+    
     private static void loadBackgrounds() {
         backgroundImages = Util.getBackgroundImages();
     }
-
+    
     public static void playSoundtrack() {
         try {
             Sound soundtrack = new Sound("/assets/music/soundtrack1.wav");
@@ -171,7 +171,6 @@ public final class Main {
     
     /**
      * Calculate camera width
-     *
      * @return camera width in in-game unit
      */
     public static int getScreenWidthGame() {
@@ -219,7 +218,7 @@ public final class Main {
     
     public static void handleKeyInput(double timeDelta, Graphics graphics) {
         GAME_PANEL.handleMouseInputs(MouseInfo.getPointerInfo(), activeMouseButtons, timeDelta, graphics);
-
+        
         if (mainCharacter != null) {
             if (activeKeys.contains(VK_0)) {
                 camera.changeLayer(0);
@@ -251,7 +250,7 @@ public final class Main {
                                     mainCharacter.position = positionOfMouse;
                                 }
                             }
-
+                            
                             // Render Map background Tiles:
                             if (positionOfMouse.compareTo(new Point(0, 0)) > 0 && positionOfMouse.compareTo(new Point(GamePanel.minimap.size.width, GamePanel.minimap.size.height)) < 0) {
                                 backgroundTileHovered = new Point((int) positionOfMouse.x(), (int) positionOfMouse.y()).divide(TILE_SIZE).divide(BACKGROUND_TILE_SIZE).round();
@@ -337,7 +336,6 @@ public final class Main {
     
     /**
      * Calculates the pixel size based on screen width
-     *
      * @return relative pixel/position ratio based on the screen width
      */
     public static double scaledPixelSize() {
@@ -346,7 +344,6 @@ public final class Main {
     
     /**
      * Shifts the camera based on player position
-     *
      * @param timeDelta time since last tick
      */
     public static void moveCamera(double timeDelta) {
@@ -394,13 +391,13 @@ public final class Main {
                 activeKeys.removeIf(key -> key == e.getKeyCode());
             }
         });
-
+        
         frame.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 activeMouseButtons.add(e.getButton());
             }
-
+            
             @Override
             public void mouseReleased(MouseEvent e) {
                 activeMouseButtons.removeIf(key -> key == e.getButton());
@@ -419,7 +416,7 @@ public final class Main {
         } else {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
-
+        
         frame.setResizable(false);
         frame.setVisible(true);
         frame.setBackground(Color.DARK_GRAY);

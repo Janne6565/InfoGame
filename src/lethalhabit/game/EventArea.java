@@ -4,6 +4,7 @@ import lethalhabit.Main;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
 import lethalhabit.math.Point;
+import lethalhabit.math.TwoDimensional;
 import lethalhabit.ui.Camera;
 import lethalhabit.ui.Drawable;
 import lethalhabit.util.Util;
@@ -45,7 +46,12 @@ public abstract class EventArea implements Drawable {
         Main.drawables.add(this);
     }
     
-    public void moveAndRegister(Point offset) {
+    /**
+     * Moves/Offsets the event area in two dimensions and re-registers it if necessary
+     *
+     * @param offset Two-dimensional offset to move the area by
+     */
+    public void moveAndRegister(TwoDimensional offset) {
         Hitbox hitboxBefore = hitbox.shift(position);
         Hitbox hitboxAfter = hitboxBefore.shift(offset);
         
@@ -99,13 +105,18 @@ public abstract class EventArea implements Drawable {
     }
     
     /**
-     * Method called when the player presses a key in the event area
+     * Method called every tick the player is pressing a key in the event area
      *
      * @param player The player inside the event area
+     * @param key Key code of the pressed key
+     * @param timeDelta Time since last tick (in seconds)
      */
     public void onKeyInput(Player player, int key, float timeDelta) {
     }
     
+    /**
+     * @see Drawable#draw(Graphics)
+     */
     @Override
     public void draw(Graphics g) {
         Drawable.super.draw(g);

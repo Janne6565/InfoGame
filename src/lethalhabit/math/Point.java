@@ -69,26 +69,64 @@ public record Point(double x, double y) implements TwoDimensional, Comparable<Po
         return "(" + x + "|" + y + ")";
     }
     
+    /**
+     * Adds x and y offsets to the point
+     *
+     * @param x X offset to be added
+     * @param y Y offset to be added
+     * @return New point, offset by the specified values
+     */
     public Point plus(double x, double y) {
         return new Point(this.x + x, this.y + y);
     }
     
+    /**
+     * Subtracts x and y offsets from the point
+     *
+     * @param x X offset to be subtracted
+     * @param y Y offset to be subtracted
+     * @return New point, offset by the specified values
+     */
     public Point minus(double x, double y) {
         return new Point(this.x - x, this.y - y);
     }
     
+    /**
+     * Adds a two-dimensional object to the point
+     *
+     * @param other two-dimensional offset to be added ({@link Point} or {@link Vec2D})
+     * @return New point, offset by the specified value
+     */
     public Point plus(TwoDimensional other) {
         return new Point(this.x + other.x(), this.y + other.y());
     }
     
+    /**
+     * Subtracts a two-dimensional object from the point
+     *
+     * @param other two-dimensional offset to be subtracted ({@link Point} or {@link Vec2D})
+     * @return New point, offset by the specified value
+     */
     public Point minus(TwoDimensional other) {
         return new Point(this.x - other.x(), this.y - other.y());
     }
     
+    /**
+     * Scales the point by a factor, essentially moving it away from (0|0) - if factor > 1 - or closer to it (if factor < 1)
+     *
+     * @param factor Factor to scale the point by
+     * @return A new point, scaled by the specified factor
+     */
     public Point scale(double factor) {
         return new Point(this.x * factor, this.y * factor);
     }
     
+    /**
+     * Divides the point by a factor, essentially moving it closer to (0|0) - if divider > 1 - or away from it (if divider < 1)
+     *
+     * @param divider Factor to 'divide' the point by
+     * @return A new point, divided by the specified factor
+     */
     public Point divide(double divider) {
         return new Point(this.x / divider, this.y / divider);
     }

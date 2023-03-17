@@ -18,7 +18,7 @@ import java.util.List;
 import static lethalhabit.util.Util.getFirstIntersection;
 
 /**
- * A movable object that interacts with the world.
+ * An abstract model for movable objects that interact with the world.
  */
 public abstract class Entity implements Tickable, Drawable {
     
