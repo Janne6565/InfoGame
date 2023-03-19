@@ -274,8 +274,6 @@ public final class GamePanel extends JPanel {
                 g.drawImage((Image) hpImageLost, (int) positionDrawen.x(), (int) positionDrawen.y(), sizeSingle, sizeSingle, null);
             }
         }
-
-
     }
 
     private double displayedPercXPBar = 0;

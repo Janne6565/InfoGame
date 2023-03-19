@@ -454,6 +454,9 @@ public class Player extends Entity {
         recoil = damageSource.source.position.x() > position.x() ? new Vec2D(-damageSource.knockback, 0) : new Vec2D(damageSource.knockback, 0);
         hp -= damageSource.damage;
         resetRecoil = 300;
+        if (hp <= 0) {
+            Main.close();
+        }
     }
     
 }
