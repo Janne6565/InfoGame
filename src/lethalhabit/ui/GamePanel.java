@@ -95,7 +95,6 @@ public final class GamePanel extends JPanel {
         Main.tick(g);
         Graphics2D graphics2D = (Graphics2D) g;
         if (!Main.IS_GAME_LOADING) {
-    
             double opacitySecondaryLayer = Main.camera.getOpacityOfSecondaryLayer();
             if (opacitySecondaryLayer > 0) {
                 BufferedImage mainLayer = exportLayer(Main.camera.layerRendering, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
@@ -218,7 +217,7 @@ public final class GamePanel extends JPanel {
                 drawMap(g);
                 drawTooltip(g, timeDelta);
 
-                drawGui(g);
+                // drawGui(g);
             }
             case Camera.LAYER_MENU -> {
                 BufferedImage backgroundImage = Animation.MAIN_MENU_BACKGROUND_ANIMATION.getCurrentFrame(timeInGame);

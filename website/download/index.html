@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Lethal Habit</title>
+</head>
+<body>
+    <div id="app">
+        <nav>
+            <p class="leftSide">
+                Lethal Habit
+            </p>
+            <p class="rightSide">
+                <button @click="redirect('./../index.html', false)">Home</button>
+                <button @click="redirect('https://github.com/Janne6565/InfoGame', true)">Source Code</button>
+                <button @click="redirect('../download/index.html', false)">Tutorial</button>  
+            </p>
+        </nav>
+        <header>
+            <div class="background" id="backgroundParent">
+
+            </div>
+            <h1 class="title">
+                Installation
+            </h1>
+        </header>           
+        <section class="content">
+            <div class="container">
+                <h2 class="headline">Lethal Habit Installation Instructions</h2>
+                <br>
+                <ol>
+                    <li>
+                        Download the
+                        <a href="assets/Lethal_Habit_Installer.exe" download="Lethal Habit Installer.exe">Installer</a>
+                    </li>
+                    <li>Your antivirus might Flag the Installer as a trojan, this is a false positive - <a href="https://stackoverflow.com/questions/68834409/program-installed-with-inno-setup-seen-as-trojan-wacatac-bml">https://stackoverflow.com/questions/68834409/program-installed-with-inno-setup-seen-as-trojan-wacatac-bml</a></li>
+                    <li>
+                        Run the installer
+                    </li>
+                    <li>For additional instructions how to play the game look into the <a href="../tutorial/index.html">Tutorial tab</a></li>
+                </ol>
+            </div>
+        </section>
+    </div>
+    <script src="vue.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

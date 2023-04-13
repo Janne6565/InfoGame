@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Lethal Habit</title>
+</head>
+<body>
+    <div id="app">
+        <nav>
+            <p class="leftSide">
+                Lethal Habit
+            </p>
+            <p class="rightSide">
+                <button @click="redirect('../index.html', false)">Home</button>
+                <button @click="redirect('https://github.com/Janne6565/InfoGame', true)">Source Code</button>
+                <button @click="redirect('../download/index.html', false)">Installation</button>
+            </p>
+        </nav>
+        <header>
+            <div class="background" id="backgroundParent">
+
+            </div>
+            <h1 class="title">Tutorial</h1>
+        </header>           
+        <section class="content">
+            <div class="container">
+                <h2 class="headline">Get Started with Lethal Habit: Basic Controls and User Interface Tutorial</h2>
+                <p>
+                    Welcome to Lethal Habit, a Metroidvania sidescroller that is still in beta. As such, not everything inside the game is finished yet, but we hope you'll enjoy what's available so far. In this tutorial, we'll go over the basic controls and user interface to get you started. <br>
+                </p>
+
+                <h3>Basic Controls:</h3>
+                <ul>
+                    <li>A: move left</li>
+                    <li>D: move right</li>
+                    <li>Space: jump/swim up</li>
+                    <li>W (hold): look up</li>
+                    <li>S (hold): look down</li>
+                    <li>B: attack</li>
+                </ul>
+                <br>
+                <h3>User Interface:</h3> 
+                <p>
+                    The game is separated into different layers, which can be displayed by pressing their corresponding number:
+                </p>
+
+                <ul>
+                    <li>0: real game</li>
+                    <li>1: main menu</li>
+                    <li>2: map</li>
+                    <li>3: skill tree</li>
+                </ul>
+                <br>
+                <h3>Skill Tree:</h3>
+                <p>
+                    To navigate the skill tree, simply hold left click on a skill to upgrade it. Each upgrade requires one skill tree point, which you can see in the top right corner of the screen. You currently have 100 free skill tree points from the beginning to be able to test everything. Some skills have sub-skills, which can be accessed by right-clicking on the skill. To go back to the top layer, press escape.
+                </p>
+                <p>
+                    We hope this tutorial has been helpful in getting you started with Lethal Habit. Have fun exploring the world of rock music and danger!
+                </p>
+            </div>
+    </div>
+    <script src="vue.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
