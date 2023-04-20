@@ -250,7 +250,7 @@ public final class Hitbox implements Iterable<Point> {
     public Dimension getSize() {
         return new Dimension((int) (maxX() - minX()), (int) (maxY() - minY()));
     }
-    
+
     public enum Type {
         
         FULL(new Point[]{new Point(0, 0), new Point(Main.TILE_SIZE, 0), new Point(Main.TILE_SIZE, Main.TILE_SIZE), new Point(0, Main.TILE_SIZE)}),

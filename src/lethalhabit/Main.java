@@ -44,14 +44,14 @@ public final class Main {
     public static final Settings SETTINGS = new Settings();
     
     public static final boolean MINIMIZED = false;
-    public static final boolean DEBUG_HITBOX = false;
+    public static final boolean DEBUG_HITBOX = true;
     
     /**
      * if true you gain following ability's:
      * - Teleport
      * - Map Renderer
      */
-    public static final boolean DEVELOPER_MODE = false;
+    public static final boolean DEVELOPER_MODE = true;
     
     public static final Color HITBOX_STROKE_COLOR = Color.RED;
     public static final Color PROGRESS_BAR_COLOR = new Color(0x7030e0);

@@ -28,7 +28,9 @@ public abstract class Entity implements Tickable, Drawable {
      * <code>true</code> if the entity is affected by gravity, <code>false</code> otherwise
      */
     public boolean TAKES_GRAVITY = true;
-    
+
+    public boolean isAnimated = true;
+
     /**
      * Relative hitbox of the entity (relative to upper left corner)
      */
@@ -155,7 +157,7 @@ public abstract class Entity implements Tickable, Drawable {
             recoil = recoil.x() < 0 ? new Vec2D(Math.min(recoil.x() + resetRecoil * timeDelta, 0), recoil.y()) : new Vec2D(Math.max(recoil.x() - resetRecoil * timeDelta, 0), recoil.y());
         }
         if (recoil.y() != 0) {
-            recoil = recoil.y() < 0 ? new Vec2D(recoil.x(), Math.min(recoil.y() + resetRecoil * timeDelta, 0)) : new Vec2D(recoil.y(), Math.max(recoil.y() - resetRecoil * timeDelta, 0));
+            recoil = recoil.y() < 0 ? new Vec2D(recoil.x(), Math.min(recoil.y() + resetRecoil * timeDelta, 0)) : new Vec2D(recoil.x(), Math.max(recoil.y() - resetRecoil * timeDelta, 0));
         }
         
         Hitbox hitboxBefore = hitbox.shift(position);
@@ -181,9 +183,12 @@ public abstract class Entity implements Tickable, Drawable {
         if (beforeMinX != afterMinX || beforeMaxX != afterMaxX || beforeMinY != afterMinY || beforeMaxY != afterMaxY) {
             changeTiles(hitboxBefore, hitboxAfter);
         }
+
         checkDirections(timeDelta);
         age += timeDelta;
-        graphic = getCurrentFrame(getTimeAnimation());
+        if (isAnimated) {
+            graphic = getCurrentFrame(getTimeAnimation());
+        }
     }
     
     public BufferedImage getCurrentFrame(double timeAnimation) {
