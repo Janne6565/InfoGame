@@ -16,7 +16,6 @@ import lethalhabit.util.Util;
 import lethalhabit.world.Block;
 import lethalhabit.world.Liquid;
 import lethalhabit.world.Tile;
-import org.ietf.jgss.GSSManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -114,15 +113,9 @@ public final class Main {
      * - assets <br>
      */
     public static void gameInit() {
-        loadMap();
-        loadSettings();
-        setupCamera();
-        Animation.load();
-        Block.load();
-        Liquid.load();
-        GamePanel.generateMinimap();
-        loadBackgrounds();
-        GAME_PANEL.instantiateButtons();
+        System.out.println("Starting Loading");
+        loadEverything();
+        System.out.println("Finished Loading");
         mainCharacter = new Player(Point.SPAWN); // TODO: load skills from file
         mainCharacter.spawn();
         IS_GAME_LOADING = false;
@@ -142,6 +135,19 @@ public final class Main {
         
         EventArea growshroom = new GrowShroom(new Point(3718, 500));
         Util.registerEventArea(growshroom);
+    }
+    
+    public static void loadEverything() {
+        loadMap();
+        loadSettings();
+        setupCamera();
+        Animation.load();
+        Block.load();
+        Liquid.load();
+        GamePanel.generateMinimap();
+        loadBackgrounds();
+        Coin.loadCoinImages();
+        GAME_PANEL.instantiateButtons();
     }
     
     private static void loadBackgrounds() {
@@ -216,6 +222,8 @@ public final class Main {
         }
     }
     
+    private static List<Integer> lastActiveKeys = new ArrayList<>();
+    
     public static void handleKeyInput(double timeDelta, Graphics graphics) {
         GAME_PANEL.handleMouseInputs(MouseInfo.getPointerInfo(), activeMouseButtons, timeDelta, graphics);
         
@@ -269,6 +277,18 @@ public final class Main {
                         }
                     }
                     
+                    if (activeKeys.contains(VK_G)) {
+                        try {
+                            if (!lastActiveKeys.contains(VK_G)) {
+                                Coin coin = new Coin(mainCharacter.position, 2);
+                                coin.spawn();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    
+                    
                     if (IS_GAME_RUNNING) {
                         if (activeKeys.contains(VK_B)) {
                             mainCharacter.hit();
@@ -294,7 +314,7 @@ public final class Main {
                         }
                         
                         if (activeKeys.contains(VK_A) && !activeKeys.contains(VK_D)) {
-                            if (!mainCharacter.isSubmerged()) {
+                            if (!mainCharacter.isSubmerged()) { // Somethings off here ig
                                 mainCharacter.moveLeft(timeDelta);
                             } else {
                                 mainCharacter.moveLeft(timeDelta);
@@ -332,6 +352,7 @@ public final class Main {
                 }
             }
         }
+        lastActiveKeys = new ArrayList<>(activeKeys);
     }
     
     /**

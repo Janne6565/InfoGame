@@ -17,8 +17,8 @@ public abstract class Item extends Interactable {
             new Point(0, 20)
     );
     
-    public Item(Point position, BufferedImage graphic) {
-        super(position, HITBOX, graphic);
+    public Item(Point position) {
+        super(position, HITBOX);
     }
     
     @Override

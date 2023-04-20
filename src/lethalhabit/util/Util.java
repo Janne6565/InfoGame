@@ -101,7 +101,7 @@ public final class Util {
                         Entity entity = entityClass.getDeclaredConstructor(Point.class).newInstance(new Point(x, y));
                         EventArea spawnArea = new EventArea(new Point(minX, minY), new Hitbox(new Point[]{
                                 new Point(0, 0), new Point(spawnRange.width, 0), new Point(spawnRange.width, spawnRange.height), new Point(0, spawnRange.height)
-                        }), null) {
+                        })) {
                             @Override
                             public void onEnter(Player player) {
                                 entity.spawn();
@@ -342,6 +342,18 @@ public final class Util {
     public static BufferedImage getImage(String path) {
         try {
             return ImageIO.read(Objects.requireNonNull(Util.class.getResourceAsStream(path)));
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+    
+    public static BufferedImage getImage(String path, int width, int height) {
+        try {
+            BufferedImage image = ImageIO.read(Objects.requireNonNull(Util.class.getResourceAsStream(path)));
+            BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+            Graphics graphic = scaledImage.getGraphics();
+            graphic.drawImage(image, 0, 0, width, height, null);
+            return image;
         } catch (Exception ex) {
             return null;
         }

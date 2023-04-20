@@ -11,16 +11,16 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class GrowShroom extends Interactable {
-    public static Hitbox hitbox = new Hitbox(new Point[]{
-            new Point(0, 0),
-            new Point(40, 0),
-            new Point(40, 40),
-            new Point(0, 40)
-    });
-    public static BufferedImage graphic = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+    
+    public static Hitbox hitbox = new Hitbox(
+        new Point(0, 0),
+        new Point(40, 0),
+        new Point(40, 40),
+        new Point(0, 40)
+    );
     
     public GrowShroom(Point position) {
-        super(position, hitbox, graphic);
+        super(position, hitbox);
     }
     
     @Override

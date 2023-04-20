@@ -15,17 +15,12 @@ import java.awt.image.BufferedImage;
 /**
  * An event area - an area in the game that defines reactions to certain actions (like entering or leaving the event area)
  */
-public abstract class EventArea implements Drawable {
+public abstract class EventArea {
     
     /**
      * Relative hitbox of the event area
      */
     public final Hitbox hitbox;
-    
-    /**
-     * Display image of the event area, <code>null</code> if there is none
-     */
-    public final BufferedImage graphic;
     
     /**
      * Absolute position of the event area (top left corner)
@@ -37,13 +32,10 @@ public abstract class EventArea implements Drawable {
      *
      * @param position Absolute position
      * @param hitbox   Relative hitbox
-     * @param graphic  Display image
      */
-    public EventArea(Point position, Hitbox hitbox, BufferedImage graphic) {
+    public EventArea(Point position, Hitbox hitbox) {
         this.position = position;
         this.hitbox = hitbox;
-        this.graphic = graphic;
-        Main.drawables.add(this);
     }
     
     /**
@@ -113,38 +105,4 @@ public abstract class EventArea implements Drawable {
      */
     public void onKeyInput(Player player, int key, float timeDelta) {
     }
-    
-    /**
-     * @see Drawable#draw(Graphics)
-     */
-    @Override
-    public void draw(Graphics g) {
-        Drawable.super.draw(g);
-        if (Main.DEBUG_HITBOX) {
-            for (LineSegment line : hitbox.shift(position).edges()) {
-                Util.drawLineSegment(g, line);
-            }
-        }
-    }
-    
-    @Override
-    public BufferedImage getGraphic() {
-        return graphic;
-    }
-    
-    @Override
-    public Dimension getSize() {
-        return hitbox.getSize();
-    }
-    
-    @Override
-    public Point getPosition() {
-        return position;
-    }
-    
-    @Override
-    public int layer() {
-        return Camera.LAYER_GAME;
-    }
-    
 }

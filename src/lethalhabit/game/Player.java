@@ -67,6 +67,12 @@ public class Player extends Entity {
      * At 0 hp or less, the player dies
      */
     public int hp = maxHp;
+    
+    
+    /**
+     * Coins used as ingame currency
+     */
+    public int coins = 0;
 
     /**
      * Individual skill and ability set of the player, updated and controlled by the {@link Player#skillTree}

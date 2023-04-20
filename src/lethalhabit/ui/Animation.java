@@ -8,9 +8,8 @@ import lethalhabit.util.Util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Spliterator;
+import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Animation implements Iterable<BufferedImage> {
@@ -46,7 +45,7 @@ public class Animation implements Iterable<BufferedImage> {
     public final double frameTime;
     public final double length; // Time needed to run the animation
     public final double animationOffset;
-
+    
     public static void loadAnimations() {
         // Player Animations
         PLAYER_IDLE_RIGHT = new Animation(0.0416, "playerIdle", Player.WIDTH * Main.scaledPixelSize(), 0);
@@ -114,7 +113,14 @@ public class Animation implements Iterable<BufferedImage> {
         this.length = frameTime * frameCount;
         this.frames = frames;
     }
-
+    
+    public Animation(BufferedImage singleImage) {
+        this.frameTime = 1;
+        this.length = 1;
+        this.animationOffset = 0;
+        this.frames = new ArrayList<>(Arrays.asList(singleImage));
+    }
+        
     public ArrayList<BufferedImage> getMirroredAnimation() {
         ArrayList<BufferedImage> newFrames = new ArrayList<>();
         for (BufferedImage image : frames) {

@@ -28,10 +28,9 @@ public abstract class Interactable extends EventArea {
      *
      * @param position Absolute position
      * @param hitbox Relative hitbox of the interactable
-     * @param graphic Display image (may be <code>null</code>)
      */
-    public Interactable(Point position, Hitbox hitbox, BufferedImage graphic) {
-        super(position, hitbox, graphic);
+    public Interactable(Point position, Hitbox hitbox) {
+        super(position, hitbox);
     }
     
     /**

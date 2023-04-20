@@ -11,8 +11,7 @@ import java.awt.event.KeyEvent;
 public class TestEventArea extends EventArea {
     
     public TestEventArea(Point position, Hitbox hitbox) {
-        super(position, hitbox, null);
-        Main.drawables.add(this);
+        super(position, hitbox);
     }
     
     @Override

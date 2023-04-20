@@ -183,8 +183,12 @@ public abstract class Entity implements Tickable, Drawable {
         }
         checkDirections(timeDelta);
         age += timeDelta;
+        graphic = getCurrentFrame(getTimeAnimation());
+    }
+    
+    public BufferedImage getCurrentFrame(double timeAnimation) {
         animation = getAnimation();
-        graphic = animation.getCurrentFrame(getTimeAnimation());
+        return animation.getCurrentFrame(getTimeAnimation());
     }
     
     public void changeTiles(Hitbox hitboxBefore, Hitbox hitboxAfter) { }
