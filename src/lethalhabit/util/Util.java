@@ -490,12 +490,10 @@ public final class Util {
     }
     
     public static boolean isLineObstructed(LineSegment line) {
-        Hitbox lineEnvironment = new Hitbox(new Point[]{
-                new Point(line.minX(), line.minY()),
+        Hitbox lineEnvironment = new Hitbox(new Point(line.minX(), line.minY()),
                 new Point(line.maxX(), line.minY()),
                 new Point(line.maxX(), line.maxY()),
-                new Point(line.minX(), line.maxY())
-        });
+                new Point(line.minX(), line.maxY()));
         List<Hitbox> possibleCollisions = getPossibleCollisions(lineEnvironment, new Vec2D(0, 0), 0);
         for (Hitbox hitbox : possibleCollisions) {
             for (LineSegment line2 : hitbox.edges()) {

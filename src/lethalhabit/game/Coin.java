@@ -87,6 +87,7 @@ public class Coin extends Entity {
     public void tick(Double timeDelta) {
         // float time = System.currentTimeMillis();
         super.tick(timeDelta);
+        System.out.println("Drawen Time: " + timeTakenToDraw);
         timeTakenToDraw = 0;
         // System.out.println(time - System.currentTimeMillis());
     }

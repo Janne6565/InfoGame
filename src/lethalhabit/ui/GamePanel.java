@@ -4,6 +4,7 @@ import lethalhabit.Main;
 import lethalhabit.game.skills.SkillTree;
 import lethalhabit.math.Hitbox;
 import lethalhabit.math.LineSegment;
+import lethalhabit.math.Vec2D;
 import lethalhabit.util.Util;
 import lethalhabit.world.Block;
 import lethalhabit.world.Liquid;
@@ -13,6 +14,7 @@ import lethalhabit.math.Point;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
@@ -89,6 +91,9 @@ public final class GamePanel extends JPanel {
         minimap = new Minimap();
     }
 
+
+    BufferedImage vignette = null;
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -101,7 +106,7 @@ public final class GamePanel extends JPanel {
                 AlphaComposite ac1 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) ((float) 1.0 - opacitySecondaryLayer));
                 graphics2D.setComposite(ac1);
                 graphics2D.drawImage(mainLayer, 0, 0, null);
-    
+
                 BufferedImage secondaryLayer = exportLayer(Main.camera.layerBefore, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
                 AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) opacitySecondaryLayer);
                 graphics2D.setComposite(ac);
@@ -110,6 +115,13 @@ public final class GamePanel extends JPanel {
                 BufferedImage mainLayer = exportLayer(Main.camera.layerRendering, graphics2D.getClipBounds().width, graphics2D.getClipBounds().height);
                 graphics2D.drawImage(mainLayer, 0, 0, null);
             }
+
+            if (vignette == null) {
+                vignette = vignette(new BufferedImage(Main.screenWidth, Main.screenHeight, BufferedImage.TYPE_4BYTE_ABGR), 20);
+            }
+
+            // graphics2D.drawImage(vignette, 0, 0, null);
+
             if (Main.DEVELOPER_MODE) {
                 graphics2D.drawString(Main.mainCharacter.position.toString(), 100, 100);
                 graphics2D.drawString("(" + (int) (Main.mainCharacter.position.x() / Main.TILE_SIZE) + "|" + (int) (Main.mainCharacter.position.y() / Main.TILE_SIZE) + ")", 100, 130);
@@ -216,6 +228,7 @@ public final class GamePanel extends JPanel {
                 }
                 drawMap(g);
                 drawTooltip(g, timeDelta);
+                drawDebugDirections(g);
 
                 // drawGui(g);
             }
@@ -257,6 +270,20 @@ public final class GamePanel extends JPanel {
         
         drawXPBar(timeDelta, g);
         return outputImage;
+    }
+
+    private void drawDebugDirections(Graphics2D g) {
+        Point playerPosition = Main.mainCharacter.getPosition();
+        Vec2D playerDirection = Main.mainCharacter.getTotalVelocity();
+
+        Point[] playerHitboxPoints = Main.mainCharacter.hitbox.vertices;
+
+        Vec2D directionScaled = playerDirection.scale(.5);
+        for (Point point : playerHitboxPoints) {
+            Point pointAddedTogether = point.plus(playerPosition);
+            Point secPoint = pointAddedTogether.plus(directionScaled);
+            Util.drawLineSegment(g, new LineSegment(pointAddedTogether, secPoint));
+        }
     }
 
     private void drawGui(Graphics2D g) {
@@ -568,4 +595,29 @@ public final class GamePanel extends JPanel {
     public void xpGained() {
         timeSinceXpGained = 0;
     }
+
+    public static BufferedImage vignette(BufferedImage image, int p) {
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        int rad;
+        Graphics2D g2d = result.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        if (image.getWidth() < image.getHeight()) {
+            int o = (image.getHeight() * 2) / 100;
+            rad = image.getHeight() - o * p / 3;
+        } else {
+            int o = (image.getWidth() * 2) / 100;
+            rad = image.getWidth() - o * p / 3;
+        }
+        Rectangle rect = new Rectangle(0, 0, image.getWidth(), image.getHeight());
+        Ellipse2D.Double ellipse = new Ellipse2D.Double(rect.x, rect.y, rect.width, rect.height);
+        Color[] colors = new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 0, 255)};
+        float[] pos = new float[]{0.0f, 1.0f};
+        RadialGradientPaint gradientPaint = new RadialGradientPaint((float) rect.getCenterX(), (float) rect.getCenterY(), rad, pos, colors, MultipleGradientPaint.CycleMethod.NO_CYCLE);
+        g2d.setPaint(gradientPaint);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+        g2d.fill(ellipse);
+        g2d.dispose();
+        return result;
+    }
+
 }
